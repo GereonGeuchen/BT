@@ -8,10 +8,10 @@ from ioh import ProblemClass
 from modcma import ModularCMAES, Parameters
 import numpy as np
 
-from bfgs import BFGS
-from pso import PSO
-from mlsl import MLSL
-from de import DE
+# from bfgs import BFGS
+# from pso import PSO
+# from mlsl import MLSL
+# from de import DE
 import warnings
 from itertools import product
 from functools import partial
@@ -192,7 +192,7 @@ def collect_A1_data(budget_factor, dim = 5):
 
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'A1_testing_data/A1_B{budget_factor*dim}_{dim}D',
+        folder_name=f'A1_data/A1_B{budget_factor*dim}_{dim}D',
         algorithm_name='ModCMA_A1',
         store_positions=True
     )
@@ -200,7 +200,7 @@ def collect_A1_data(budget_factor, dim = 5):
     logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
     
     for fid in range(1,25):
-        for iid in range(6,9):
+        for iid in range(1,6):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
             problem.attach_logger(logger)
             
@@ -237,7 +237,7 @@ def collect_A2(budget_factor, dim, A2, algname):
     logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
     
     for fid in range(1,25):
-        for iid in range(6,9):
+        for iid in range(1,6):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
             problem.attach_logger(logger)
             
@@ -258,10 +258,10 @@ def collect_A2(budget_factor, dim, A2, algname):
             
 def collect_all(x):
     budget_factor, dim = x
-    # collect_A1_data(budget_factor, dim)
-    for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
-        collect_A2(budget_factor, dim, A2, algname)
-    collect_A2(budget_factor, dim, BFGS, "BFGS")
+    collect_A1_data(budget_factor, dim)
+    # for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
+    #     collect_A2(budget_factor, dim, A2, algname)
+    # collect_A2(budget_factor, dim, BFGS, "BFGS")
                 
                 
 def get_combinations():
