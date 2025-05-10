@@ -2,6 +2,7 @@ import os
 import shutil
 import argparse
 from dataclasses import dataclass, fields
+import pandas as pd
 
 import ioh
 from ioh import ProblemClass
@@ -269,14 +270,84 @@ def get_combinations():
     dim = 5
     return [(bf, dim) for bf in budget_factors]
             
+def process_ioh_data(base_path):
+    dim = 5
+    for budget_dir in os.listdir(base_path):
+        if not (budget_dir == 'A1_B900_5D' or budget_dir == 'A1_B950_5D' or budget_dir == 'A1_B1000_5D'):
+            continue
+        budget_path = os.path.join(base_path, budget_dir)
+        if not os.path.isdir(budget_path):
+            continue
+
+        all_rows = []
+
+        for func_dir in os.listdir(budget_path):
+            func_path = os.path.join(budget_path, func_dir)
+            if not os.path.isdir(func_path):
+                continue
+
+            # Extract fid from directory name like 'data_f1_Sphere'
+            try:
+                fid = int(func_dir.split('_')[1][1:])
+            except (IndexError, ValueError):
+                print(f"Skipping malformed directory: {func_dir}")
+                continue
+
+            dat_file = os.path.join(func_path, f"IOHprofiler_f{fid}_DIM{dim}.dat")
+            if not os.path.isfile(dat_file):
+                continue
+
+            try:
+                df = pd.read_csv(dat_file, delim_whitespace=True, comment="#", dtype=str)
+            except Exception as e:
+                print(f"Error reading {dat_file}: {e}")
+                continue
+
+            # Filter out repeated header rows
+            df = df[df['iid'] != 'iid']
+
+            # Convert selected columns to numeric
+            numeric_cols = ['evaluations', 'raw_y', 'rep', 'iid', 'x0', 'x1', 'x2', 'x3', 'x4']
+            df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
+
+            # Group by iid and compute true_y
+            for iid_val, group in df.groupby('iid'):
+                print(f"Processing fid={fid}, iid={iid_val}, budget dir={budget_dir}")
+                try:
+                    iid_int = int(float(iid_val))
+                    problem = ioh.get_problem(fid, iid_int, dim, ProblemClass.BBOB)
+                    optimum = problem.optimum.y
+                except Exception as e:
+                    print(f"Could not load problem fid={fid}, iid={iid_val}: {e}")
+                    continue
+
+                group = group[numeric_cols].copy()
+                group['fid'] = fid
+                group['true_y'] = group['raw_y'] + optimum
+                all_rows.append(group)
+
+        if all_rows:
+            combined = pd.concat(all_rows, ignore_index=True)
+
+            # Reorder columns
+            column_order = ['fid', 'iid', 'rep', 'evaluations', 'raw_y', 'true_y', 'x0', 'x1', 'x2', 'x3', 'x4']
+            combined = combined[column_order]
+
+            # Sort rows
+            combined = combined.sort_values(by=['fid', 'iid', 'rep']).reset_index(drop=True)
+
+            # Save CSV
+            output_path = os.path.join(base_path, f"{budget_dir}.csv")
+            combined.to_csv(output_path, index=False)
+            print(f"Saved: {output_path}")
 
 if __name__=='__main__':
-    warnings.filterwarnings("ignore", category=RuntimeWarning) 
-    warnings.filterwarnings("ignore", category=FutureWarning)
+    # warnings.filterwarnings("ignore", category=RuntimeWarning) 
+    # warnings.filterwarnings("ignore", category=FutureWarning)
     
     
-    x = get_combinations()
-    temp = list(x)
+    # x = get_combinations()
+    # temp = list(x)
 
-    partial_run = partial(collect_all)
-    runParallelFunction(partial_run, temp)
+    # partial_run = partial(collect_all)
+    # runParallelFunction
