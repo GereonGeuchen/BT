@@ -4,15 +4,20 @@ import seaborn as sns
 from sklearn.decomposition import PCA as SKPCA
 from sklearn.manifold import MDS
 import numpy as np
+import os
 
 # === Config ===
 USE_PCA = True  # If False, uses MDS
 USE_HIGH_LEVEL_CATEGORY = False
 DO_OUTLIER_ANALYSIS = False
-BUDGETS = [50*i for i in range(1, 21)]  # Budget values to analyze
-DATA_DIR = "A1_data_ela_normalized" # Attach _normalized to the directory name if normalization should be applied
+BUDGETS = [50 * i for i in range(1, 21)]  # Budget values to analyze
+DATA_DIR = "A1_data_ela_normalized"  # Attach _normalized if needed
 
-EXCLUDED_COLUMNS = ["ela_distr.costs_runtime", "ela_meta.costs_runtime", "ela_level.costs_runtime", "disp.costs_runtime", "ic.costs_runtime", "nbc.costs_runtime"]
+EXCLUDED_COLUMNS = [
+    "ela_distr.costs_runtime", "ela_meta.costs_runtime", "ela_level.costs_runtime",
+    "disp.costs_runtime", "ic.costs_runtime", "nbc.costs_runtime"
+]
+
 
 # EXCLUDED_COLUMNS = [
 #     "disp.diff_mean_02", "disp.diff_mean_05", "disp.diff_mean_10",
@@ -32,13 +37,14 @@ def load_and_clean_data(filepath, drop_columns):
     drop_cols = drop_columns + ['fid', 'iid', 'rep', 'high_level_category']
     df_clean = df.drop(columns=drop_cols, errors='ignore')
 
-    # Drop any column that contains at least one NaN value
-    df_clean = df_clean.dropna(axis=1, how='any')
+    # Identify and drop columns with NaNs
+    nan_columns = df_clean.columns[df_clean.isna().any()].tolist()
+    df_clean = df_clean.drop(columns=nan_columns)
 
-    # Also drop any remaining rows with NaNs (e.g., from inf replacements)
+    # Drop any rows with remaining NaNs after inf replacement
     df_clean = df_clean.replace([np.inf, -np.inf], np.nan).dropna()
 
-    return df, df_clean
+    return df, df_clean, nan_columns
 
 
 def apply_dimensionality_reduction(X, method='pca'):
@@ -77,10 +83,11 @@ def plot_2d_embedding(df_embed, x_col, y_col, color_col, title_prefix, budget):
 def analyze_outlier(df_embed, df_features, df_raw, columns, label_col, budget):
     df_embed['dist_to_origin'] = np.sqrt(df_embed[columns[0]]**2 + df_embed[columns[1]]**2)
     outlier_idx = df_embed['dist_to_origin'].idxmax()
-    # Fix function 5
-    outlier_idx = df_embed[df_raw['fid'] == 5].index[0]
-    outlier_label = df_embed.loc[outlier_idx, label_col]
 
+    # Optional: force specific outlier override
+    outlier_idx = df_embed[df_raw['fid'] == 5].index[0]
+
+    outlier_label = df_embed.loc[outlier_idx, label_col]
     print(f"\n=== Outlier Analysis for Budget {budget} ===")
     print(f"Outlier {label_col}: {outlier_label}")
 
@@ -103,12 +110,16 @@ def analyze_outlier(df_embed, df_features, df_raw, columns, label_col, budget):
     plt.show()
 
 
-# === Main Loop ===
+# === Main Analysis ===
+nan_report = {}  # budget -> list of dropped columns
+
 for budget in BUDGETS:
     file_path = f"{DATA_DIR}/A1_B{budget}_5D_ela.csv"
 
     try:
-        df_raw, df_features = load_and_clean_data(file_path, EXCLUDED_COLUMNS)
+        df_raw, df_features, nan_columns = load_and_clean_data(file_path, EXCLUDED_COLUMNS)
+        if nan_columns:
+            nan_report[budget] = nan_columns
     except FileNotFoundError:
         print(f"Skipping missing file: {file_path}")
         continue
@@ -125,3 +136,8 @@ for budget in BUDGETS:
 
     if DO_OUTLIER_ANALYSIS:
         analyze_outlier(df_embed, df_features, df_raw, columns, label_col, budget)
+
+# === Summary ===
+print("\n=== Summary of Dropped Columns per Budget ===")
+for budget, columns in nan_report.items():
+    print(f"Budget {budget}: {columns}")
