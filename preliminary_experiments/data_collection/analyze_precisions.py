@@ -186,8 +186,44 @@ def plot_switching_points_per_rep(df, fid, iid):
     plt.tight_layout()
     plt.show(block=False)
 
+def plot_function_switching_precisions(df, target_function=2):
+    """
+    Plots average precision (difference to global optimum) at each switching point,
+    with one line per instance and shaded variance bands (±1 std dev).
+    """
+    # Filter to the specified function
+    df = df[df["fid"] == target_function]
+
+    # Best precision across algorithms per rep
+    best_per_rep = df.groupby(["iid", "budget", "rep"])["precision"].min().reset_index()
+
+    # Compute mean and std for each instance and budget
+    stats = best_per_rep.groupby(["iid", "budget"])["precision"].agg(["mean", "std"]).reset_index()
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    for iid, group in stats.groupby("iid"):
+        group_sorted = group.sort_values("budget")
+        x = group_sorted["budget"]
+        y = group_sorted["mean"]
+        yerr = group_sorted["std"]
+
+        # Line plot
+        plt.plot(x, y, marker='o', label=f"Instance {iid}")
+        # Variance band
+        plt.fill_between(x, y - yerr, y + yerr, alpha=0.2)
+
+    plt.xlabel("Switching Point (Budget)")
+    plt.ylabel("Average Precision (log scale)")
+    #plt.yscale("log")
+    plt.title(f"Function {target_function}: Avg Precision ± Std by Switching Point")
+    plt.legend(title="Instance")
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+    plt.tight_layout()
+    plt.show(block=False)
 
 if __name__ == "__main__":
     df = pd.read_csv("A2_min_precisions_long_format.csv")
     plot_switching_points_per_rep(df, fid=2, iid=3)
+    plot_function_switching_precisions(df, target_function=2)
     input("Press Enter to continue...")
