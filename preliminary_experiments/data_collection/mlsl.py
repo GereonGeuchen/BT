@@ -91,9 +91,12 @@ class MLSL(Algorithm):
         """Warm start routine"""
         
         if 'pop' in parameters:
-            self.pop = parameters['pop']
+            self.pop = [np.array(p).flatten() for p in parameters['pop']]  
+            self.f = list(parameters['pop_f']) 
+            # print(f"Pop shape: {np.shape(self.pop)}, Pop f shape: {np.shape(self.f)}")
         else:
             self.pop = []
+
 
 
     def get_params(self, parameters):
@@ -159,7 +162,6 @@ class MLSL(Algorithm):
 
         # Start iteration
         while not self.stop():
-
             # Sample new points
             for i in range(0, self.popsize):
                 if self.uses_old_ioh:
@@ -174,6 +176,7 @@ class MLSL(Algorithm):
                     self.f.append(self.func(new_point))
                 else:
                     self.f.append(self.func(new_point))
+            # print(f"Population shape: {np.shape(self.pop)}")
 
 
             # Extract reduced sample xr

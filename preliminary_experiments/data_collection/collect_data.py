@@ -9,10 +9,10 @@ from ioh import ProblemClass
 from modcma import ModularCMAES, Parameters
 import numpy as np
 
-# from bfgs import BFGS
-# from pso import PSO
-# from mlsl import MLSL
-# from de import DE
+from bfgs import BFGS
+from pso import PSO
+from mlsl import MLSL
+from de import DE
 import warnings
 from itertools import product
 from functools import partial
@@ -170,6 +170,8 @@ class Switched_From_CMA():
         
         params = {}
         params['x_opt'] = cma.parameters.xopt
+        params['pop'] = cma.parameters.population.x.T
+        params['pop_f'] = cma.parameters.population.f
         params['stepsize'] = cma.parameters.sigma
         params['C'] = cma.parameters.C
         params['m'] = cma.parameters.m
@@ -230,7 +232,7 @@ def collect_A2(budget_factor, dim, A2, algname):
     
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'A2_testing_data/A2_{algname}_B{budget_factor*dim}_{dim}D',
+        folder_name=f'A2_data_warm_MLSL/A2_{algname}_B{budget_factor*dim}_{dim}D',
         algorithm_name=algname,
         store_positions=False,
     )
@@ -259,9 +261,8 @@ def collect_A2(budget_factor, dim, A2, algname):
             
 def collect_all(x):
     budget_factor, dim = x
-    collect_A1_data(budget_factor, dim)
-    # for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
-    #     collect_A2(budget_factor, dim, A2, algname)
+    for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
+        collect_A2(budget_factor, dim, A2, algname)
     # collect_A2(budget_factor, dim, BFGS, "BFGS")
                 
                 
@@ -345,12 +346,13 @@ def process_ioh_data(base_path):
 
 
 if __name__=='__main__':
-    # warnings.filterwarnings("ignore", category=RuntimeWarning) 
-    # warnings.filterwarnings("ignore", category=FutureWarning)
+    warnings.filterwarnings("ignore", category=RuntimeWarning) 
+    warnings.filterwarnings("ignore", category=FutureWarning)
     
     
-    # x = get_combinations()
-    # temp = list(x)
-
-    # partial_run = partial(collect_all)
-    # runParallelFunction
+    x = get_combinations()
+    temp = list(x)
+    # for combination in temp:
+    #     collect_all(combination
+    partial_run = partial(collect_all)
+    runParallelFunction(partial_run, temp)
