@@ -10,10 +10,13 @@ from pflacco.classical_ela_features import (
     calculate_information_content,
     calculate_nbc
 )
+from pflacco.sampling import create_initial_sample
 from sklearn.preprocessing import MinMaxScaler
+from ioh import ProblemClass, get_problem
+import csv
 
 
-def calculate_ela_features(budget=50, base_folder="A1_data", output_folder="A1_data_ela"):
+def calculate_ela_features(budget=50, base_folder="A1_data", output_folder="A1_data_ela_disp"):
     os.makedirs(output_folder, exist_ok=True)
     filename = f"A1_B{budget}_5D.csv"
     filepath = os.path.join(base_folder, filename)
@@ -25,6 +28,8 @@ def calculate_ela_features(budget=50, base_folder="A1_data", output_folder="A1_d
     first_write = True  # controls header
 
     for (fid, iid, rep), group in df.groupby(["fid", "iid", "rep"]):
+        int_rep = int(rep)
+        np.random.seed(int_rep)
         print(f"Processing fid: {fid}, iid: {iid}, rep: {rep}, budget: {budget}")
         group = group.reset_index(drop=True)
         X = group[x_cols].to_numpy()
@@ -84,7 +89,7 @@ def calculate_ela_features(budget=50, base_folder="A1_data", output_folder="A1_d
 
     print(f"Completed processing for budget: {budget}")
 
-def normalize_ela_features(input_folder="A1_data_ela", output_folder="A1_data_ela_normalized"):
+def normalize_ela_features(input_folder="A1_data_ela_disp", output_folder="A1_data_ela_disp_normalized"):
     os.makedirs(output_folder, exist_ok=True)
     for filename in os.listdir(input_folder):
         if filename.endswith(".csv"):
@@ -105,14 +110,106 @@ def normalize_ela_features(input_folder="A1_data_ela", output_folder="A1_data_el
 
             print(f"Normalized and saved: {filename}")
 
+def normalize_single_ela_file(input_path, output_path):
+    # Load CSV
+    df = pd.read_csv(input_path)
+
+    # Separate metadata and features
+    metadata = df.iloc[:, :4]
+    features = df.iloc[:, 4:]
+
+    # Detect and drop columns with NaN or inf values
+    invalid_cols = features.columns[
+        features.isnull().any() | features.isin([np.inf, -np.inf]).any()
+    ].tolist()
+
+    if invalid_cols:
+        print(f"Dropping columns with NaN or inf in {os.path.basename(input_path)}:")
+        for col in invalid_cols:
+            print(f"  - {col}")
+        features = features.drop(columns=invalid_cols)
+
+    # Normalize remaining features
+    scaler = MinMaxScaler()
+    features_normalized = pd.DataFrame(scaler.fit_transform(features), columns=features.columns)
+
+    # Combine and save
+    df_normalized = pd.concat([metadata, features_normalized], axis=1)
+    dir_path = os.path.dirname(output_path)
+    if dir_path:
+        os.makedirs(dir_path, exist_ok=True)
+    df_normalized.to_csv(output_path, index=False)
+
+    print(f"✅ Normalized and saved: {output_path}")
+
+# === Categorization ===
+def categorize(fid):
+    if fid in [1, 2, 3, 4, 5]:
+        return 1
+    elif fid in [6, 7, 8, 9]:
+        return 2
+    elif fid in [10, 11, 12, 13, 14]:
+        return 3
+    elif fid in [15, 16, 17, 18, 19]:
+        return 4
+    elif fid in [20, 21, 22, 23, 24]:
+        return 5
+    else:
+        return -1
+
+# === Worker task ===
+def create_sample(fid, instance, run, dim, file_path):
+    print(f"Running function: {fid}, instance: {instance}, run: {run}")
+    
+    problem = get_problem(fid, instance, dim, ProblemClass.BBOB)
+    X = create_initial_sample(dim, sample_type="lhs", lower_bound=-5, upper_bound=5, n=200 * dim)
+    y = X.apply(lambda x: problem(x), axis=1)
+
+    features = {}
+    features["fid"] = fid
+    features["iid"] = instance
+    features["rep"] = run
+    features["high_level_category"] = categorize(fid)
+    features.update(calculate_ela_distribution(X, y))
+    features.update(calculate_ela_meta(X, y))
+    features.update(calculate_ela_level(X, y))
+    features.update(calculate_dispersion(X, y))
+    features.update(calculate_information_content(X, y))
+    features.update(calculate_nbc(X, y))
+
+    # Write to CSV directly here
+    dir_path = os.path.dirname(file_path)
+    if dir_path:
+        os.makedirs(dir_path, exist_ok=True)
+
+    file_exists = os.path.isfile(file_path)
+    with open(file_path, mode="a", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=features.keys())
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(features)
+
+    # Filter out ".costs_runtime"
+    # features = {k: v for k, v in features.items() if not k.endswith(".costs_runtime")}
+
+def add_rep_column(input_path, output_path):
+    df = pd.read_csv(input_path)
+
+    # Group by (fid, iid, high_level_category) and assign a counter
+    df['rep'] = df.groupby(['fid', 'iid', 'high_level_category']).cumcount()
+
+    # Reorder columns to place 'rep' after 'iid'
+    cols = df.columns.tolist()
+    iid_index = cols.index('iid')
+    # Remove and re-insert 'rep'
+    cols.remove('rep')
+    cols.insert(iid_index + 1, 'rep')
+    df = df[cols]
+
+    # Save the modified file
+    df.to_csv(output_path, index=False)
+    print(f"✅ 'rep' column added and saved to: {output_path}")
 
 if __name__ == "__main__":
-    # budgets = (50*i for i in range(7, 21))
-    # with warnings.catch_warnings():
-    #     warnings.filterwarnings("ignore", category=UserWarning)
-    #     warnings.filterwarnings("ignore", category=RuntimeWarning)
-
-    #     for budget in budgets:
-    #         calculate_ela_features(budget=budget)
-    #         print(f"Completed ELA feature calculation for budget: {budget}")
-    normalize_ela_features()
+    #normalize_single_ela_file("ela_initial_sampling.csv", "ela_initial_sampling_normalized.csv")
+    add_rep_column("ela_initial_sampling_normalized.csv", "ela_initial_sampling_with_normalized_rep.csv")

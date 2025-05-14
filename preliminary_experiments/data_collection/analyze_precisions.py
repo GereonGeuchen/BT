@@ -223,7 +223,9 @@ def plot_function_switching_precisions(df, target_function=2):
     plt.show(block=False)
 
 if __name__ == "__main__":
-    df = pd.read_csv("A2_min_precisions_long_format.csv")
-    plot_switching_points_per_rep(df, fid=2, iid=3)
-    plot_function_switching_precisions(df, target_function=2)
-    input("Press Enter to continue...")
+    df = extract_min_precisions_long_format(root_dir="A2_data_warm_MLSL", limit_to_eval_1000=True)
+    df.to_csv("A2_precisions_warmmlsl.csv", index=False)
+    # df = pd.read_csv("A2_precisions.csv")
+    # plot_switching_points_per_rep(df, fid=2, iid=3)
+    # plot_function_switching_precisions(df, target_function=2)
+    # input("Press Enter to continue...")

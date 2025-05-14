@@ -11,7 +11,7 @@ USE_PCA = True  # If False, uses MDS
 USE_HIGH_LEVEL_CATEGORY = False
 DO_OUTLIER_ANALYSIS = False
 BUDGETS = [50 * i for i in range(1, 21)]  # Budget values to analyze
-DATA_DIR = "A1_data_ela_normalized"  # Attach _normalized if needed
+DATA_DIR = "A1_data_ela_disp_normalized"  # Attach _normalized if needed
 
 EXCLUDED_COLUMNS = [
     "ela_distr.costs_runtime", "ela_meta.costs_runtime", "ela_level.costs_runtime",
