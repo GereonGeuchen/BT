@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm          # ✅ For color maps
 import matplotlib.colors as mcolors
+import seaborn as sns
 
 def extract_min_precisions_long_format(root_dir, limit_to_eval_1000=False):
     folder_pattern = re.compile(r"A2_(?P<algorithm>.+)_B(?P<budget>\d+)_5D")
@@ -117,7 +118,7 @@ def count_best_at_budget(df, target_budget):
 
     return count
 
-def count_best_at_budget_per_fid(df, target_budget):
+def count_best_at_budget_per_fid(df, target_budget, plot=False):
     """
     For each function ID (fid), counts the percentage of (iid, rep) combinations
     where `target_budget` is among the best switching points (lowest fopt).
@@ -125,6 +126,7 @@ def count_best_at_budget_per_fid(df, target_budget):
     Args:
         df (pd.DataFrame): DataFrame with columns ["fid", "iid", "rep", "budget", "fopt"].
         target_budget (int): The budget to evaluate.
+        plot (bool): Whether to plot the results.
 
     Returns:
         pd.DataFrame: Table with columns [fid, total_reps, count_at_target, percentage]
@@ -155,7 +157,105 @@ def count_best_at_budget_per_fid(df, target_budget):
     for _, row in result_df.iterrows():
         print(f"   - fid {row['fid']:2.0f}: {row['count_at_target']:4.0f} of {row['total_reps']:4.0f} reps → {row['percentage']:5.2f}%")
 
+    # Plot if requested
+    if plot:
+        plt.figure(figsize=(10, 5))
+        plt.plot(result_df["fid"], result_df["percentage"], marker='o', linestyle='-')
+        plt.xticks(result_df["fid"])  # Show all fids on x-axis
+        plt.xlabel("Function ID (fid)")
+        plt.ylabel(f"Percentage with budget {target_budget} as best (%)")
+        plt.title(f"Best Switching Point Frequency at Budget {target_budget}")
+        plt.ylim(0, 100)
+        plt.grid(True, linestyle='--', alpha=0.5)
+        plt.tight_layout()
+        plt.show()
+
     return result_df
+
+def count_best_at_budget_per_instance(df, target_budget, plot=False):
+    """
+    For each (fid, iid), compute percentage of reps where `target_budget` is the best budget.
+    Optionally plots all instances (fid × iid) with one dot per instance and colors per fid.
+
+    Args:
+        df (pd.DataFrame): DataFrame with columns ["fid", "iid", "rep", "budget", "fopt"].
+        target_budget (int): Budget to check.
+        plot (bool): Whether to plot the result.
+
+    Returns:
+        pd.DataFrame: Columns [fid, iid, total_reps, count_at_target, percentage]
+    """
+    def is_target_best(group):
+        min_fopt = group["precision"].min()
+        best_budgets = group[group["precision"] == min_fopt]["budget"]
+        return target_budget in best_budgets.values
+
+    results = []
+    for (fid, iid), group in df.groupby(["fid", "iid"]):
+        grouped = group.groupby("rep")
+        count = grouped.apply(is_target_best).sum()
+        total = len(grouped)
+        percentage = count / total * 100
+
+        results.append({
+            "fid": fid,
+            "iid": iid,
+            "total_reps": total,
+            "count_at_target": count,
+            "percentage": percentage
+        })
+
+    # Create DataFrame and sort by fid, iid
+    result_df = pd.DataFrame(results).sort_values(["fid", "iid"]).reset_index(drop=True)
+
+    # Generate per-fid iid labels (1–5)
+    result_df["plot_iid"] = result_df.groupby("fid").cumcount() + 1
+    x_labels = result_df["plot_iid"].astype(str).tolist()
+
+    print(f"Percentage of reps with budget {target_budget} as best switching point (per fid, iid):")
+    for _, row in result_df.iterrows():
+        print(f"   - fid {row['fid']:2.0f}, iid {row['iid']}: {row['count_at_target']:2.0f}/{row['total_reps']:2.0f} reps → {row['percentage']:5.1f}%")
+
+    if plot:
+        plt.figure(figsize=(14, 5))
+
+        # Use tab20 palette for clear categorical distinction
+        palette = sns.color_palette("tab20", n_colors=result_df["fid"].nunique())
+        fid_order = sorted(result_df["fid"].unique())
+        fid_colors = dict(zip(fid_order, palette))
+        colors = result_df["fid"].map(fid_colors)
+
+        # Plot
+        plt.scatter(range(len(result_df)), result_df["percentage"], c=colors, s=50, zorder=3)
+        plt.plot(result_df["percentage"], color="gray", alpha=0.3, zorder=2)
+
+        # X-axis: instance labels, colored by fid
+        plt.xticks(ticks=range(len(x_labels)), labels=x_labels, rotation=0)
+        ax = plt.gca()
+        for tick_label, fid in zip(ax.get_xticklabels(), result_df["fid"]):
+            tick_label.set_color(fid_colors[fid])
+
+        plt.xlabel("Instance ID (within function)")
+        plt.ylabel(f"Best at budget {target_budget} (%)")
+        plt.title(f"Per-instance: % of reps with budget {target_budget} as best")
+        plt.ylim(0, 105)
+        plt.grid(True, linestyle='--', alpha=0.5)
+
+        # Legend
+        handles = [plt.Line2D([0], [0], marker='o', color='w',
+                              label=f"fid {int(fid)}", markerfacecolor=col, markersize=8)
+                   for fid, col in fid_colors.items()]
+        plt.legend(handles=handles, bbox_to_anchor=(1.01, 1), loc='upper left', title="Function ID")
+
+        plt.tight_layout()
+        plt.show()
+
+    return result_df
+
+
+
+    return result_df
+
 
 def plot_switching_points_per_rep(df, fid, iid):
     """
@@ -186,7 +286,7 @@ def plot_switching_points_per_rep(df, fid, iid):
     plt.tight_layout()
     plt.show(block=False)
 
-def plot_function_switching_precisions(df, target_function=2):
+def plot_function_switching_precisions(df, target_function=2, save_dir=None, file_prefix="precision_plot"):
     """
     Plots average precision (difference to global optimum) at each switching point,
     with one line per instance and shaded variance bands (±1 std dev).
@@ -220,12 +320,70 @@ def plot_function_switching_precisions(df, target_function=2):
     plt.legend(title="Instance")
     plt.grid(True, which='both', linestyle='--', linewidth=0.5)
     plt.tight_layout()
+    # Save if path is given
+    if save_dir:
+        # Construct save path
+        if save_dir is None:
+            save_dir = "."
+        os.makedirs(save_dir, exist_ok=True)
+        filename = f"{file_prefix}_fid{target_function}.png"
+        full_path = os.path.join(save_dir, filename)
+
+        # Save
+        plt.savefig(full_path, dpi=300)
+        print(f"Plot saved to: {full_path}")
     plt.show(block=False)
 
+def plot_best_budget_percentages(df, budget_range=range(50, 1001, 50)):
+    """
+    Loops over budgets and plots the percentage of (fid, iid, rep) groups
+    where each budget is the best switching point (lowest fopt).
+
+    Args:
+        df (pd.DataFrame): DataFrame with columns ["fid", "iid", "rep", "budget", "precision"]
+        budget_range (iterable): Budgets to test (default: 50 to 1000 in steps of 50)
+    """
+    def is_target_best(group, target_budget):
+        min_fopt = group["precision"].min()
+        best_budgets = group[group["precision"] == min_fopt]["budget"]
+        return target_budget in best_budgets.values
+
+    grouped = df.groupby(["fid", "iid", "rep"])
+    total = len(grouped)
+
+    percentages = []
+    for budget in budget_range:
+        count = grouped.apply(lambda g: is_target_best(g, budget)).sum()
+        percent = count / total * 100
+        percentages.append(percent)
+
+    # Plotting
+    plt.figure(figsize=(10, 5))
+    plt.plot(list(budget_range), percentages, marker='o', linestyle='-')
+    plt.xlabel("Switching Point (Budget)")
+    plt.ylabel("Best Switching Point (%)")
+    plt.title("Percentage of Reps with Each Budget as Best Switching Point")
+    plt.ylim(0, 100)
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.tight_layout()
+    plt.show()
+
+    return pd.DataFrame({
+        "budget": list(budget_range),
+        "percentage": percentages
+    })
+
 if __name__ == "__main__":
-    df = extract_min_precisions_long_format(root_dir="A2_data_warm_MLSL", limit_to_eval_1000=True)
-    df.to_csv("A2_precisions_warmmlsl.csv", index=False)
+    # df = extract_min_precisions_long_format(root_dir="A2_data_warm_MLSL", limit_to_eval_1000=True)
+    # df.to_csv("A2_precisions_warmmlsl.csv", index=False)
     # df = pd.read_csv("A2_precisions.csv")
     # plot_switching_points_per_rep(df, fid=2, iid=3)
     # plot_function_switching_precisions(df, target_function=2)
     # input("Press Enter to continue...")
+    df = pd.read_csv("A2_precisions_warmmlsl.csv")
+    # count_best_at_budget_per_fid(df, target_budget=150, plot=True)
+    # count_best_at_budget_per_instance(df, target_budget=150, plot=True)
+    # for fid in range(1, 25):
+    #     plot_function_switching_precisions(df, target_function = fid, save_dir="../results/presicions")
+    # input("Press Enter to continue...")
+    plot_best_budget_percentages(df)
