@@ -1,4 +1,7 @@
+import sys
 import os 
+sys.path.append(os.path.join(os.path.dirname(__file__), 'algorithms'))
+
 import shutil
 import argparse
 from dataclasses import dataclass, fields
@@ -9,10 +12,10 @@ from ioh import ProblemClass
 from modcma import ModularCMAES, Parameters
 import numpy as np
 
-from bfgs import BFGS
-from pso import PSO
-from mlsl import MLSL
-from de import DE
+from bfgs import BFGS # type: ignore
+from pso import PSO # type: ignore
+from mlsl import MLSL # type: ignore
+from de import DE # type: ignore
 import warnings
 from itertools import product
 from functools import partial
@@ -230,19 +233,19 @@ def collect_A1_data(budget_factor, dim = 5):
 def collect_A2(budget_factor, dim, A2, algname):
     trigger = ioh.logger.trigger.OnImprovement()
     
-    logger = ioh.logger.Analyzer(
-        triggers=[trigger],
-        folder_name=f'A2_data_warm_MLSL/A2_{algname}_B{budget_factor*dim}_{dim}D',
-        algorithm_name=algname,
-        store_positions=False,
-    )
+    # logger = ioh.logger.Analyzer(
+    #     triggers=[trigger],
+    #     folder_name=f'A2_data_warm_MLSL/A2_{algname}_B{budget_factor*dim}_{dim}D',
+    #     algorithm_name=algname,
+    #     store_positions=False,
+    # )
     tracked_parameters = TrackedParameters()
-    logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
+    # logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
     
     for fid in range(1,25):
         for iid in range(1,6):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
-            problem.attach_logger(logger)
+            # problem.attach_logger(logger)
             
             for rep in range(20):
                 tracked_parameters.rep = rep
