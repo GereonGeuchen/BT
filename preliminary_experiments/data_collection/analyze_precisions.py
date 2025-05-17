@@ -230,22 +230,23 @@ def count_best_at_budget_per_instance(df, target_budget, plot=False):
         plt.plot(result_df["percentage"], color="gray", alpha=0.3, zorder=2)
 
         # X-axis: instance labels, colored by fid
-        plt.xticks(ticks=range(len(x_labels)), labels=x_labels, rotation=0)
+        plt.xticks(ticks=range(len(x_labels)), labels=x_labels, fontsize=12)
         ax = plt.gca()
         for tick_label, fid in zip(ax.get_xticklabels(), result_df["fid"]):
             tick_label.set_color(fid_colors[fid])
 
-        plt.xlabel("Instance ID (within function)")
-        plt.ylabel(f"Best at budget {target_budget} (%)")
-        plt.title(f"Per-instance: % of reps with budget {target_budget} as best")
+        plt.xlabel("Instance ID (within function)", fontsize=14)
+        plt.ylabel(f"Best at budget {target_budget} (%)", fontsize=14)
+        plt.title(f"Per-instance: % of reps with budget {target_budget} as best", fontsize=16)
         plt.ylim(0, 105)
+        plt.yticks(fontsize=12)
         plt.grid(True, linestyle='--', alpha=0.5)
 
-        # Legend
-        handles = [plt.Line2D([0], [0], marker='o', color='w',
-                              label=f"fid {int(fid)}", markerfacecolor=col, markersize=8)
-                   for fid, col in fid_colors.items()]
-        plt.legend(handles=handles, bbox_to_anchor=(1.01, 1), loc='upper left', title="Function ID")
+        # Legend (optional)
+        # handles = [plt.Line2D([0], [0], marker='o', color='w',
+        #                       label=f"fid {int(fid)}", markerfacecolor=col, markersize=8)
+        #            for fid, col in fid_colors.items()]
+        # plt.legend(handles=handles, bbox_to_anchor=(1.01, 1), loc='upper left', title="Function ID", fontsize=12)
 
         plt.tight_layout()
         plt.show()
@@ -357,14 +358,27 @@ def plot_best_budget_percentages(df, budget_range=range(50, 1001, 50)):
         percent = count / total * 100
         percentages.append(percent)
 
-    # Plotting
-    plt.figure(figsize=(10, 5))
-    plt.plot(list(budget_range), percentages, marker='o', linestyle='-')
-    plt.xlabel("Switching Point (Budget)")
-    plt.ylabel("Best Switching Point (%)")
-    plt.title("Percentage of Reps with Each Budget as Best Switching Point")
+     # Plotting
+    plt.figure(figsize=(12, 6))
+    plt.plot(list(budget_range), percentages, marker='o', linestyle='-', linewidth=2)
+
+    # Add a thick vertical black line at budget 150
+    plt.axvline(x=150, color='black', linestyle='--', linewidth=3, label='Budget 150')
+
+    # Add vertical gridlines every 100 units
+    for b in range(100, max(budget_range)+1, 100):
+        plt.axvline(x=b, color='gray', linestyle=':', linewidth=1)
+
+    # Improve text visibility
+    plt.xlabel("Switching Point (Budget)", fontsize=14)
+    plt.ylabel("Best Switching Point (%)", fontsize=14)
+    plt.title("Percentage of Reps with Each Budget as Best Switching Point", fontsize=16)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+
     plt.ylim(0, 100)
     plt.grid(True, linestyle='--', alpha=0.6)
+    plt.legend(fontsize=12)
     plt.tight_layout()
     plt.show()
 
@@ -373,17 +387,89 @@ def plot_best_budget_percentages(df, budget_range=range(50, 1001, 50)):
         "percentage": percentages
     })
 
+def plot_optimal_switching_point_distribution(df, prefer_lowest=True):
+    """
+    For each (fid, iid), identify the best switching point (budget) per rep across all A2 algorithms.
+    Then, plot a boxplot of those switching points across reps, with box and tick colors by fid.
+
+    Args:
+        df (pd.DataFrame): DataFrame with ["fid", "iid", "rep", "budget", "algorithm", "precision"]
+        prefer_lowest (bool): Whether to use the lowest or highest optimal budget per rep.
+    """
+    import matplotlib.patches as mpatches
+
+    optimal_budgets = []
+
+    for (fid, iid), group in df.groupby(["fid", "iid"]):
+        for rep, rep_group in group.groupby("rep"):
+            min_precision = rep_group["precision"].min()
+            best_budgets = rep_group[rep_group["precision"] == min_precision]["budget"]
+            chosen_budget = best_budgets.min() if prefer_lowest else best_budgets.max()
+
+            optimal_budgets.append({
+                "fid": fid,
+                "iid": iid,
+                "rep": rep,
+                "chosen_budget": chosen_budget
+            })
+
+    optimal_df = pd.DataFrame(optimal_budgets)
+    optimal_df["label"] = optimal_df.apply(lambda row: f"f{int(row['fid']):02d}-i{int(row['iid'])}", axis=1)
+
+    # Order labels
+    label_order = sorted(optimal_df["label"].unique(), key=lambda x: (int(x[1:3]), int(x[-1])))
+    fid_order = sorted(optimal_df["fid"].unique())
+    palette = sns.color_palette("tab20", n_colors=len(fid_order))
+    fid_colors = dict(zip(fid_order, palette))
+    
+    # Prepare data per label
+    data = []
+    colors = []
+    fids = []
+
+    for label in label_order:
+        sub_df = optimal_df[optimal_df["label"] == label]
+        data.append(sub_df["chosen_budget"].values)
+        fid = int(label[1:3])
+        fids.append(fid)
+        colors.append(fid_colors[fid])
+
+    # Plot
+    plt.figure(figsize=(20, 6))
+    box = plt.boxplot(data, patch_artist=True, widths=0.6)
+
+    for patch, color in zip(box["boxes"], colors):
+        patch.set_facecolor(color)
+        patch.set_edgecolor("black")
+
+    for element in ["whiskers", "caps", "medians"]:
+        for item in box[element]:
+            item.set_color("black")
+
+    plt.xticks(range(1, len(label_order) + 1), label_order, rotation=90)
+    ax = plt.gca()
+    for tick_label, fid in zip(ax.get_xticklabels(), fids):
+        tick_label.set_color(fid_colors[fid])
+
+    plt.xlabel("Function and Instance")
+    plt.ylabel("Chosen Optimal Budget")
+    plt.title(f"Optimal Switching Points Distribution Per Instance\n({'Lowest' if prefer_lowest else 'Highest'} Among Best Budgets)")
+    plt.ylim(0, 1050)
+    plt.grid(True, axis='y', linestyle='--', alpha=0.5)
+
+    # Add legend
+    handles = [
+        mpatches.Patch(color=col, label=f"fid {fid}")
+        for fid, col in fid_colors.items()
+    ]
+    plt.legend(handles=handles, title="Function ID", bbox_to_anchor=(1.01, 1), loc='upper left')
+
+    plt.tight_layout()
+    plt.show()
+
+
+
 if __name__ == "__main__":
-    # df = extract_min_precisions_long_format(root_dir="A2_data_warm_MLSL", limit_to_eval_1000=True)
-    # df.to_csv("A2_precisions_warmmlsl.csv", index=False)
-    # df = pd.read_csv("A2_precisions.csv")
-    # plot_switching_points_per_rep(df, fid=2, iid=3)
-    # plot_function_switching_precisions(df, target_function=2)
-    # input("Press Enter to continue...")
-    df = pd.read_csv("A2_precisions_warmmlsl.csv")
-    # count_best_at_budget_per_fid(df, target_budget=150, plot=True)
-    # count_best_at_budget_per_instance(df, target_budget=150, plot=True)
-    # for fid in range(1, 25):
-    #     plot_function_switching_precisions(df, target_function = fid, save_dir="../results/presicions")
-    # input("Press Enter to continue...")
-    plot_best_budget_percentages(df)
+    df = pd.read_csv("A2_precisions_all_switching_points.csv")
+    count_best_at_budget_per_instance(df, 152, plot=True)
+    input("Press Enter to continue...")
