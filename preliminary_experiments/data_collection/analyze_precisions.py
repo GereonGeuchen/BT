@@ -172,7 +172,7 @@ def count_best_at_budget_per_fid(df, target_budget, plot=False):
 
     return result_df
 
-def count_best_at_budget_per_instance(df, target_budget, plot=False):
+def count_best_at_budget_per_instance(df, target_budget, plot=False, save_plot=False):
     """
     For each (fid, iid), compute percentage of reps where `target_budget` is the best budget.
     Optionally plots all instances (fid × iid) with one dot per instance and colors per fid.
@@ -249,7 +249,17 @@ def count_best_at_budget_per_instance(df, target_budget, plot=False):
         # plt.legend(handles=handles, bbox_to_anchor=(1.01, 1), loc='upper left', title="Function ID", fontsize=12)
 
         plt.tight_layout()
-        plt.show()
+        if save_plot:
+            dir_path = f"../results/budget_optimality_over_instances"
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path, exist_ok=True)
+            out_path = os.path.join(dir_path, f"budget_{target_budget}.png")
+            plt.savefig(out_path)
+            print(f"Plot saved to {out_path}")
+            plt.close()
+        else:
+            plt.show()
+
 
     return result_df
 
@@ -258,34 +268,53 @@ def count_best_at_budget_per_instance(df, target_budget, plot=False):
     return result_df
 
 
-def plot_switching_points_per_rep(df, fid, iid):
+def plot_switching_points_per_rep(df, fid, iid, save_plot=False):
     """
     For each repetition (rep) of the given function ID and instance ID,
-    plots all switching points (budgets) that achieved the minimum precision.
+    plots all switching points (budgets) that achieved the minimum precision,
+    color-coded by algorithm. If multiple algorithms tie for the best precision,
+    multiple points are plotted side by side.
     """
-    # Filter data for selected function and instance
+    # Filter data
     df_sub = df[(df["fid"] == fid) & (df["iid"] == iid)]
 
-    # Step 1: Get min precision per rep
+    # Find min precision per rep
     min_precisions = df_sub.groupby("rep")["precision"].min().reset_index(name="min_precision")
 
-    # Step 2: Merge and filter rows where precision equals the min per rep
+    # Merge and filter to best-performing rows
     df_merged = df_sub.merge(min_precisions, on="rep")
     df_best = df_merged[df_merged["precision"] == df_merged["min_precision"]]
 
-    # Plotting
-    plt.figure(figsize=(8, 4))
-    plt.scatter(df_best["rep"], df_best["budget"], color='tab:blue')
-    plt.axhline(y=150, color='gray', linestyle='-', linewidth=2, label="Budget 150")
+    # Shift dots slightly for visibility when multiple algorithms tie
+    algo_list = df_best["algorithm"].unique()
+    algo_offsets = {algo: i * 0.1 for i, algo in enumerate(algo_list)}
 
+    # Plotting
+    plt.figure(figsize=(10, 5))
+    for algo in algo_list:
+        df_algo = df_best[df_best["algorithm"] == algo]
+        # Apply small horizontal offset per algorithm for visual separation
+        x = df_algo["rep"] + algo_offsets[algo]
+        plt.scatter(x, df_algo["budget"], label=algo)
+
+    plt.axhline(y=150, color='gray', linestyle='--', linewidth=1.5, label="Budget 150")
     plt.xticks(sorted(df_best["rep"].unique()))
-    plt.xlabel("Repetition (rep)")
+    plt.xlabel("Run")
     plt.ylabel("Switching Point (Budget)")
-    plt.title(f"Switching Points with Min Precision per Rep\nFunction {fid}, Instance {iid}")
+    plt.title(f"Best Switching Points per Run (F{fid}, I{iid})")
     plt.grid(True, linestyle='--', linewidth=0.5)
     plt.legend()
     plt.tight_layout()
-    plt.show(block=False)
+
+    # Save or show
+    if save_plot:
+        dir_path = f"../results/precisions/switching_points_per_rep_with_algos"
+        os.makedirs(dir_path, exist_ok=True)
+        out_path = os.path.join(dir_path, f"fid_{fid}_iid_{iid}.png")
+        plt.savefig(out_path, dpi=300)
+        print(f"Plot saved to {out_path}")
+    else:
+        plt.show(block=False)
 
 def plot_function_switching_precisions(df, target_function=2, save_dir=None, file_prefix="precision_plot"):
     """
@@ -371,8 +400,8 @@ def plot_best_budget_percentages(df, budget_range=range(50, 1001, 50)):
 
     # Improve text visibility
     plt.xlabel("Switching Point (Budget)", fontsize=14)
-    plt.ylabel("Best Switching Point (%)", fontsize=14)
-    plt.title("Percentage of Reps with Each Budget as Best Switching Point", fontsize=16)
+    # plt.ylabel("Percentage of runs where budget was optimal", fontsize=14)
+    plt.title("Percentage of runs with each budget as optimal switching point", fontsize=16)
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
 
@@ -467,9 +496,86 @@ def plot_optimal_switching_point_distribution(df, prefer_lowest=True):
     plt.tight_layout()
     plt.show()
 
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def plot_optimal_switching_algorithm_summary(df, save_plot=False):
+    """
+    Plots the percentage of optimal switching points where each algorithm participated,
+    for each function-instance. A switching point is optimal if it is one of the budgets
+    where minimum precision was achieved for a rep. Multiple algorithms can be tied.
+
+    Parameters:
+        df: DataFrame with columns [fid, iid, rep, budget, algorithm, precision]
+        save_plot: If True, saves the plot to a file instead of displaying it.
+    """
+    algorithms = df["algorithm"].unique()
+    
+    instance_keys = df[["fid", "iid"]].drop_duplicates().sort_values(["fid", "iid"])
+    instance_labels = [f"f{fid}-i{iid}" for fid, iid in zip(instance_keys["fid"], instance_keys["iid"])]
+    
+    algo_scores = {algo: [] for algo in algorithms}
+
+    for _, row in instance_keys.iterrows():
+        fid, iid = row["fid"], row["iid"]
+        df_sub = df[(df["fid"] == fid) & (df["iid"] == iid)]
+
+        optimal_rows = []
+        for rep, rep_df in df_sub.groupby("rep"):
+            min_precision = rep_df["precision"].min()
+            best_rows = rep_df[rep_df["precision"] == min_precision]
+            best_budgets = best_rows["budget"].unique()
+
+            for budget in best_budgets:
+                relevant = best_rows[best_rows["budget"] == budget]
+                for _, r in relevant.iterrows():
+                    optimal_rows.append((rep, budget, r["algorithm"]))
+
+        total_opt_points = len(set((r, b) for (r, b, a) in optimal_rows))
+        algo_counter = {algo: 0 for algo in algorithms}
+        for _, _, algo in optimal_rows:
+            algo_counter[algo] += 1
+
+        for algo in algorithms:
+            percent = 100 * algo_counter[algo] / total_opt_points if total_opt_points > 0 else 0
+            algo_scores[algo].append(percent)
+
+    # Plotting
+    plt.figure(figsize=(14, 6))
+    for algo in algorithms:
+        plt.plot(instance_labels, algo_scores[algo], marker='o', label=algo)
+
+    plt.xticks(rotation=45, ha="right")
+    plt.ylim(0, 100)
+    plt.ylabel("Participation in Optimal Switching Points (%)")
+    plt.xlabel("Function-Instance")
+    plt.title("Algorithm Involvement in Optimal Switching Points Across Function-Instances")
+    plt.grid(True, linestyle="--", linewidth=0.5)
+    plt.legend(title="Algorithm")
+    plt.tight_layout()
+
+    # Save or show
+    if save_plot:
+        dir_path = "../results/precisions/optimal_switching_summary"
+        os.makedirs(dir_path, exist_ok=True)
+        out_path = os.path.join(dir_path, "algorithm_involvement_summary.png")
+        plt.savefig(out_path, dpi=300)
+        print(f"Plot saved to {out_path}")
+    else:
+        plt.show(block=False)
 
 
 if __name__ == "__main__":
-    df = pd.read_csv("A2_precisions_all_switching_points.csv")
-    count_best_at_budget_per_instance(df, 152, plot=True)
+    df1 = pd.read_csv("A2_precisions_all_switching_points.csv")
+    df2 = pd.read_csv("A2_precisions_all_switching_points_test.csv")
+    # plot_best_budget_percentages(df, budget_range=range(8, 1001, 8))
+    # plot_optimal_switching_algorithm_summary(df, save_plot=False)
+
+    # for fid in range(1, 25):
+    #     for iid in range(1, 6):
+    #         plot_switching_points_per_rep(df, fid, iid, save_plot=True)
+    # plot_switching_points_per_rep(df, 1, 1, save_plot=False)
+    plot_optimal_switching_algorithm_summary(df1, save_plot=False)
+    plot_optimal_switching_algorithm_summary(df2, save_plot=False)
     input("Press Enter to continue...")
