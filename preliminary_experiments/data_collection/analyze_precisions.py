@@ -4,7 +4,7 @@ import pandas as pd
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import matplotlib.cm as cm          # ✅ For color maps
 import matplotlib.colors as mcolors
 import seaborn as sns
@@ -263,20 +263,29 @@ def count_best_at_budget_per_instance(df, target_budget, plot=False, save_plot=F
 
     return result_df
 
-
-
-    return result_df
-
-
-def plot_switching_points_per_rep(df, fid, iid, save_plot=False):
+def plot_switching_points_per_rep(df, fid, iid, min_budget=0, save_plot=False):
     """
     For each repetition (rep) of the given function ID and instance ID,
-    plots all switching points (budgets) that achieved the minimum precision,
+    plots all switching points (budgets) > min_budget that achieved the minimum precision,
     color-coded by algorithm. If multiple algorithms tie for the best precision,
     multiple points are plotted side by side.
+
+    Args:
+        df (pd.DataFrame): The precision dataframe.
+        fid (int): Function ID.
+        iid (int): Instance ID.
+        min_budget (int): Minimum budget to consider when selecting best precision points.
+        save_plot (bool): Whether to save the plot to disk.
     """
+    import matplotlib.pyplot as plt
+    import os
+
     # Filter data
-    df_sub = df[(df["fid"] == fid) & (df["iid"] == iid)]
+    df_sub = df[(df["fid"] == fid) & (df["iid"] == iid) & (df["budget"] > min_budget)]
+
+    if df_sub.empty:
+        print(f"No data available for fid={fid}, iid={iid} with min_budget={min_budget}")
+        return
 
     # Find min precision per rep
     min_precisions = df_sub.groupby("rep")["precision"].min().reset_index(name="min_precision")
@@ -293,7 +302,6 @@ def plot_switching_points_per_rep(df, fid, iid, save_plot=False):
     plt.figure(figsize=(10, 5))
     for algo in algo_list:
         df_algo = df_best[df_best["algorithm"] == algo]
-        # Apply small horizontal offset per algorithm for visual separation
         x = df_algo["rep"] + algo_offsets[algo]
         plt.scatter(x, df_algo["budget"], label=algo)
 
@@ -301,81 +309,44 @@ def plot_switching_points_per_rep(df, fid, iid, save_plot=False):
     plt.xticks(sorted(df_best["rep"].unique()))
     plt.xlabel("Run")
     plt.ylabel("Switching Point (Budget)")
-    plt.title(f"Best Switching Points per Run (F{fid}, I{iid})")
+    plt.title(f"Best Switching Points per Run (F{fid}, I{iid})\n(Only budgets > {min_budget})")
     plt.grid(True, linestyle='--', linewidth=0.5)
     plt.legend()
     plt.tight_layout()
 
-    # Save or show
     if save_plot:
-        dir_path = f"../results/precisions/switching_points_per_rep_with_algos"
+        dir_path = f"../results/precisions_50/switching_points_per_rep_with_algos"
         os.makedirs(dir_path, exist_ok=True)
-        out_path = os.path.join(dir_path, f"fid_{fid}_iid_{iid}.png")
+        out_path = os.path.join(dir_path, f"fid_{fid}_iid_{iid}_minb_{min_budget}.png")
         plt.savefig(out_path, dpi=300)
         print(f"Plot saved to {out_path}")
     else:
         plt.show(block=False)
 
-def plot_function_switching_precisions(df, target_function=2, save_dir=None, file_prefix="precision_plot"):
-    """
-    Plots average precision (difference to global optimum) at each switching point,
-    with one line per instance and shaded variance bands (±1 std dev).
-    """
-    # Filter to the specified function
-    df = df[df["fid"] == target_function]
 
-    # Best precision across algorithms per rep
-    best_per_rep = df.groupby(["iid", "budget", "rep"])["precision"].min().reset_index()
-
-    # Compute mean and std for each instance and budget
-    stats = best_per_rep.groupby(["iid", "budget"])["precision"].agg(["mean", "std"]).reset_index()
-
-    # Plotting
-    plt.figure(figsize=(10, 6))
-    for iid, group in stats.groupby("iid"):
-        group_sorted = group.sort_values("budget")
-        x = group_sorted["budget"]
-        y = group_sorted["mean"]
-        yerr = group_sorted["std"]
-
-        # Line plot
-        plt.plot(x, y, marker='o', label=f"Instance {iid}")
-        # Variance band
-        plt.fill_between(x, y - yerr, y + yerr, alpha=0.2)
-
-    plt.xlabel("Switching Point (Budget)")
-    plt.ylabel("Average Precision (log scale)")
-    #plt.yscale("log")
-    plt.title(f"Function {target_function}: Avg Precision ± Std by Switching Point")
-    plt.legend(title="Instance")
-    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
-    plt.tight_layout()
-    # Save if path is given
-    if save_dir:
-        # Construct save path
-        if save_dir is None:
-            save_dir = "."
-        os.makedirs(save_dir, exist_ok=True)
-        filename = f"{file_prefix}_fid{target_function}.png"
-        full_path = os.path.join(save_dir, filename)
-
-        # Save
-        plt.savefig(full_path, dpi=300)
-        print(f"Plot saved to: {full_path}")
-    plt.show(block=False)
-
-def plot_best_budget_percentages(df, budget_range=range(50, 1001, 50)):
+def plot_best_budget_percentages(df, budget_range=range(50, 1001, 50), min_budget=0):
     """
     Loops over budgets and plots the percentage of (fid, iid, rep) groups
-    where each budget is the best switching point (lowest fopt).
+    where each budget is the best switching point (lowest fopt), considering
+    only budgets greater than `min_budget`.
 
     Args:
         df (pd.DataFrame): DataFrame with columns ["fid", "iid", "rep", "budget", "precision"]
         budget_range (iterable): Budgets to test (default: 50 to 1000 in steps of 50)
+        min_budget (int): Minimum budget to consider when determining optimality.
     """
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    # Filter budgets that will be evaluated
+    budget_range = [b for b in budget_range if b > min_budget]
+
     def is_target_best(group, target_budget):
-        min_fopt = group["precision"].min()
-        best_budgets = group[group["precision"] == min_fopt]["budget"]
+        filtered_group = group[group["budget"] > min_budget]
+        if filtered_group.empty:
+            return False
+        min_fopt = filtered_group["precision"].min()
+        best_budgets = filtered_group[filtered_group["precision"] == min_fopt]["budget"]
         return target_budget in best_budgets.values
 
     grouped = df.groupby(["fid", "iid", "rep"])
@@ -387,21 +358,21 @@ def plot_best_budget_percentages(df, budget_range=range(50, 1001, 50)):
         percent = count / total * 100
         percentages.append(percent)
 
-     # Plotting
+    # Plotting
     plt.figure(figsize=(12, 6))
-    plt.plot(list(budget_range), percentages, marker='o', linestyle='-', linewidth=2)
+    plt.plot(budget_range, percentages, marker='o', linestyle='-', linewidth=2)
 
     # Add a thick vertical black line at budget 150
-    plt.axvline(x=150, color='black', linestyle='--', linewidth=3, label='Budget 150')
+    if 150 in budget_range:
+        plt.axvline(x=150, color='black', linestyle='--', linewidth=3, label='Budget 150')
 
     # Add vertical gridlines every 100 units
-    for b in range(100, max(budget_range)+1, 100):
+    for b in range(100, max(budget_range) + 1, 100):
         plt.axvline(x=b, color='gray', linestyle=':', linewidth=1)
 
     # Improve text visibility
     plt.xlabel("Switching Point (Budget)", fontsize=14)
-    # plt.ylabel("Percentage of runs where budget was optimal", fontsize=14)
-    plt.title("Percentage of runs with each budget as optimal switching point", fontsize=16)
+    plt.title(f"Percentage of runs with each budget as optimal switching point\n(Only considering budgets > {min_budget})", fontsize=16)
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
 
@@ -412,29 +383,33 @@ def plot_best_budget_percentages(df, budget_range=range(50, 1001, 50)):
     plt.show()
 
     return pd.DataFrame({
-        "budget": list(budget_range),
+        "budget": budget_range,
         "percentage": percentages
     })
 
-def plot_optimal_switching_point_distribution(df, prefer_lowest=True):
+
+def plot_optimal_switching_point_distribution(df, prefer_lowest=True, min_budget=0):
     """
-    For each (fid, iid), identify the best switching point (budget) per rep across all A2 algorithms.
+    For each (fid, iid), identify the best switching point (budget) per rep across all A2 algorithms,
+    considering only budgets greater than `min_budget`.
     Then, plot a boxplot of those switching points across reps, with box and tick colors by fid.
 
     Args:
         df (pd.DataFrame): DataFrame with ["fid", "iid", "rep", "budget", "algorithm", "precision"]
         prefer_lowest (bool): Whether to use the lowest or highest optimal budget per rep.
+        min_budget (int): Minimum budget to consider when selecting optimal switching points.
     """
-    import matplotlib.patches as mpatches
 
     optimal_budgets = []
 
     for (fid, iid), group in df.groupby(["fid", "iid"]):
         for rep, rep_group in group.groupby("rep"):
-            min_precision = rep_group["precision"].min()
-            best_budgets = rep_group[rep_group["precision"] == min_precision]["budget"]
+            filtered_group = rep_group[rep_group["budget"] > min_budget]
+            if filtered_group.empty:
+                continue
+            min_precision = filtered_group["precision"].min()
+            best_budgets = filtered_group[filtered_group["precision"] == min_precision]["budget"]
             chosen_budget = best_budgets.min() if prefer_lowest else best_budgets.max()
-
             optimal_budgets.append({
                 "fid": fid,
                 "iid": iid,
@@ -482,7 +457,9 @@ def plot_optimal_switching_point_distribution(df, prefer_lowest=True):
 
     plt.xlabel("Function and Instance")
     plt.ylabel("Chosen Optimal Budget")
-    plt.title(f"Optimal Switching Points Distribution Per Instance\n({'Lowest' if prefer_lowest else 'Highest'} Among Best Budgets)")
+    plt.title(f"Optimal Switching Points Distribution Per Instance\n"
+              f"({'Lowest' if prefer_lowest else 'Highest'} Among Best Budgets, "
+              f"Only Budgets > {min_budget})")
     plt.ylim(0, 1050)
     plt.grid(True, axis='y', linestyle='--', alpha=0.5)
 
@@ -496,20 +473,21 @@ def plot_optimal_switching_point_distribution(df, prefer_lowest=True):
     plt.tight_layout()
     plt.show()
 
-import os
-import pandas as pd
-import matplotlib.pyplot as plt
 
-def plot_optimal_switching_algorithm_summary(df, save_plot=False):
+def plot_optimal_switching_algorithm_summary(df, min_budget=0, save_plot=False):
     """
     Plots the percentage of optimal switching points where each algorithm participated,
     for each function-instance. A switching point is optimal if it is one of the budgets
-    where minimum precision was achieved for a rep. Multiple algorithms can be tied.
+    > min_budget where minimum precision was achieved for a rep. Multiple algorithms can tie.
 
     Parameters:
         df: DataFrame with columns [fid, iid, rep, budget, algorithm, precision]
+        min_budget: Minimum budget to consider when identifying optimal switching points.
         save_plot: If True, saves the plot to a file instead of displaying it.
     """
+    import matplotlib.pyplot as plt
+    import os
+
     algorithms = df["algorithm"].unique()
     
     instance_keys = df[["fid", "iid"]].drop_duplicates().sort_values(["fid", "iid"])
@@ -523,8 +501,11 @@ def plot_optimal_switching_algorithm_summary(df, save_plot=False):
 
         optimal_rows = []
         for rep, rep_df in df_sub.groupby("rep"):
-            min_precision = rep_df["precision"].min()
-            best_rows = rep_df[rep_df["precision"] == min_precision]
+            filtered = rep_df[rep_df["budget"] > min_budget]
+            if filtered.empty:
+                continue
+            min_precision = filtered["precision"].min()
+            best_rows = filtered[filtered["precision"] == min_precision]
             best_budgets = best_rows["budget"].unique()
 
             for budget in best_budgets:
@@ -546,20 +527,71 @@ def plot_optimal_switching_algorithm_summary(df, save_plot=False):
     for algo in algorithms:
         plt.plot(instance_labels, algo_scores[algo], marker='o', label=algo)
 
-    plt.xticks(rotation=45, ha="right")
+    plt.xticks(rotation=90, ha="right")
+
     plt.ylim(0, 100)
     plt.ylabel("Participation in Optimal Switching Points (%)")
     plt.xlabel("Function-Instance")
-    plt.title("Algorithm Involvement in Optimal Switching Points Across Function-Instances")
+    plt.title(f"Algorithm Involvement in Optimal Switching Points (budgets > {min_budget})")
     plt.grid(True, linestyle="--", linewidth=0.5)
     plt.legend(title="Algorithm")
     plt.tight_layout()
 
     # Save or show
     if save_plot:
-        dir_path = "../results/precisions/optimal_switching_summary"
+        dir_path = "../results/precisions_50/optimal_switching_summary"
         os.makedirs(dir_path, exist_ok=True)
-        out_path = os.path.join(dir_path, "algorithm_involvement_summary.png")
+        out_path = os.path.join(dir_path, f"algorithm_involvement_summary_minb_{min_budget}.png")
+        plt.savefig(out_path, dpi=300)
+        print(f"Plot saved to {out_path}")
+    else:
+        plt.show(block=False)
+
+def plot_precision_gradient_per_rep(df, fid, iid, min_budget=0, save_plot=False):
+    """
+    Plots a heatmap showing the precision values for each (rep, budget) pair,
+    with budgets on the Y-axis and reps on the X-axis.
+    Color intensity shows the precision value (lower = better).
+
+    Args:
+        df (pd.DataFrame): The precision dataframe with columns [fid, iid, rep, budget, precision].
+        fid (int): Function ID to filter.
+        iid (int): Instance ID to filter.
+        min_budget (int): Minimum budget to include in the plot.
+        save_plot (bool): If True, saves the plot to disk.
+    """
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import pandas as pd
+    import numpy as np
+    import os
+
+    # Filter relevant data
+    df_sub = df[(df["fid"] == fid) & (df["iid"] == iid) & (df["budget"] > min_budget)]
+
+    if df_sub.empty:
+        print(f"No data available for fid={fid}, iid={iid} with min_budget={min_budget}")
+        return
+
+    # Aggregate over algorithms: pick the best (min precision) for each (rep, budget)
+    agg_df = df_sub.groupby(["rep", "budget"])["precision"].min().reset_index()
+
+    # Pivot so we have budgets as rows (y-axis) and reps as columns (x-axis)
+    pivot_df = agg_df.pivot(index="budget", columns="rep", values="precision").sort_index()
+
+    # Plotting
+    plt.figure(figsize=(12, 6))
+    sns.heatmap(pivot_df, cmap="viridis", cbar_kws={"label": "Precision"}, linewidths=0.3, linecolor='gray')
+    plt.gca().invert_yaxis()
+    plt.ylabel("Switching Point (Budget)", fontsize=12)
+    plt.xlabel("Run (rep)", fontsize=12)
+    plt.title(f"Precision Gradient Across Runs for F{fid}, I{iid} (budgets > {min_budget})", fontsize=14)
+    plt.tight_layout()
+
+    if save_plot:
+        dir_path = f"../results/precisions/precisions_gradient"
+        os.makedirs(dir_path, exist_ok=True)
+        out_path = os.path.join(dir_path, f"fid_{fid}_iid_{iid}_minb_{min_budget}_heatmap.png")
         plt.savefig(out_path, dpi=300)
         print(f"Plot saved to {out_path}")
     else:
@@ -567,15 +599,17 @@ def plot_optimal_switching_algorithm_summary(df, save_plot=False):
 
 
 if __name__ == "__main__":
-    df1 = pd.read_csv("A2_precisions_all_switching_points.csv")
-    df2 = pd.read_csv("A2_precisions_all_switching_points_test.csv")
+    df= pd.read_csv("A2_precisions_all_switching_points.csv")
     # plot_best_budget_percentages(df, budget_range=range(8, 1001, 8))
     # plot_optimal_switching_algorithm_summary(df, save_plot=False)
 
     # for fid in range(1, 25):
     #     for iid in range(1, 6):
-    #         plot_switching_points_per_rep(df, fid, iid, save_plot=True)
+    #         plot_switching_points_per_rep(df, fid, iid, min_budget=50, save_plot=True)
     # plot_switching_points_per_rep(df, 1, 1, save_plot=False)
-    plot_optimal_switching_algorithm_summary(df1, save_plot=False)
-    plot_optimal_switching_algorithm_summary(df2, save_plot=False)
-    input("Press Enter to continue...")
+    # for fid in range(1, 25):
+    #     for iid in range(1, 6):
+    #         plot_precision_gradient_per_rep(df, fid, iid, min_budget=0, save_plot=True)
+    plot_optimal_switching_algorithm_summary(df, min_budget=0)
+    plot_optimal_switching_algorithm_summary(df, min_budget=50)
+    input("Press Enter to exit...")
