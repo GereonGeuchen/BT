@@ -200,14 +200,27 @@ def plot_switch_prob_heatmap(base_path_template, budget_list, save_plots=False):
                 for rep, prob in budget_data[budget].items():
                     heatmap_data[i, rep] = prob
 
-        norm = PowerNorm(gamma=0.3, vmin=0.0, vmax=1.0)
+        # norm = PowerNorm(gamma=0.3, vmin=0.0, vmax=1.0)
 
+        # plt.figure(figsize=(10, 6))
+        # ax = sns.heatmap(
+        #     heatmap_data,
+        #     annot=False,
+        #     cmap='viridis_r',
+        #     norm=norm,
+        #     linewidths=0.3,
+        #     linecolor='grey',
+        #     xticklabels=range(20),
+        #     yticklabels=budget_list,
+        #     cbar_kws={"label": "Predicted Switching Probability"}
+        # )
         plt.figure(figsize=(10, 6))
         ax = sns.heatmap(
             heatmap_data,
             annot=False,
-            cmap='viridis_r',
-            norm=norm,
+            cmap='viridis_r',  # now uses normal perceptually uniform gradient
+            vmin=0.0,
+            vmax=1.0,
             linewidths=0.3,
             linecolor='grey',
             xticklabels=range(20),
@@ -222,12 +235,107 @@ def plot_switch_prob_heatmap(base_path_template, budget_list, save_plots=False):
         plt.tight_layout()
 
         if save_plots:
-            output_dir = "../results/rf_heatmaps_adjusted_gradient/"
+            output_dir = "../results/rf_heatmaps/"
             os.makedirs(output_dir, exist_ok=True)
             out_path = os.path.join(output_dir, f"heatmap_fid_{fid}_iid_{iid}.png")
             plt.savefig(out_path)
             print(f"Saved heatmap for fid={fid}, iid={iid}")
             plt.close()  # Prevents figure from showing during batch saving
+        else:
+            plt.show(block=False)
+
+
+def plot_binary_switch_heatmaps(base_path_template, budget_list, thresholds, save_plots=False):
+    data_by_fid_iid = {}
+
+    for budget in budget_list:
+        print(f"Processing budget: {budget}")
+        csv_path = base_path_template.format(budget=budget)
+        df = pd.read_csv(csv_path)
+        df['budget'] = budget  # add budget info for later filtering
+
+        X = df.drop(columns=[
+            'is_minimal_switch', 'fid', 'iid', 'rep'
+        ] + [col for col in df.columns if col.endswith('.costs_runtime')])
+        if budget == 50 and 'ela_meta.quad_w_interact.adj_r2' in X.columns:
+            X = X.drop(columns=['ela_meta.quad_w_interact.adj_r2'])
+
+        y = df['is_minimal_switch']
+        groups = df['iid']
+        df['y_true'] = y
+        df['prob'] = np.nan
+
+        logo = LeaveOneGroupOut()
+        for train_idx, test_idx in logo.split(X, y, groups):
+            clf = RandomForestClassifier(random_state=42, class_weight='balanced', n_jobs=-1)
+            clf.fit(X.iloc[train_idx], y.iloc[train_idx])
+            df.loc[test_idx, 'prob'] = clf.predict_proba(X.iloc[test_idx])[:, 1]
+
+        threshold = thresholds.get(budget, 0.5)
+        df['pred_binary'] = (df['prob'] >= threshold).astype(int)
+
+        for _, row in df.iterrows():
+            fid, iid, rep = int(row['fid']), int(row['iid']), int(row['rep'])
+            key = (fid, iid)
+            if key not in data_by_fid_iid:
+                data_by_fid_iid[key] = {'pred': {}, 'true': {}, 'prob': {}}
+            if budget not in data_by_fid_iid[key]['pred']:
+                data_by_fid_iid[key]['pred'][budget] = {}
+                data_by_fid_iid[key]['true'][budget] = {}
+                data_by_fid_iid[key]['prob'][budget] = {}
+
+            data_by_fid_iid[key]['pred'][budget][rep] = row['pred_binary']
+            data_by_fid_iid[key]['true'][budget][rep] = int(row['y_true'])
+            data_by_fid_iid[key]['prob'][budget][rep] = row['prob']
+
+    for (fid, iid), data in data_by_fid_iid.items():
+        pred_matrix = np.full((len(budget_list), 20), np.nan)
+        true_matrix = np.full((len(budget_list), 20), np.nan)
+        prob_matrix = np.full((len(budget_list), 20), np.nan)
+
+        for i, budget in enumerate(budget_list):
+            for rep in range(20):
+                if rep in data['pred'].get(budget, {}):
+                    pred_matrix[i, rep] = data['pred'][budget][rep]
+                if rep in data['true'].get(budget, {}):
+                    true_matrix[i, rep] = data['true'][budget][rep]
+                if rep in data['prob'].get(budget, {}):
+                    prob_matrix[i, rep] = data['prob'][budget][rep]
+
+        fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=True)
+
+        sns.heatmap(pred_matrix, ax=axes[0], cmap='Greys_r', linewidths=0.3, linecolor="grey", cbar=False,
+                    xticklabels=range(20), yticklabels=budget_list, vmin=0, vmax=1)
+        axes[0].set_title('Predicted Switch (Binary)')
+        axes[0].invert_yaxis()
+        axes[0].set_xlabel('Repetition')
+        axes[0].set_ylabel('Budget')
+
+        sns.heatmap(true_matrix, ax=axes[1], cmap='Greys_r', linewidths=0.3, linecolor="grey", cbar=False,
+                    xticklabels=range(20), yticklabels=budget_list, vmin=0, vmax=1)
+        axes[1].set_title('Actual Switch (Binary)')
+        axes[1].invert_yaxis()
+        axes[1].set_xlabel('Repetition')
+        axes[1].set_ylabel('Budget')
+
+        sns.heatmap(prob_matrix, ax=axes[2], cmap='viridis_r', vmin=0.0, vmax=1.0, linewidths=0.3, linecolor="grey",
+                    xticklabels=range(20), yticklabels=budget_list,
+                    cbar_kws={"label": "Predicted Switching Probability"})
+        axes[2].set_title('Predicted Switch Probability')
+        axes[2].invert_yaxis()
+        axes[2].set_xlabel('Repetition')
+        axes[2].set_ylabel('Budget')
+
+        plt.suptitle(f'Switching Heatmaps (fid={fid}, iid={iid})', fontsize=14)
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+        if save_plots:
+            output_dir = "../results/binary_switch_heatmaps_rf/"
+            os.makedirs(output_dir, exist_ok=True)
+            out_path = os.path.join(output_dir, f"triple_heatmap_fid_{fid}_iid_{iid}.png")
+            plt.savefig(out_path)
+            print(f"Saved heatmap for fid={fid}, iid={iid}")
+            plt.close()
         else:
             plt.show(block=False)
 
@@ -252,9 +360,23 @@ if __name__ == "__main__":
 
     budget_list = list(range(50, 1050, 50))
     base_path_template = "../data/ELA_over_budgets_with_optimality/A1_B{budget}_5D_ela.csv"
-    plot_switch_prob_heatmap(
+    # plot_switch_prob_heatmap(
+    #     base_path_template=base_path_template,
+    #     budget_list=budget_list,
+    #     save_plots=True
+    # )
+    plot_binary_switch_heatmaps(
         base_path_template=base_path_template,
         budget_list=budget_list,
+        thresholds={
+            50: 0.3, 100: 0.4, 150: 0.37, 200: 0.43, 250: 0.34,
+            300: 0.33, 350: 0.41000000000000003, 400: 0.39, 450: 0.34,
+            500: 0.27, 550: 0.31, 600: 0.4, 650: 0.41000000000000003,
+            700: 0.35000000000000003, 750: 0.35000000000000003, 
+            800: 0.49, 850: 0.45, 900: 0.33, 
+            950: 0.39, 
+            1000: 0.33
+        },
         save_plots=True
     )
     input("Press Enter to continue...")

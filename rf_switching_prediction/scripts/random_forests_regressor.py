@@ -127,7 +127,65 @@ def plot_run_precision_heatmap(base_path_template, budget_list, save_plots=False
         else:
             plt.show(block=False)
 
+def plot_binary_switch_heatmaps(base_path_template, budget_list, thresholds, save_plots=False):
+    data_by_fid_iid = {}
 
+    for budget in budget_list:
+        csv_path = base_path_template.format(budget=budget)
+        df = pd.read_csv(csv_path)
+
+        threshold = thresholds.get(budget, 0.5)
+        df['pred_binary'] = (df['prob'] >= threshold).astype(int)
+        df['true_binary'] = df['is_minimal_switch']
+
+        for _, row in df.iterrows():
+            fid, iid, rep = int(row['fid']), int(row['iid']), int(row['rep'])
+            key = (fid, iid)
+            if key not in data_by_fid_iid:
+                data_by_fid_iid[key] = {'pred': {}, 'true': {}}
+            if budget not in data_by_fid_iid[key]['pred']:
+                data_by_fid_iid[key]['pred'][budget] = {}
+                data_by_fid_iid[key]['true'][budget] = {}
+
+            data_by_fid_iid[key]['pred'][budget][rep] = row['pred_binary']
+            data_by_fid_iid[key]['true'][budget][rep] = row['true_binary']
+
+    for (fid, iid), data in data_by_fid_iid.items():
+        pred_matrix = np.full((len(budget_list), 20), np.nan)
+        true_matrix = np.full((len(budget_list), 20), np.nan)
+
+        for i, budget in enumerate(budget_list):
+            for rep in range(20):
+                if rep in data['pred'].get(budget, {}):
+                    pred_matrix[i, rep] = data['pred'][budget][rep]
+                if rep in data['true'].get(budget, {}):
+                    true_matrix[i, rep] = data['true'][budget][rep]
+
+        fig, axes = plt.subplots(1, 2, figsize=(12, 6), sharey=True)
+        sns.heatmap(pred_matrix, ax=axes[0], cmap='Greys', cbar=False, xticklabels=range(20), yticklabels=budget_list)
+        axes[0].set_title('Predicted Switch (Binary)')
+        axes[0].invert_yaxis()
+        axes[0].set_xlabel('Repetition')
+        axes[0].set_ylabel('Budget')
+
+        sns.heatmap(true_matrix, ax=axes[1], cmap='Greys', cbar=False, xticklabels=range(20), yticklabels=budget_list)
+        axes[1].set_title('Actual Switch (Binary)')
+        axes[1].invert_yaxis()
+        axes[1].set_xlabel('Repetition')
+        axes[1].set_ylabel('Budget')
+
+        plt.suptitle(f'Switching Heatmaps (fid={fid}, iid={iid})', fontsize=14)
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+        if save_plots:
+            output_dir = "../results/binary_switch_heatmaps/"
+            os.makedirs(output_dir, exist_ok=True)
+            out_path = os.path.join(output_dir, f"binary_heatmap_fid_{fid}_iid_{iid}.png")
+            plt.savefig(out_path)
+            print(f"Saved heatmap for fid={fid}, iid={iid}")
+            plt.close()
+        else:
+            plt.show(block=False)
 
 def plot_r2_over_budgets(base_path_template, budget_list):
     budget_r2_scores = {}
