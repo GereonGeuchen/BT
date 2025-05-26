@@ -19,7 +19,7 @@ def evaluate_switching_classifier(csv_path, budget, threshold=0.5):
 
     # Prepare features (drop non-features and .costs_runtime features)
     X = df.drop(columns=[
-        'is_minimal_switch', 'fid', 'iid', 'rep'
+        'is_minimal_switch', 'fid', 'iid', 'rep',
     ] + [col for col in df.columns if col.endswith('.costs_runtime')])
 
     # Optional: drop budget-specific problematic feature
@@ -123,7 +123,7 @@ def optimize_thresholds_by_budget(budget_list, base_path_template):
 
         # Prepare features
         X = df.drop(columns=[
-            'is_minimal_switch', 'fid', 'iid', 'rep'
+            'is_minimal_switch', 'fid', 'iid', 'rep', 'run_precision'
         ] + [col for col in df.columns if col.endswith('.costs_runtime')])
         if budget == 50 and 'ela_meta.quad_w_interact.adj_r2' in X.columns:
             X = X.drop(columns=['ela_meta.quad_w_interact.adj_r2'])
@@ -339,6 +339,7 @@ def plot_binary_switch_heatmaps(base_path_template, budget_list, thresholds, sav
         else:
             plt.show(block=False)
 
+
 if __name__ == "__main__":
     # Example usage
     # results_by_budget = {}
@@ -365,18 +366,22 @@ if __name__ == "__main__":
     #     budget_list=budget_list,
     #     save_plots=True
     # )
-    plot_binary_switch_heatmaps(
-        base_path_template=base_path_template,
-        budget_list=budget_list,
-        thresholds={
-            50: 0.3, 100: 0.4, 150: 0.37, 200: 0.43, 250: 0.34,
-            300: 0.33, 350: 0.41000000000000003, 400: 0.39, 450: 0.34,
-            500: 0.27, 550: 0.31, 600: 0.4, 650: 0.41000000000000003,
-            700: 0.35000000000000003, 750: 0.35000000000000003, 
-            800: 0.49, 850: 0.45, 900: 0.33, 
-            950: 0.39, 
-            1000: 0.33
-        },
-        save_plots=True
+    # plot_binary_switch_heatmaps(
+    #     base_path_template=base_path_template,
+    #     budget_list=budget_list,
+    #     thresholds={
+    #         50: 0.3, 100: 0.4, 150: 0.37, 200: 0.43, 250: 0.34,
+    #         300: 0.33, 350: 0.41000000000000003, 400: 0.39, 450: 0.34,
+    #         500: 0.27, 550: 0.31, 600: 0.4, 650: 0.41000000000000003,
+    #         700: 0.35000000000000003, 750: 0.35000000000000003, 
+    #         800: 0.49, 850: 0.45, 900: 0.33, 
+    #         950: 0.39, 
+    #         1000: 0.33
+    #     },
+    #     save_plots=True
+    # )
+    optimize_thresholds_by_budget(
+        budget_list=[50*i for i in range(1, 15)],
+        base_path_template="../data/ela_over_budgets_with_precs_maxB700/A1_B{budget}_5D_ela.csv"
     )
     input("Press Enter to continue...")

@@ -117,7 +117,7 @@ def plot_run_precision_heatmap(base_path_template, budget_list, save_plots=False
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
         if save_plots:
-            output_dir = "../results/rf_run_precision_log_heatmaps/"
+            output_dir = "../results/rf_run_precision_heatmaps_maxB700/"
             os.makedirs(output_dir, exist_ok=True)
             log_suffix = "_log" if log_transform else ""
             out_path = os.path.join(output_dir, f"run_precision{log_suffix}_fid_{fid}_iid_{iid}.png")
@@ -237,13 +237,13 @@ def plot_r2_over_budgets(base_path_template, budget_list):
     plt.show()
 
 if __name__ == "__main__":
-    budget_list = [50*i for i in range(1, 21)]
-    base_path_template = "../data/ELA_over_budgets_with_precs/A1_B{budget}_5D_ela.csv"
+    budget_list = [50*i for i in range(1, 15)]
+    base_path_template = "../data/ELA_over_budgets_with_precs_maxB700/A1_B{budget}_5D_ela.csv"
     plot_run_precision_heatmap(
         base_path_template=base_path_template,
         budget_list=budget_list,
         save_plots=True,
-        log_transform=True
+        log_transform=False
     )
     # plot_r2_over_budgets(base_path_template=base_path_template, budget_list=budget_list)
     # plot_r2_per_instance_per_budget(
