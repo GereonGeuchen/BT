@@ -20,3 +20,6 @@ To get the heatmaps and performances for the random forests for the binary switc
 
 ## Results: precision regression
 Instead of predicting if we have reached an optimal switching point or not, I turned the problem into a regression problem. For each possible switching point, I want to predict how close that point is to the optimal switching point. So, I predict the difference of the precision of the best second algorithm for that switching point and the precision of the best algorithm of the optimal switching point. You find the results in results/precision_regression. I recommend looking into the folder rf_run_precision_heatmaps. There you can find the predicted precision for each run and budget on each instance, with a heatmap with the true run precision on the right (so left predicted, right truth).
+
+## switching_point_ahead:
+Here I wanted to see what happens where instaed of predicting if a certain budget is an optimal switching point, I predict if an optimal switching is ahead for a certain budget (so e.g. if we are at budget 100, switching_point_ahead would be true if there was an optimal switching point at budget 500 for that run). I would then switch as soon as switchin_point_ahead is false. This did not lead to anything so you can just ignore it as of right now.

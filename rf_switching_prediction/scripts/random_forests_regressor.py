@@ -10,13 +10,11 @@ from sklearn.metrics import r2_score
 def plot_run_precision_heatmap(base_path_template, budget_list, save_plots=False, log_transform=False):
     data_by_fid_iid = {}
 
-  
     for budget in budget_list:
         print(f"Processing budget: {budget}")
         csv_path = base_path_template.format(budget=budget)
         df = pd.read_csv(csv_path)
 
-        # Drop unused columns
         X = df.drop(columns=[
             'is_minimal_switch', 'fid', 'iid', 'rep', 'run_precision'
         ] + [col for col in df.columns if col.endswith('.costs_runtime')])
@@ -38,6 +36,7 @@ def plot_run_precision_heatmap(base_path_template, budget_list, save_plots=False
             df.loc[test_idx, 'predicted_precision'] = reg.predict(X.iloc[test_idx])
 
         for _, row in df.iterrows():
+
             fid, iid, rep, pred = int(row['fid']), int(row['iid']), int(row['rep']), row['predicted_precision']
             key = (fid, iid)
             if key not in data_by_fid_iid:

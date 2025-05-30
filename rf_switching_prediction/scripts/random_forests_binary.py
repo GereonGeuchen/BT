@@ -10,19 +10,16 @@ from matplotlib.colors import PowerNorm
 
 
 def evaluate_switching_classifier(csv_path, budget, threshold=0.5):
-    # Load the dataset
+
     df = pd.read_csv(csv_path)
 
-    # Compute label distribution
     label_distribution = df['is_minimal_switch'].value_counts(normalize=True)
-    pct_true = label_distribution.get(True, 0) * 100  # percentage of True labels
+    pct_true = label_distribution.get(True, 0) * 100  
 
-    # Prepare features (drop non-features and .costs_runtime features)
     X = df.drop(columns=[
         'is_minimal_switch', 'fid', 'iid', 'rep',
     ] + [col for col in df.columns if col.endswith('.costs_runtime')])
 
-    # Optional: drop budget-specific problematic feature
     if budget == 50 and 'ela_meta.quad_w_interact.adj_r2' in X.columns:
         X = X.drop(columns=['ela_meta.quad_w_interact.adj_r2'])
 
@@ -45,7 +42,6 @@ def evaluate_switching_classifier(csv_path, budget, threshold=0.5):
         clf = RandomForestClassifier(random_state=42, class_weight='balanced', n_jobs=-1)
         clf.fit(X_train, y_train)
 
-        # Apply custom threshold to predict
         y_prob = clf.predict_proba(X_test)[:, 1]
         y_pred = (y_prob >= threshold).astype(bool)
 
@@ -65,12 +61,10 @@ def plot_metrics_and_distribution(results_by_budget):
     budgets = sorted(results_by_budget.keys())
     metrics = ['accuracy', 'precision', 'recall', 'f1_score']
 
-    # Extract data
     means = {m: [results_by_budget[b]['mean'][m] for b in budgets] for m in metrics}
     stds = {m: [results_by_budget[b]['std'][m] for b in budgets] for m in metrics}
     label_props = [results_by_budget[b]['label_pct'] / 100 for b in budgets]  # Normalize to 0–1
 
-    # Plot
     plt.figure(figsize=(12, 8))
 
     colors = {
@@ -90,7 +84,6 @@ def plot_metrics_and_distribution(results_by_budget):
             alpha=0.2
         )
 
-    # Add normalized label distribution
     plt.plot(budgets, label_props, label='minimal switch %', color='black', linestyle='--', marker='o')
 
     plt.xlabel('Budget')
@@ -121,7 +114,6 @@ def optimize_thresholds_by_budget(budget_list, base_path_template):
         csv_path = base_path_template.format(budget=budget)
         df = pd.read_csv(csv_path)
 
-        # Prepare features
         X = df.drop(columns=[
             'is_minimal_switch', 'fid', 'iid', 'rep', 'run_precision'
         ] + [col for col in df.columns if col.endswith('.costs_runtime')])
@@ -157,13 +149,11 @@ def optimize_thresholds_by_budget(budget_list, base_path_template):
 def plot_switch_prob_heatmap(base_path_template, budget_list, save_plots=False):
     data_by_fid_iid = {}
 
-    # Step 1: Collect predictions across all budgets
     for budget in budget_list:
         print(f"Processing budget: {budget}")
         csv_path = base_path_template.format(budget=budget)
         df = pd.read_csv(csv_path)
 
-        # Drop unused columns
         X = df.drop(columns=[
             'is_minimal_switch', 'fid', 'iid', 'rep'
         ] + [col for col in df.columns if col.endswith('.costs_runtime')])
@@ -191,7 +181,6 @@ def plot_switch_prob_heatmap(base_path_template, budget_list, save_plots=False):
                 data_by_fid_iid[key][budget] = {}
             data_by_fid_iid[key][budget][rep] = prob
 
-    # Step 2: Plot heatmaps
     for (fid, iid), budget_data in data_by_fid_iid.items():
         heatmap_data = np.full((len(budget_list), 20), np.nan)
 
@@ -200,25 +189,11 @@ def plot_switch_prob_heatmap(base_path_template, budget_list, save_plots=False):
                 for rep, prob in budget_data[budget].items():
                     heatmap_data[i, rep] = prob
 
-        # norm = PowerNorm(gamma=0.3, vmin=0.0, vmax=1.0)
-
-        # plt.figure(figsize=(10, 6))
-        # ax = sns.heatmap(
-        #     heatmap_data,
-        #     annot=False,
-        #     cmap='viridis_r',
-        #     norm=norm,
-        #     linewidths=0.3,
-        #     linecolor='grey',
-        #     xticklabels=range(20),
-        #     yticklabels=budget_list,
-        #     cbar_kws={"label": "Predicted Switching Probability"}
-        # )
         plt.figure(figsize=(10, 6))
         ax = sns.heatmap(
             heatmap_data,
             annot=False,
-            cmap='viridis_r',  # now uses normal perceptually uniform gradient
+            cmap='viridis_r', 
             vmin=0.0,
             vmax=1.0,
             linewidths=0.3,
@@ -227,8 +202,8 @@ def plot_switch_prob_heatmap(base_path_template, budget_list, save_plots=False):
             yticklabels=budget_list,
             cbar_kws={"label": "Predicted Switching Probability"}
         )
-        ax.invert_yaxis()  # Larger budgets at bottom
-        ax.set_yticklabels(budget_list, rotation=0)  # Horizontal y-axis labels
+        ax.invert_yaxis() 
+        ax.set_yticklabels(budget_list, rotation=0)
         plt.title(f"Switching Probability Heatmap (fid={fid}, iid={iid})")
         plt.xlabel("Repetition")
         plt.ylabel("Budget")
@@ -240,7 +215,7 @@ def plot_switch_prob_heatmap(base_path_template, budget_list, save_plots=False):
             out_path = os.path.join(output_dir, f"heatmap_fid_{fid}_iid_{iid}.png")
             plt.savefig(out_path)
             print(f"Saved heatmap for fid={fid}, iid={iid}")
-            plt.close()  # Prevents figure from showing during batch saving
+            plt.close() 
         else:
             plt.show(block=False)
 
@@ -252,7 +227,7 @@ def plot_binary_switch_heatmaps(base_path_template, budget_list, thresholds, sav
         print(f"Processing budget: {budget}")
         csv_path = base_path_template.format(budget=budget)
         df = pd.read_csv(csv_path)
-        df['budget'] = budget  # add budget info for later filtering
+        df['budget'] = budget  
 
         X = df.drop(columns=[
             'is_minimal_switch', 'fid', 'iid', 'rep'
