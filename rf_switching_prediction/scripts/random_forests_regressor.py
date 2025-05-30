@@ -6,12 +6,11 @@ import seaborn as sns
 from sklearn.model_selection import LeaveOneGroupOut
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
-from matplotlib.colors import PowerNorm
 
 def plot_run_precision_heatmap(base_path_template, budget_list, save_plots=False, log_transform=False):
     data_by_fid_iid = {}
 
-    # Step 1: Collect predictions across all budgets
+  
     for budget in budget_list:
         print(f"Processing budget: {budget}")
         csv_path = base_path_template.format(budget=budget)
@@ -26,7 +25,7 @@ def plot_run_precision_heatmap(base_path_template, budget_list, save_plots=False
 
         y = df['run_precision']
         if log_transform:
-            y = np.log10(y.clip(lower=1e-12))  # Avoid log(0) or log of negative
+            y = np.log10(y.clip(lower=1e-12))  
 
         groups = df['iid']
         df['y_true'] = y
@@ -47,7 +46,7 @@ def plot_run_precision_heatmap(base_path_template, budget_list, save_plots=False
                 data_by_fid_iid[key][budget] = {}
             data_by_fid_iid[key][budget][rep] = pred
 
-    # Step 2: Plot heatmaps
+   
     for (fid, iid), budget_data in data_by_fid_iid.items():
         pred_matrix = np.full((len(budget_list), 20), np.nan)
         true_matrix = np.full((len(budget_list), 20), np.nan)
@@ -67,7 +66,7 @@ def plot_run_precision_heatmap(base_path_template, budget_list, save_plots=False
                 rep = int(row['rep'])
                 val = row['run_precision']
                 if log_transform:
-                    val = np.log10(max(val, 1e-12))  # Again clip to avoid log(0)
+                    val = np.log10(max(val, 1e-12)) 
                 true_matrix[i, rep] = val
 
         vmax = np.nanmax([pred_matrix, true_matrix])

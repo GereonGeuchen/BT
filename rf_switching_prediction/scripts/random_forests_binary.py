@@ -91,7 +91,7 @@ def plot_metrics_and_distribution(results_by_budget):
         )
 
     # Add normalized label distribution
-    plt.plot(budgets, label_props, label='minimal switch % (normalized)', color='black', linestyle='--', marker='o')
+    plt.plot(budgets, label_props, label='minimal switch %', color='black', linestyle='--', marker='o')
 
     plt.xlabel('Budget')
     plt.ylabel('Value (0–1 scale)')
