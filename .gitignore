@@ -1,0 +1,4 @@
+# Ignore all files in the preliminary_experiments/data directory because they are too big
+preliminary_experiments/data/
+
+
