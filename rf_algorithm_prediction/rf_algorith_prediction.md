@@ -1,9 +1,42 @@
 # RF_Algorithm_Prediction
-### Goal
-Train random forests (one for each budget) that do multi-label classification. Given ELA features from one run and one budget, this forest should label all the A2 algorithms that achieve maximum precision for that switching point with 1. The purpose of this experiment is to visualize how the performance of such a selector changes throughout budgets.
 
-### Model
-Because for one budget of a run, there could be several algorithms that reach the best precision for that budget, I used a MultiOuputClassifier. In the evaluation however, I only considered the label that that Classifier assigns the highest probability and check if the algorithm corresponding to that label is optimal for the budget. I again that leave-instance-out cross-validation.
+## Goal
 
-### Results
-Inside results. Surprisingly, the accuracy is quite high for low budgets and then doesnt increace too significantly over budgets.
+The objective of this experiment is to train **Random Forest models** (one per budget level) to perform **multi-label classification**. Each model predicts, given the ELA (Exploratory Landscape Analysis) features extracted from a single optimization run at a specific budget, which **A2 algorithms** would achieve the **highest precision** within 1000 evaluations if chosen at that switching point.
+
+This setup allows us to analyze how well a model can predict good switching decisions based solely on ELA features — and how this ability evolves across different budget levels.
+
+---
+
+## Model Design
+
+- For each budget, a **Random Forest classifier** is trained using a `MultiOutputClassifier`, because:
+  - A single run at a given budget may have **multiple algorithms** that achieve the **best (maximum) precision**, requiring multi-label output.
+
+- **Training setup**:
+  - One forest per budget level.
+  - Features: ELA features for that run and budget.
+  - Targets: Binary labels indicating which A2 algorithms reach the best precision at that point.
+
+- **Evaluation**:
+  - For prediction, we only consider the **algorithm assigned the highest probability** by the model.
+  - We then check whether that algorithm is among the **optimal choices** (i.e., those with maximum precision for that budget).
+  - Evaluation is performed using **leave-one-instance-out cross-validation**, to test generalization across problem instances.
+  - In accuracy_per_fid, you can find a plot for each budget in which the accuracy per fid is plotted. In the plots, you also find lines for each second algorithm that indicates the percentage of runs for which that second algorithm was best for the fid at that budget.
+
+
+
+## Results
+### Accuracy Trends Across Budgets
+
+The model achieves an accuracy of **64% at budget 50**, which is surprisingly high given the limited amount of information available at early stages. While the accuracy **increases for higher budgets**, it does so only moderately — reaching just above **80% at best**. This suggests that most of the predictive power is already captured by the ELA features at lower budgets.
+
+### Function-Specific Behavior
+
+The plots indicate a strong link between the **distribution of optimal algorithms per function (fid)** and the **model's prediction accuracy**. In cases where a **single algorithm consistently performs best for a given function** — such as **BFGS for fids 9 to 12** — the model achieves **near-perfect accuracy (100%)**. This implies that the model’s predictions are largely **function-specific rather than run-specific**.
+
+### Interpretation
+
+If one algorithm is repeatedly optimal for a given function, the model learns to always predict that algorithm — leading to high accuracy. Therefore, part of the observed performance gain over budgets may not stem from better predictive modeling, but rather from **shifts in the distribution of best algorithms**.
+
+For example, at **budget 950**, the accuracy curve closely resembles the distribution of **BFGS** being optimal across functions, indicating that the model increasingly follows trends in the data rather than run-level distinctions.

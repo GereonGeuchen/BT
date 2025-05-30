@@ -95,9 +95,10 @@ def plot_per_fid_accuracy_per_budget(budget_list, ela_folder="data/ELA_over_budg
     """
     For each budget, plot:
     - Top-1 accuracy per fid (dot + line)
-    - Avg number of 1-algorithms per fid (dot + line)
+    - One line per A2 algorithm: percentage of runs where it was optimal (dot + line)
     - Vertical line per fid
     """
+
     label_cols = ['BFGS', 'DE', 'MLSL', 'Non-elitist', 'PSO', 'Same']
 
     for budget in budget_list:
@@ -106,7 +107,7 @@ def plot_per_fid_accuracy_per_budget(budget_list, ela_folder="data/ELA_over_budg
         if acc_per_fid is None:
             continue
 
-        # Load ELA data to compute average number of 1s per fid
+        # Load ELA data
         ela_file = f"{ela_folder}/A1_B{budget}_5D_ela.csv_with_algo_perfomance.csv"
         try:
             ela_df = pd.read_csv(ela_file)
@@ -114,39 +115,47 @@ def plot_per_fid_accuracy_per_budget(budget_list, ela_folder="data/ELA_over_budg
             print(f"ELA file not found: {ela_file}")
             continue
 
-        # Compute avg number of 1-algorithms per fid (no column dropping)
         ela_df[label_cols] = ela_df[label_cols].fillna(0)
-        ela_df['num_ones'] = ela_df[label_cols].sum(axis=1)
-        avg_ones_per_fid = ela_df.groupby('fid')['num_ones'].mean().to_dict()
-
-        # Plotting
         fids = sorted(acc_per_fid.keys())
         accuracies = [acc_per_fid[fid] for fid in fids]
-        avg_ones = [avg_ones_per_fid.get(fid, 0) / len(label_cols) for fid in fids]  # normalized [0, 1]
 
-        plt.figure(figsize=(12, 5))
+        # Compute per-algorithm optimal percentage per fid
+        algo_optimal_perc = {alg: [] for alg in label_cols}
+        for fid in fids:
+            fid_df = ela_df[ela_df['fid'] == fid]
+            num_rows = len(fid_df)
+            if num_rows == 0:
+                for alg in label_cols:
+                    algo_optimal_perc[alg].append(0.0)
+            else:
+                for alg in label_cols:
+                    num_ones = fid_df[alg].sum()
+                    algo_optimal_perc[alg].append(num_ones / num_rows)
+
+        # Plotting
+        plt.figure(figsize=(14, 6))
 
         # Accuracy line + dots
         plt.plot(fids, accuracies, marker='o', linestyle='-', color='royalblue', label='Top-1 Accuracy')
 
-        # Label-frequency reference line
-        plt.plot(fids, avg_ones, marker='x', linestyle='--', color='orangered',
-                 label='Avg # correct labels (normalized)')
+        # One line per algorithm showing its % of optimality per fid
+        for alg in label_cols:
+            plt.plot(fids, algo_optimal_perc[alg], marker='x', linestyle='--', label=f"{alg} optimal %")
 
         # Vertical lines for each fid
         for fid in fids:
             plt.axvline(x=fid, color='lightgray', linestyle='--', linewidth=0.5)
 
-        plt.title(f"Top-1 Accuracy vs. Label Frequency per fid (Budget {budget})")
+        plt.title(f"Top-1 Accuracy and Optimal A2 Algorithm Frequency per fid (Budget {budget})")
         plt.xlabel("Function ID (fid)")
-        plt.ylabel("Accuracy / Avg # Correct Labels")
+        plt.ylabel("Accuracy / Optimal Algorithm %")
         plt.ylim(0, 1.05)
         plt.grid(True, axis='y')
         plt.legend()
         plt.tight_layout()
-        if not os.path.exists("results/accuracy_per_fid"):
-            os.makedirs("results/accuracy_per_fid")
+        os.makedirs("results/accuracy_per_fid", exist_ok=True)
         plt.savefig(f"results/accuracy_per_fid/budget_{budget}.png")
         print(f"Plot saved for budget {budget} at /results/accuracy_per_fid/budget_{budget}.png")
+
 
 plot_per_fid_accuracy_per_budget([50*i for i in range(1, 20)])
