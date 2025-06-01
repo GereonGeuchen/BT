@@ -16,7 +16,7 @@ from ioh import ProblemClass, get_problem
 import csv
 
 
-def calculate_ela_features(budget=50, base_folder="A1_data", output_folder="A1_data_ela_disp"):
+def calculate_ela_features(budget=50, base_folder="run_data/A1_data", output_folder="A1_data_ela_rawy"):
     os.makedirs(output_folder, exist_ok=True)
     filename = f"A1_B{budget}_5D.csv"
     filepath = os.path.join(base_folder, filename)
@@ -33,7 +33,8 @@ def calculate_ela_features(budget=50, base_folder="A1_data", output_folder="A1_d
         print(f"Processing fid: {fid}, iid: {iid}, rep: {rep}, budget: {budget}")
         group = group.reset_index(drop=True)
         X = group[x_cols].to_numpy()
-        y = np.asarray(group["true_y"].values, dtype=float).flatten()
+        # Changed truey_y to raw_y for testing purposes
+        y = np.asarray(group["raw_y"].values, dtype=float).flatten()
 
 
 
@@ -267,4 +268,5 @@ def normalize_ela_features_across_budgets(input_folder="A1_data_ela_disp",
 if __name__ == "__main__":
     #normalize_single_ela_file("ela_initial_sampling.csv", "ela_initial_sampling_normalized.csv")
     # add_rep_column("ela_initial_sampling_normalized.csv", "ela_initial_sampling_with_normalized_rep.csv")
-    normalize_ela_features_across_budgets()
+    # normalize_ela_features_across_budgets()
+    calculate_ela_features()

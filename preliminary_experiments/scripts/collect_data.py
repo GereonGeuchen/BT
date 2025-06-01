@@ -277,8 +277,8 @@ def get_combinations():
 def process_ioh_data(base_path):
     dim = 5
     for budget_dir in os.listdir(base_path):
-        if not (budget_dir == 'A1_B900_5D' or budget_dir == 'A1_B950_5D' or budget_dir == 'A1_B1000_5D'):
-            continue
+        # if not (budget_dir == 'A1_B900_5D' or budget_dir == 'A1_B950_5D' or budget_dir == 'A1_B1000_5D'):
+        #     continue
         budget_path = os.path.join(base_path, budget_dir)
         if not os.path.isdir(budget_path):
             continue
