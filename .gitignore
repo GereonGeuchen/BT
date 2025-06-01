@@ -1,5 +1,10 @@
 # Ignore all files in the preliminary_experiments/data directory because they are too big
 preliminary_experiments/run_data/
 
+preliminary_experiments/A1_data 
+
+preliminary_experiments/A2_data
+
+preliminary_experiments/A2_data_all_switching_points
 
 
