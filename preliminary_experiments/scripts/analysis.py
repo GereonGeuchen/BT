@@ -1,19 +1,14 @@
-import os
-import re
 import pandas as pd
-import sys
 import pandas as pd
-from ioh import get_problem, ProblemClass
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm          # ✅ For color maps
-import matplotlib.colors as mcolors # ✅ For color normalization
+import matplotlib.cm as cm         
 
-# Update this path to your actual CSV file
-csv_file = "min_target_precision_below_1000.csv"
+
+csv_file = "A2_precisions.csv"
 
 def read_csv_file(exlude_1000: bool = False):
-    # Load data
+    
     df = pd.read_csv(csv_file, dtype={
         "fid": int, "iid": int, "rep": int, "budget": int, "algorithm": str, "fopt": float, "precision": float
     })
@@ -40,7 +35,6 @@ def plot_best_switching_point(df):
     agg_df["func_inst"] = agg_df["fid"].astype(str) + "-" + agg_df["iid"].astype(str)
     agg_df["y"] = range(len(agg_df))[::-1]
 
-    # Use tab20, tab20b, tab20c to cycle through enough distinct colors
     all_maps = [cm.get_cmap('tab20'), cm.get_cmap('tab20b'), cm.get_cmap('tab20c')]
     fid_list = sorted(agg_df["fid"].unique())
     fid_to_color = {
@@ -48,12 +42,10 @@ def plot_best_switching_point(df):
         for i, fid in enumerate(fid_list)
     }
 
-    # Plotting
     plt.figure(figsize=(10, 20))
     ax = plt.gca()
-    ax.set_facecolor("#f5f5f5")  # Light gray background for contrast
+    ax.set_facecolor("#f5f5f5") 
 
-    # Vertical grid lines at every 50 budget
     for x in range(0, 1050, 50):
         if x in [150]:
             plt.axvline(x=x, color='gray', linestyle='-', linewidth=2, zorder=0)
@@ -67,8 +59,8 @@ def plot_best_switching_point(df):
             y=row["y"],
             xerr=row["best_budget_std"],
             fmt='o',
-            color=color,          # Colored marker
-            ecolor=color,         # Colored error bar
+            color=color,       
+            ecolor=color,         
             elinewidth=2,
             capsize=4,
             markerfacecolor=color,
@@ -91,10 +83,8 @@ def plot_switching_points_per_rep(df, fid, iid):
     # Filter data for selected function and instance
     df_sub = df[(df["fid"] == fid) & (df["iid"] == iid)]
 
-    # Step 1: Get min precision per rep
     min_precisions = df_sub.groupby("rep")["precision"].min().reset_index(name="min_precision")
 
-    # Step 2: Merge and filter rows where precision equals the min per rep
     df_merged = df_sub.merge(min_precisions, on="rep")
     df_best = df_merged[df_merged["precision"] == df_merged["min_precision"]]
 
@@ -115,7 +105,6 @@ def plot_function_switching_precisions(df, target_function=2):
     Plots average precision (difference to global optimum) at each switching point,
     with one line per instance and shaded variance bands (±1 std dev).
     """
-    # Filter to the specified function
     df = df[df["fid"] == target_function]
 
     # Best precision across algorithms per rep
@@ -148,44 +137,57 @@ def plot_function_switching_precisions(df, target_function=2):
 
 def plot_robust_switching_point(df):
     """
-    For each (fid, iid), finds the most robust switching point: 
-    the budget where the average precision across algorithms and reps is lowest.
-    Visualizes these with the same style as plot_best_switching_point.
+    For each (fid, iid, rep), finds the most robust switching point: 
+    the budget where the average precision across algorithms is lowest.
+    Then aggregates across reps to compute the average robust point per instance.
     """
-    # Step 1: Average across algorithms per (fid, iid, rep, budget)
-    avg_per_rep = df.groupby(["fid", "iid", "rep", "budget"])["precision"].mean().reset_index()
+    def get_best_row(g, method="first"):
+        min_val = g["precision"].min()
+        min_rows = g[g["precision"] == min_val]
+        
+        if method == "first":
+            return min_rows.iloc[0]  # first occurrence
+        elif method == "last":
+            return min_rows.iloc[-1]  # last occurrence
+        else:
+            raise ValueError("method must be 'first' or 'last'")
+        
+    # Step 1: average across algorithms
+    avg_across_algos = df.groupby(["fid", "iid", "rep", "budget"])["precision"].mean().reset_index()
 
-    # Step 2: Mean and std across reps per (fid, iid, budget)
-    avg_per_budget = avg_per_rep.groupby(["fid", "iid", "budget"])["precision"].agg(["mean", "std"]).reset_index()
+    # Step 2: find the best switching point per (fid, iid, rep)
+    best_per_rep = avg_across_algos.groupby(["fid", "iid", "rep"]).apply(
+        get_best_row, method="last"  # or "first"
+    ).reset_index(drop=True)
 
-    # Step 3: For each (fid, iid), find budget with lowest mean precision
-    best_robust = avg_per_budget.groupby(["fid", "iid"]).apply(lambda g: g.loc[g["mean"].idxmin()]).reset_index(drop=True)
-    best_robust = best_robust.rename(columns={"mean": "robust_avg", "std": "robust_std"})
+    # Step 3: aggregate robust switching points across reps
+    summary = best_per_rep.groupby(["fid", "iid"])["budget"].agg(["mean", "std"]).reset_index()
+    summary = summary.rename(columns={"mean": "avg_robust_budget", "std": "std_robust_budget"})
 
-    # Prepare for plotting
-    best_robust = best_robust.sort_values(by=["fid", "iid"]).reset_index(drop=True)
-    best_robust["func_inst"] = best_robust["fid"].astype(str) + "-" + best_robust["iid"].astype(str)
-    best_robust["y"] = range(len(best_robust))[::-1]
+    # Step 4: add plotting helpers
+    summary = summary.sort_values(by=["fid", "iid"]).reset_index(drop=True)
+    summary["func_inst"] = summary["fid"].astype(str) + "-" + summary["iid"].astype(str)
+    summary["y"] = range(len(summary))[::-1]
 
-    # Color mapping for functions
+    # Step 5: color mapping
     all_maps = [cm.get_cmap('tab20'), cm.get_cmap('tab20b'), cm.get_cmap('tab20c')]
-    fid_list = sorted(best_robust["fid"].unique())
+    fid_list = sorted(summary["fid"].unique())
     fid_to_color = {
         fid: all_maps[i // 20](i % 20)
         for i, fid in enumerate(fid_list)
     }
 
-    # Plotting
+    # Step 6: plotting
     plt.figure(figsize=(10, 20))
     ax = plt.gca()
     ax.set_facecolor("#f5f5f5")
 
-    for _, row in best_robust.iterrows():
+    for _, row in summary.iterrows():
         color = fid_to_color[row["fid"]]
         plt.errorbar(
-            x=row["budget"],
+            x=row["avg_robust_budget"],
             y=row["y"],
-            xerr=row["robust_std"],
+            xerr=row["std_robust_budget"],
             fmt='o',
             color=color,
             ecolor=color,
@@ -195,10 +197,10 @@ def plot_robust_switching_point(df):
             markeredgecolor=color
         )
 
-    plt.yticks(ticks=best_robust["y"], labels=best_robust["func_inst"])
-    plt.xlabel("Most Robust Switching Point (Budget)")
+    plt.yticks(ticks=summary["y"], labels=summary["func_inst"])
+    plt.xlabel("Avg Robust Switching Point (Budget)")
     plt.ylabel("Function-Instance (Sorted)")
-    plt.title("Robust Switching Point (Lowest Avg Precision Across Algos & Reps)")
+    plt.title("Per-Rep Robust Switching Point Averaged Across Reps")
     plt.grid(True, color='white')
     plt.tight_layout()
     plt.show(block=False)
@@ -209,14 +211,11 @@ def plot_top_n_switching_points(df, top_n=10):
     For each (fid, iid, rep), we take the budgets corresponding to the top-N lowest fopt values.
     Then average those budgets across reps, per rank (1st best, 2nd best, ..., Nth best).
     """
-    # Sort and rank budgets per (fid, iid, rep) by fopt
     df_sorted = df.sort_values(by=["fid", "iid", "rep", "fopt", "budget"])
     df_sorted["rank"] = df_sorted.groupby(["fid", "iid", "rep"]).cumcount()
 
-    # Keep only the top-N entries per (fid, iid, rep)
     df_top_n = df_sorted[df_sorted["rank"] < top_n]
 
-    # Compute average budget per rank across reps, per (fid, iid)
     avg_per_rank = (
         df_top_n.groupby(["fid", "iid", "rank"])["budget"]
         .mean()
@@ -224,14 +223,12 @@ def plot_top_n_switching_points(df, top_n=10):
         .rename(columns={"budget": "avg_budget"})
     )
 
-    # Prepare for plotting
     avg_per_rank["func_inst"] = avg_per_rank["fid"].astype(str) + "-" + avg_per_rank["iid"].astype(str)
     func_order = avg_per_rank[["fid", "iid"]].drop_duplicates().sort_values(by=["fid", "iid"])
     func_order["y"] = range(len(func_order))[::-1]
 
     avg_per_rank = avg_per_rank.merge(func_order, on=["fid", "iid"], how="left")
 
-    # Assign colors per fid
     all_maps = [cm.get_cmap('tab20'), cm.get_cmap('tab20b'), cm.get_cmap('tab20c')]
     fid_list = sorted(avg_per_rank["fid"].unique())
     fid_to_color = {
@@ -239,7 +236,6 @@ def plot_top_n_switching_points(df, top_n=10):
         for i, fid in enumerate(fid_list)
     }
 
-    # Plotting
     plt.figure(figsize=(10, 20))
     ax = plt.gca()
     ax.set_facecolor("#f5f5f5")
@@ -397,6 +393,6 @@ def average_optimal_switching_points_per_rep_filtered(df, min_budget=0):
 if __name__ == "__main__":
     # df = read_csv_file(True)
     df = read_csv_file(True)
-    average_optimal_switching_points_per_rep_filtered(df)
+    plot_robust_switching_point(df)
     input("Press Enter to close all plots...")
     
