@@ -1,10 +1,13 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.model_selection import LeaveOneGroupOut
 import os
+import math
 
 def run_top1_multilabel_logo(budget, ela_folder="data/ELA_over_budgets", per_fid=False):
 
@@ -100,62 +103,91 @@ def plot_per_fid_accuracy_per_budget(budget_list, ela_folder="data/ELA_over_budg
     """
 
     label_cols = ['BFGS', 'DE', 'MLSL', 'Non-elitist', 'PSO', 'Same']
+    all_fid_scores = {}
 
     for budget in budget_list:
-        # Run model and get accuracy per fid
         acc_per_fid = run_top1_multilabel_logo(budget=budget, ela_folder=ela_folder, per_fid=True)
         if acc_per_fid is None:
             continue
+        for fid, acc in acc_per_fid.items():
+            if fid not in all_fid_scores:
+                all_fid_scores[fid] = {}
+            all_fid_scores[fid][budget] = acc
 
-        # Load ELA data
-        ela_file = f"{ela_folder}/A1_B{budget}_5D_ela.csv_with_algo_perfomance.csv"
-        try:
-            ela_df = pd.read_csv(ela_file)
-        except FileNotFoundError:
-            print(f"ELA file not found: {ela_file}")
+    if not all_fid_scores:
+        print("No per-fid results to plot.")
+        return
+
+    # Prepare color map
+    fids = sorted(all_fid_scores.keys())
+    cmap = cm.get_cmap('nipy_spectral', len(fids))
+    colors = [cmap(i) for i in range(len(fids))]
+
+    plt.figure(figsize=(12, 7))
+    for idx, fid in enumerate(fids):
+        budgets = sorted(all_fid_scores[fid].keys())
+        accs = [all_fid_scores[fid][b] for b in budgets]
+        plt.plot(budgets, accs, marker='o', linestyle='-', label=f"fid {fid}", color=colors[idx])
+
+    plt.title("Top-1 Accuracy per Function ID (fid) over Budgets")
+    plt.xlabel("Budget")
+    plt.ylabel("Top-1 Accuracy")
+    plt.ylim(0, 1.05)
+    plt.grid(True)
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=2)
+    plt.tight_layout()
+    os.makedirs("results/accuracy_over_budgets", exist_ok=True)
+    plt.savefig("results/accuracy_over_budgets/top1_accuracy_per_fid_over_budgets.png")
+    plt.show()
+
+def plot_fid_accuracy_over_budgets(budget_list, ela_folder="data/ELA_over_budgets", group_size=12):
+    """
+    Plots a line per fid showing its top-1 accuracy across different budgets.
+    Splits fids into multiple plots (default 12 per plot) to maintain color distinctiveness.
+    """
+    label_cols = ['BFGS', 'DE', 'MLSL', 'Non-elitist', 'PSO', 'Same']
+    all_fid_scores = {}
+
+    for budget in budget_list:
+        print(f"Processing budget: {budget}")
+        acc_per_fid = run_top1_multilabel_logo(budget=budget, ela_folder=ela_folder, per_fid=True)
+        if acc_per_fid is None:
             continue
+        for fid, acc in acc_per_fid.items():
+            if fid not in all_fid_scores:
+                all_fid_scores[fid] = {}
+            all_fid_scores[fid][budget] = acc
 
-        ela_df[label_cols] = ela_df[label_cols].fillna(0)
-        fids = sorted(acc_per_fid.keys())
-        accuracies = [acc_per_fid[fid] for fid in fids]
+    if not all_fid_scores:
+        print("No per-fid results to plot.")
+        return
 
-        # Compute per-algorithm optimal percentage per fid
-        algo_optimal_perc = {alg: [] for alg in label_cols}
-        for fid in fids:
-            fid_df = ela_df[ela_df['fid'] == fid]
-            num_rows = len(fid_df)
-            if num_rows == 0:
-                for alg in label_cols:
-                    algo_optimal_perc[alg].append(0.0)
-            else:
-                for alg in label_cols:
-                    num_ones = fid_df[alg].sum()
-                    algo_optimal_perc[alg].append(num_ones / num_rows)
+    fids = sorted(all_fid_scores.keys())
+    num_groups = math.ceil(len(fids) / group_size)
+    os.makedirs("results/accuracy_over_budgets", exist_ok=True)
 
-        # Plotting
-        plt.figure(figsize=(14, 6))
+    for group_idx in range(num_groups):
+        group_fids = fids[group_idx * group_size:(group_idx + 1) * group_size]
+        cmap = cm.get_cmap('nipy_spectral', len(group_fids))
+        colors = [cmap(i) for i in range(len(group_fids))]
 
-        # Accuracy line + dots
-        plt.plot(fids, accuracies, marker='o', linestyle='-', color='royalblue', label='Top-1 Accuracy')
+        plt.figure(figsize=(12, 7))
+        for idx, fid in enumerate(group_fids):
+            budgets = sorted(all_fid_scores[fid].keys())
+            accs = [all_fid_scores[fid][b] for b in budgets]
+            plt.plot(budgets, accs, marker='o', linestyle='-', label=f"fid {fid}", color=colors[idx])
 
-        # One line per algorithm showing its % of optimality per fid
-        for alg in label_cols:
-            plt.plot(fids, algo_optimal_perc[alg], marker='x', linestyle='--', label=f"{alg} optimal %")
-
-        # Vertical lines for each fid
-        for fid in fids:
-            plt.axvline(x=fid, color='lightgray', linestyle='--', linewidth=0.5)
-
-        plt.title(f"Top-1 Accuracy and Optimal A2 Algorithm Frequency per fid (Budget {budget})")
-        plt.xlabel("Function ID (fid)")
-        plt.ylabel("Accuracy / Optimal Algorithm %")
+        plt.title(f"Top-1 Accuracy per fid over Budgets (Group {group_idx + 1})")
+        plt.xlabel("Budget")
+        plt.ylabel("Top-1 Accuracy")
         plt.ylim(0, 1.05)
-        plt.grid(True, axis='y')
-        plt.legend()
+        plt.grid(True)
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         plt.tight_layout()
-        os.makedirs("results/accuracy_per_fid", exist_ok=True)
-        plt.savefig(f"results/accuracy_per_fid/budget_{budget}.png")
-        print(f"Plot saved for budget {budget} at /results/accuracy_per_fid/budget_{budget}.png")
+        filename = f"results/accuracy_over_budgets/top1_accuracy_fid_group_{group_idx + 1}.pdf"
+        plt.savefig(filename)
+        plt.show()
+        print(f"Plot saved at: {filename}")
 
-
-plot_per_fid_accuracy_per_budget([50*i for i in range(1, 20)])
+# plot_per_fid_accuracy_per_budget([50*i for i in range(1, 20)])
+plot_fid_accuracy_over_budgets([50*i for i in range(1, 20)])
