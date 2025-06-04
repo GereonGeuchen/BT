@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import os
 import warnings
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), 'pflacco'))
 from classical_ela_features import (
     calculate_ela_distribution,
     calculate_ela_meta,
@@ -16,7 +18,7 @@ from ioh import ProblemClass, get_problem
 import csv
 
 
-def calculate_ela_features(budget=50, base_folder="run_data/A1_data", output_folder="A1_data_ela_rawy"):
+def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", output_folder="A1_data_ela_rawy"):
     os.makedirs(output_folder, exist_ok=True)
     filename = f"A1_B{budget}_5D.csv"
     filepath = os.path.join(base_folder, filename)
@@ -85,7 +87,7 @@ def calculate_ela_features(budget=50, base_folder="run_data/A1_data", output_fol
         row_df = row_df[ordered_cols]
 
         # Append row to file
-        row_df.to_csv(output_path, mode='a', header=first_write, index=False)
+        # row_df.to_csv(output_path, mode='a', header=first_write, index=False)
         first_write = False  # only write header once
 
     print(f"Completed processing for budget: {budget}")
