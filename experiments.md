@@ -46,3 +46,6 @@ See preliminary_experiments/preliminary_experiments.md
 
 ## 3. rf_switching_prediction
 The experiments in rf_switching_prediction are really just a small first step to see if we can use ELA features to predict "performance-based" switching points, see rf_switching_prediction/rf_switching_prediction.md
+
+## 4. rf_algorithm_prediction
+See rf_algorithm_prediction/rf_algorithm_prediction.md

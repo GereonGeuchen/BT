@@ -1,10 +1,4 @@
-# Ignore all files in the preliminary_experiments/data directory because they are too big
-preliminary_experiments/run_data/
+# Ignore all files in the preliminary_experiments/data directory because they are too bi
+data_collection/data
 
-preliminary_experiments/A1_data 
-
-preliminary_experiments/A2_data
-
-preliminary_experiments/A2_data_all_switching_points
-
-
+data_collection/scripts/switching_prediction.py
