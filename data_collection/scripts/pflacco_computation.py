@@ -4,7 +4,7 @@ import os
 import warnings
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'pflacco'))
-from classical_ela_features import (
+from classical_ela_features import ( # type: ignore
     calculate_ela_distribution,
     calculate_ela_meta,
     calculate_ela_level,
@@ -12,13 +12,13 @@ from classical_ela_features import (
     calculate_information_content,
     calculate_nbc
 )
-from sampling import create_initial_sample
+from sampling import create_initial_sample # type: ignore
 from sklearn.preprocessing import MinMaxScaler
 from ioh import ProblemClass, get_problem
 import csv
 
 
-def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", output_folder="A1_data_ela_rawy"):
+def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", output_folder="A1_data_ela_test"):
     os.makedirs(output_folder, exist_ok=True)
     filename = f"A1_B{budget}_5D.csv"
     filepath = os.path.join(base_folder, filename)
@@ -36,7 +36,7 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
         group = group.reset_index(drop=True)
         X = group[x_cols].to_numpy()
         # Changed truey_y to raw_y for testing purposes
-        y = np.asarray(group["raw_y"].values, dtype=float).flatten()
+        y = np.asarray(group["true_y"].values, dtype=float).flatten()
 
 
 
@@ -87,7 +87,7 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
         row_df = row_df[ordered_cols]
 
         # Append row to file
-        # row_df.to_csv(output_path, mode='a', header=first_write, index=False)
+        row_df.to_csv(output_path, mode='a', header=first_write, index=False)
         first_write = False  # only write header once
 
     print(f"Completed processing for budget: {budget}")

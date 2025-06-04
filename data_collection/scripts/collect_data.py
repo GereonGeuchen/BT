@@ -233,19 +233,19 @@ def collect_A1_data(budget_factor, dim = 5):
 def collect_A2(budget_factor, dim, A2, algname):
     trigger = ioh.logger.trigger.OnImprovement()
     
-    # logger = ioh.logger.Analyzer(
-    #     triggers=[trigger],
-    #     folder_name=f'A2_data_warm_MLSL/A2_{algname}_B{budget_factor*dim}_{dim}D',
-    #     algorithm_name=algname,
-    #     store_positions=False,
-    # )
+    logger = ioh.logger.Analyzer(
+        triggers=[trigger],
+        folder_name=f'A2_data_warm_MLSL/A2_{algname}_B{budget_factor*dim}_{dim}D',
+        algorithm_name=algname,
+        store_positions=False,
+    )
     tracked_parameters = TrackedParameters()
-    # logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
+    logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
     
     for fid in range(1,25):
         for iid in range(1,6):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
-            # problem.attach_logger(logger)
+            problem.attach_logger(logger)
             
             for rep in range(20):
                 tracked_parameters.rep = rep
@@ -262,10 +262,12 @@ def collect_A2(budget_factor, dim, A2, algname):
             problem.detach_logger()
             
             
-def collect_all(x):
-    budget_factor, dim = x
-    for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
-        collect_A2(budget_factor, dim, A2, algname)
+def collect_all(x = None):
+    # budget_factor, dim = x
+    # for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
+    #     collect_A2(budget_factor, dim, A2, algname)
+    dim = 5
+    collect_A2(10, dim, MLSL, "MLSL")
     # collect_A2(budget_factor, dim, BFGS, "BFGS")
                 
                 
@@ -273,86 +275,16 @@ def get_combinations():
     budget_factors = [10*i for i in range (1,21)] # 10, 20, ..., 1000
     dim = 5
     return [(bf, dim) for bf in budget_factors]
-            
-def process_ioh_data(base_path):
-    dim = 5
-    for budget_dir in os.listdir(base_path):
-        # if not (budget_dir == 'A1_B900_5D' or budget_dir == 'A1_B950_5D' or budget_dir == 'A1_B1000_5D'):
-        #     continue
-        budget_path = os.path.join(base_path, budget_dir)
-        if not os.path.isdir(budget_path):
-            continue
-
-        all_rows = []
-
-        for func_dir in os.listdir(budget_path):
-            func_path = os.path.join(budget_path, func_dir)
-            if not os.path.isdir(func_path):
-                continue
-
-            # Extract fid from directory name like 'data_f1_Sphere'
-            try:
-                fid = int(func_dir.split('_')[1][1:])
-            except (IndexError, ValueError):
-                print(f"Skipping malformed directory: {func_dir}")
-                continue
-
-            dat_file = os.path.join(func_path, f"IOHprofiler_f{fid}_DIM{dim}.dat")
-            if not os.path.isfile(dat_file):
-                continue
-
-            try:
-                df = pd.read_csv(dat_file, delim_whitespace=True, comment="#", dtype=str)
-            except Exception as e:
-                print(f"Error reading {dat_file}: {e}")
-                continue
-
-            # Filter out repeated header rows
-            df = df[df['iid'] != 'iid']
-
-            # Convert selected columns to numeric
-            numeric_cols = ['evaluations', 'raw_y', 'rep', 'iid', 'x0', 'x1', 'x2', 'x3', 'x4']
-            df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
-
-            # Group by iid and compute true_y
-            for iid_val, group in df.groupby('iid'):
-                print(f"Processing fid={fid}, iid={iid_val}, budget dir={budget_dir}")
-                try:
-                    iid_int = int(float(iid_val))
-                    problem = ioh.get_problem(fid, iid_int, dim, ProblemClass.BBOB)
-                    optimum = problem.optimum.y
-                except Exception as e:
-                    print(f"Could not load problem fid={fid}, iid={iid_val}: {e}")
-                    continue
-
-                group = group[numeric_cols].copy()
-                group['fid'] = fid
-                group['true_y'] = group['raw_y'] + optimum
-                all_rows.append(group)
-
-        if all_rows:
-            combined = pd.concat(all_rows, ignore_index=True)
-
-            # Reorder columns
-            column_order = ['fid', 'iid', 'rep', 'evaluations', 'raw_y', 'true_y', 'x0', 'x1', 'x2', 'x3', 'x4']
-            combined = combined[column_order]
-
-            # Sort rows
-            combined = combined.sort_values(by=['fid', 'iid', 'rep']).reset_index(drop=True)
-
-            # Save CSV
-            output_path = os.path.join(base_path, f"{budget_dir}.csv")
-            combined.to_csv(output_path, index=False)
-            print(f"Saved: {output_path}")
 
 if __name__=='__main__':
-    warnings.filterwarnings("ignore", category=RuntimeWarning) 
-    warnings.filterwarnings("ignore", category=FutureWarning)
+    # warnings.filterwarnings("ignore", category=RuntimeWarning) 
+    # warnings.filterwarnings("ignore", category=FutureWarning)
     
     
-    x = get_combinations()
-    temp = list(x)
-    # for combination in temp:
-    #     collect_all(combination
-    partial_run = partial(collect_all)
-    runParallelFunction(partial_run, temp)
+    # x = get_combinations()
+    # temp = list(x)
+    # # for combination in temp:
+    # #     collect_all(combination
+    # partial_run = partial(collect_all)
+    # runParallelFunction(partial_run, temp)
+    collect_all()
