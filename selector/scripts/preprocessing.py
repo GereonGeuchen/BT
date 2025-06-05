@@ -145,6 +145,7 @@ def add_algorithm_precisions(ela_dir, precision_csv, output_dir):
             on=['fid', 'iid', 'rep', 'budget']
         )
 
+        merged.drop(columns=['budget'], inplace=True)  # Remove budget column after merge
         # Write to output directory
         output_path = os.path.join(output_dir, file)
         merged.to_csv(output_path, index=False)
@@ -203,7 +204,12 @@ if __name__ == "__main__":
     # ela_dir = "../data/A1_data_ela"  
     # run_dir = "../../data_collection/data/run_data/A1_data"        
     # output_dir = "../data/ela_with_state"
-    extend_ela_with_optimal_precisions(
-        ela_input_dir="../data/ela_with_state",
-        optimal_precisions_file="../data/A2_optimal_precisions.csv",
-        output_dir="../data/ela_with_optimal_precisions_ahead")
+    # extend_ela_with_optimal_precisions(
+    #     ela_input_dir="../data/ela_with_state",
+    #     optimal_precisions_file="../data/A2_optimal_precisions.csv",
+    #     output_dir="../data/ela_with_optimal_precisions_ahead")
+    add_algorithm_precisions(
+        ela_dir="../data/ela_with_state",
+        precision_csv="../data/A2_precisions.csv",
+        output_dir="../data/ela_with_algorithm_precisions"
+    )
