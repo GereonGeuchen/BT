@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestRegressor
 from asf.predictors import epm_random_forest
 import os
 import joblib
+from joblib import Parallel, delayed
 import pandas as pd
 
 def predict_algo_performance():
@@ -99,14 +100,11 @@ def predict_switching_point():
 
     # Save
     predictions_df.to_csv("switching_predictions.csv", index=False)
-
-def tune_performance_model(budget = 50):
+def tune_performance_model(budget: int):
     data = pd.read_csv(f"../data/ela_with_algorithm_precisions/A1_B{budget}_5D_ela_with_state.csv")
     features = data.iloc[:, 4:-6]
     targets = data.iloc[:, -6:]
     groups = data["iid"]
-
-
 
     pipeline = tune_selector(
         X=features,
@@ -116,7 +114,7 @@ def tune_performance_model(budget = 50):
         maximize=False,
         groups=groups.values,
         cv=5,
-        runcount_limit=10,
+        runcount_limit=25,  # increased for better optimization
         timeout=1000,
         seed=42,
         output_dir=f"./smac_output_performance/B{budget}_performance"
@@ -125,15 +123,13 @@ def tune_performance_model(budget = 50):
     joblib.dump(pipeline, f"algo_performance_models/model_B{budget}.pkl")
 
 
-def tune_switching_model(budget = 50):
+def tune_switching_model(budget: int):
     data = pd.read_csv(f"../data/ela_with_optimal_precisions_ahead/A1_B{budget}_5D_ela_with_state.csv")
-
     number_of_predictions = (1000 - budget) // 50 + 1
 
     features = data.iloc[:, 4:-number_of_predictions]
     targets = data.iloc[:, -number_of_predictions:]
     groups = data["iid"]
-
 
     pipeline = tune_selector(
         X=features,
@@ -143,18 +139,22 @@ def tune_switching_model(budget = 50):
         maximize=False,
         groups=groups.values,
         cv=5,
-        runcount_limit=10,
+        runcount_limit=25,
         timeout=1000,
         seed=42,
-        output_dir=f"./smac_output_switching/B{budget}_performance"
+        output_dir=f"./smac_output_switching/B{budget}_switching"
     )
     os.makedirs("switching_prediction_models", exist_ok=True)
     joblib.dump(pipeline, f"switching_prediction_models/model_B{budget}.pkl")
 
+
 if __name__ == "__main__":
-    for budget in [50*i for i in range(1, 21)]:
-        if budget > 500:
-            print(f"Tuning performance model for budget {budget}")
-            tune_performance_model(budget=budget)
-        print(f"Tuning switching model for budget {budget}")
-        tune_switching_model(budget=budget)
+    budgets = [50 * i for i in range(1, 21)]
+    jobs = []
+
+    for budget in budgets:
+        jobs.append(delayed(tune_performance_model)(budget))
+        jobs.append(delayed(tune_switching_model)(budget))
+
+    # Run with 4 parallel workers (adjust n_jobs based on your CPU and memory)
+    Parallel(n_jobs=8, backend="loky", verbose=10)(jobs)
