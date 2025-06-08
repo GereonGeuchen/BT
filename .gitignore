@@ -1,11 +1,19 @@
 # Ignore all files in the preliminary_experiments/data directory because they are too bi
 data_collection/data/ela_data
 data_collection/data/ela_initial_sampling
-# data_collection/data/run_data/A1_data
+data_collection/data/run_data/A1_test_data
+!data_collection/data/run_data/*.csv
+data_collection/data/run_data/A1_data
 data_collection/data/run_data/A2_data_all_switching_points
 data_collection/scripts/pflacco/__pycache__
 
+selector/scripts/asf-env.tar.gz
+selector/scripts/switching_prediction_models/selector*
+selector/scripts/algo_performance_models/selector*
+selector/scripts/optimization_outputs
 
 data_collection/scripts/switching_prediction.py
 
 slurm
+
+environments
