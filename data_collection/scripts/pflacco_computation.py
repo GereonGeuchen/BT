@@ -18,7 +18,7 @@ from ioh import ProblemClass, get_problem
 import csv
 
 
-def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", output_folder="A1_data_ela_test"):
+def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", output_folder="A1_data_ela_doesitwork"):
     os.makedirs(output_folder, exist_ok=True)
     filename = f"A1_B{budget}_5D.csv"
     filepath = os.path.join(base_folder, filename)
@@ -271,4 +271,6 @@ if __name__ == "__main__":
     #normalize_single_ela_file("ela_initial_sampling.csv", "ela_initial_sampling_normalized.csv")
     # add_rep_column("ela_initial_sampling_normalized.csv", "ela_initial_sampling_with_normalized_rep.csv")
     # normalize_ela_features_across_budgets()
-    calculate_ela_features()
+    for budget in [50*i for i in range(1, 21)]:
+        print(f"Calculating ELA features for budget: {budget}")
+        calculate_ela_features()

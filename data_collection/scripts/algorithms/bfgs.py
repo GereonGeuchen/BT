@@ -100,10 +100,8 @@ class BFGS(Algorithm):
         """Warm start routine"""
 
         # Initialize first point x0
-        print(f"Will now set x0")
         if 'x_opt' in parameters:
             self.x0 = parameters['x_opt']
-            print(f'BFGS: x0 set to {self.x0}')
 
         # Initialize stepsize alpha_k
             # some code

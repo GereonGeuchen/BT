@@ -198,7 +198,7 @@ def collect_A1_data(budget_factor, dim = 5):
 
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'A1_data/A1_B{budget_factor*dim}_{dim}D',
+        folder_name=f'../data/A1_test/data/A1_B{budget_factor*dim}_{dim}D',
         algorithm_name='ModCMA_A1',
         store_positions=True
     )
@@ -206,7 +206,7 @@ def collect_A1_data(budget_factor, dim = 5):
     logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
     
     for fid in range(1,25):
-        for iid in range(1,6):
+        for iid in range(6,8):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
             problem.attach_logger(logger)
             
@@ -235,7 +235,7 @@ def collect_A2(budget_factor, dim, A2, algname):
     
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'A2_data_warm_MLSL/A2_{algname}_B{budget_factor*dim}_{dim}D',
+        folder_name=f'../data/A2_test_data/A2_{algname}_B{budget_factor*dim}_{dim}D',
         algorithm_name=algname,
         store_positions=False,
     )
@@ -243,7 +243,7 @@ def collect_A2(budget_factor, dim, A2, algname):
     logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
     
     for fid in range(1,25):
-        for iid in range(1,6):
+        for iid in range(6,8):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
             problem.attach_logger(logger)
             
@@ -263,12 +263,14 @@ def collect_A2(budget_factor, dim, A2, algname):
             
             
 def collect_all(x = None):
-    # budget_factor, dim = x
-    # for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
-    #     collect_A2(budget_factor, dim, A2, algname)
-    dim = 5
-    collect_A2(10, dim, MLSL, "MLSL")
-    # collect_A2(budget_factor, dim, BFGS, "BFGS")
+    budget_factor, dim = x
+    # First, collect A1 data
+    collect_A1_data(budget_factor, dim)
+    
+    # Then collect A2 data
+    for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
+        collect_A2(budget_factor, dim, A2, algname)
+    
                 
                 
 def get_combinations():
@@ -277,14 +279,13 @@ def get_combinations():
     return [(bf, dim) for bf in budget_factors]
 
 if __name__=='__main__':
-    # warnings.filterwarnings("ignore", category=RuntimeWarning) 
-    # warnings.filterwarnings("ignore", category=FutureWarning)
+    warnings.filterwarnings("ignore", category=RuntimeWarning) 
+    warnings.filterwarnings("ignore", category=FutureWarning)
     
     
-    # x = get_combinations()
-    # temp = list(x)
-    # # for combination in temp:
-    # #     collect_all(combination
-    # partial_run = partial(collect_all)
-    # runParallelFunction(partial_run, temp)
-    collect_all()
+    x = get_combinations()
+    temp = list(x)
+    # for combination in temp:
+    #     collect_all(combination
+    partial_run = partial(collect_all)
+    runParallelFunction(partial_run, temp)
