@@ -8,7 +8,7 @@ import os
 import pandas as pd
 from glob import glob
 import warnings
-from io import StringIO
+from pathlib import Path
 
 def extract_final_internal_state(dat_path, target_iid, target_rep):
     try:
@@ -55,8 +55,7 @@ def append_cma_state_to_ela(ela_dir, run_dir, output_dir):
     os.makedirs(output_dir, exist_ok=True)
 
     for budget in budgets:
-        if budget != 150:
-            continue
+    
         print(f"Processing budget: {budget}")
         ela_path = os.path.join(ela_dir, f"A1_B{budget}_5D_ela.csv")
         run_path = os.path.join(run_dir, f"A1_B{budget}_5D")
@@ -200,6 +199,35 @@ def extend_ela_with_optimal_precisions(
 
         print(f"✅ Wrote: {output_path}")
 
+def clean_ela_folder(folder_path, inplace=False):
+    """
+    Removes columns ending with '.costs_runtime' from all CSV files in a folder.
+
+    Args:
+        folder_path (str or Path): Path to folder containing ELA feature CSV files.
+        inplace (bool): If True, overwrites the files. If False, returns a dict of cleaned DataFrames.
+
+    Returns:
+        dict: {filename: cleaned DataFrame} if inplace is False, else None.
+    """
+    folder = Path(folder_path)
+    cleaned_data = {}
+
+    for file in folder.glob("*.csv"):
+        df = pd.read_csv(file)
+        drop_cols = [col for col in df.columns if col.endswith('.costs_runtime')]
+        df.drop(columns=drop_cols, inplace=True)
+
+        if inplace:
+            df.to_csv(file, index=False)
+        else:
+            cleaned_data[file.name] = df
+        
+        print(f"Processed {file.name}: dropped {len(drop_cols)} columns.")
+
+    if not inplace:
+        return cleaned_data
+    
 if __name__ == "__main__":
     # ela_dir = "../data/A1_data_ela"  
     # run_dir = "../../data_collection/data/run_data/A1_data"        
@@ -208,8 +236,9 @@ if __name__ == "__main__":
     #     ela_input_dir="../data/ela_with_state",
     #     optimal_precisions_file="../data/A2_optimal_precisions.csv",
     #     output_dir="../data/ela_with_optimal_precisions_ahead")
-    add_algorithm_precisions(
-        ela_dir="../data/ela_with_state",
-        precision_csv="../data/A2_precisions.csv",
-        output_dir="../data/ela_with_algorithm_precisions"
-    )
+    # add_algorithm_precisions(
+    #     ela_dir="../data/ela_with_state",
+    #     precision_csv="../data/A2_precisions.csv",
+    #     output_dir="../data/ela_with_algorithm_precisions"
+    # )
+    clean_ela_folder("../data/ela_with_state_test_data", inplace=True)

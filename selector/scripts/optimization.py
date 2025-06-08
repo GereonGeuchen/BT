@@ -119,8 +119,8 @@ def tune_performance_model(budget: int):
         seed=42,
         output_dir=f"./smac_output_performance/B{budget}_performance"
     )
-    os.makedirs("algo_performance_models", exist_ok=True)
-    joblib.dump(pipeline, f"algo_performance_models/model_B{budget}.pkl")
+    # os.makedirs("algo_performance_models", exist_ok=True)
+    # joblib.dump(pipeline, f"algo_performance_models/model_B{budget}.pkl")
 
 
 def tune_switching_model(budget: int):
@@ -144,17 +144,63 @@ def tune_switching_model(budget: int):
         seed=42,
         output_dir=f"./smac_output_switching/B{budget}_switching"
     )
-    os.makedirs("switching_prediction_models", exist_ok=True)
-    joblib.dump(pipeline, f"switching_prediction_models/model_B{budget}.pkl")
+    # os.makedirs("switching_prediction_models", exist_ok=True)
+    # joblib.dump(pipeline, f"switching_prediction_models/model_B{budget}.pkl")
+
+
+def train_and_save_selector_only(mode: str, budget: int):
+    """
+    Load an optimized pipeline (from SMAC), extract the selector,
+    train it on *all* instances (iid ∈ {1–5}), and save just the selector.
+    
+    Parameters:
+        mode (str): "performance" or "switching"
+        budget (int): e.g., 50, 100, ..., 1000
+    """
+    assert mode in {"performance", "switching"}, "Mode must be 'performance' or 'switching'"
+
+    if mode == "performance":
+        input_path = f"algo_performance_models/model_B{budget}.pkl"
+        data_path = f"../data/ela_with_algorithm_precisions/A1_B{budget}_5D_ela_with_state.csv"
+        save_path = f"algo_performance_models/selector_B{budget}_trained.pkl"
+        y_cols = -6
+    else:
+        input_path = f"switching_prediction_models/model_B{budget}.pkl"
+        data_path = f"../data/ela_with_optimal_precisions_ahead/A1_B{budget}_5D_ela_with_state.csv"
+        save_path = f"switching_prediction_models/selector_B{budget}_trained.pkl"
+        y_cols = -((1000 - budget) // 50 + 1)
+
+    print(f"Loading pipeline: {input_path}")
+    pipeline = joblib.load(input_path)
+    selector = pipeline.selector  # extract selector only
+
+    data = pd.read_csv(data_path)
+    features = data.iloc[:, 4:y_cols]
+    targets = data.iloc[:, y_cols:]
+    features.index = list(zip(data["fid"], data["iid"], data["rep"]))
+    targets.index = features.index
+
+    selector.algorithms = list(targets.columns)  # required before fitting
+    selector.fit(features, targets)
+
+    print(f"Trained selector on {features.shape[0]} rows")
+
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    joblib.dump(selector, save_path)
+    print(f"Saved trained selector to: {save_path}")
+
 
 
 if __name__ == "__main__":
-    budgets = [50 * i for i in range(1, 21)]
-    jobs = []
+    # budgets = [50 * i for i in range(1, 21)]
+    # jobs = []
 
-    for budget in budgets:
-        jobs.append(delayed(tune_performance_model)(budget))
-        jobs.append(delayed(tune_switching_model)(budget))
+    # for budget in budgets:
+    #     jobs.append(delayed(tune_performance_model)(budget))
+    #     jobs.append(delayed(tune_switching_model)(budget))
 
-    # Run with 4 parallel workers (adjust n_jobs based on your CPU and memory)
-    Parallel(n_jobs=8, backend="loky", verbose=10)(jobs)
+    # # Run with 4 parallel workers (adjust n_jobs based on your CPU and memory)
+    # Parallel(n_jobs=8, backend="loky", verbose=10)(jobs)
+    for budget in [50*i for i in range(1, 20)]:
+        train_and_save_selector_only("performance", budget)
+        train_and_save_selector_only("switching", budget)
