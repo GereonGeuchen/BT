@@ -16,4 +16,6 @@ data_collection/scripts/switching_prediction.py
 
 slurm
 
+selection_test
+
 environments
