@@ -45,10 +45,5 @@ Let **n** be the total number of switching points. Our selector consists of two 
    - Measure the final precision achieved by this switching + selection pipeline.
    - Compare against the **Virtual Best Solver (VBS)**, defined as the selector that always picks the best algorithm in hindsight at the best switching point (as per Hadar's definition).
 
-## Summary
-
-This approach captures both:
-- The **temporal decision** of *when* to switch
-- The **algorithmic decision** of *what* to switch to
-
-By learning from precision predictions across the A × S space, the system balances exploration of future gains with immediate switching decisions.
+## Results
+I implemented the approach. The results can be found in the folder results. 
