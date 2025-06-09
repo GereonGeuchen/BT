@@ -22,15 +22,11 @@ def compute_vbs_ratios(csv_path, fid = None):
     vbs_selector_ratios = {col: 0.0 for col in eval_cols}
 
     for _, row in df.iterrows():
-        vbs_p = row["vbs_precision"]
-        vbs_s = row["vbs_selector"]
+        vbs_p = row["vbs_precision"] + eps
+        vbs_s = row["vbs_selector"] + eps
 
         for col in eval_cols:
-            denom = row[col]
-            if denom == 0:
-                denom = eps  # Avoid division by zero
-                vbs_p = eps 
-                vbs_s = eps  # Avoid division by zero for VBS values
+            denom = row[col] + eps # Avoid division by zero for VBS values
             # vbs_precision / col
             vbs_precision_ratios[col] += vbs_p / denom
 
@@ -105,7 +101,7 @@ def find_sbs(path):
     df = df.merge(vbs_df, on=["fid", "iid", "rep"], how="left")
 
     # Step 3: Compute relative score (vbs / precision)
-    df["relative_score"] = df["vbs"].replace(0, eps) / df["precision"].replace(0, eps)
+    df["relative_score"] = ( df["vbs"] + eps ) / ( df["precision"] + eps )
     # df.to_csv("test.csv", index=False)  # Save intermediate results for debugging
     # Step 4: Average relative score per (budget, algorithm)
     score_table = (
@@ -137,12 +133,12 @@ def display_vbs_tables(csv_path, fid = None):
     results = compute_vbs_ratios(csv_path, fid)
     if fid is None:
         save_tables(results["vbs_precision_ratios"], "VBS Precision Ratios", "../results/vbs_precision_ratios.png")
-        save_tables(results["vbs_selector_ratios"], "VBS Selector Ratios", "../results/vbs_selector_ratios.png")
+        # save_tables(results["vbs_selector_ratios"], "VBS Selector Ratios", "../results/vbs_selector_ratios.png")
     else:
         os.makedirs(f"../results/vbs_precision_ratios_fid", exist_ok=True)
-        os.makedirs(f"../results/vbs_selector_ratios_fid", exist_ok=True)
+        # os.makedirs(f"../results/vbs_selector_ratios_fid", exist_ok=True)
         save_tables(results["vbs_precision_ratios"], f"VBS Precision Ratios (fid={fid})", f"../results/vbs_precision_ratios_fid/vbs_precision_ratios_fid_{fid}.png")
-        save_tables(results["vbs_selector_ratios"], f"VBS Selector Ratios (fid={fid})", f"../results/vbs_selector_ratios_fid/vbs_selector_ratios_fid_{fid}.png")
+        # save_tables(results["vbs_selector_ratios"], f"VBS Selector Ratios (fid={fid})", f"../results/vbs_selector_ratios_fid/vbs_selector_ratios_fid_{fid}.png")
 
 def plot_selector_budget_counts(csv_path, output_png="selector_budget_counts.png"):
     df = pd.read_csv(csv_path)
@@ -258,14 +254,18 @@ def plot_switching_point_comparison(selector_csv, precision_csv, output_dir="../
 # Example usage
 if __name__ == "__main__":
     precision_path = "../data/A2_precisions_test.csv"  # Replace with your actual file path
-    result_path = "../data/result_csvs/selector_results_with_vbs_selector.csv"
-    for fid in range(1, 25):
-        display_vbs_tables(result_path, fid)
-    # print(compute_budget_specific_selector_ratio(result_path, precision_path, budget=150))
-    # display_vbs_tables(result_path)
-    # res = find_sbs(precision_path)
-    # for i, row in res.iterrows():
-    #     print(f"{row['budget']:>3} | {row['algorithm']:<20} | {row['relative_score']:.6f}")
-    # sbs = (50, "Non-elitist", 0.244517)
-    plot_switching_point_comparison(result_path, precision_path, output_dir="../results/switching_point_plots")
-    # plot_selector_budget_counts(result_path, output_png="../results/selector_budget_counts.png")
+    result_path = "../results/result_csvs/selector_results_with_vbs_selector.csv"
+    res = find_sbs(precision_path)
+    for i, row in res.iterrows():
+        print(f"{row['budget']:>3} | {row['algorithm']:<20} | {row['relative_score']:.6f}")
+    display_vbs_tables(result_path)
+    # for fid in range(1, 25):
+    #     display_vbs_tables(result_path, fid)
+    # # print(compute_budget_specific_selector_ratio(result_path, precision_path, budget=150))
+    # # display_vbs_tables(result_path)
+    # # res = find_sbs(precision_path)
+    # # for i, row in res.iterrows():
+    # #     print(f"{row['budget']:>3} | {row['algorithm']:<20} | {row['relative_score']:.6f}")
+    # # sbs = (50, "Non-elitist", 0.244517)
+    # plot_switching_point_comparison(result_path, precision_path, output_dir="../results/switching_point_plots")
+    # # plot_selector_budget_counts(result_path, output_png="../results/selector_budget_counts.png")

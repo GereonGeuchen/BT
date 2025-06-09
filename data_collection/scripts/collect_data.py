@@ -198,7 +198,7 @@ def collect_A1_data(budget_factor, dim = 5):
 
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/A1_test/data/A1_B{budget_factor*dim}_{dim}D',
+        folder_name=f'../data/A1_newReps/A1_B{budget_factor*dim}_{dim}D',
         algorithm_name='ModCMA_A1',
         store_positions=True
     )
@@ -206,11 +206,11 @@ def collect_A1_data(budget_factor, dim = 5):
     logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
     
     for fid in range(1,25):
-        for iid in range(6,8):
+        for iid in range(6):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
             problem.attach_logger(logger)
             
-            for rep in range(20):
+            for rep in range(20, 101):
                 tracked_parameters.rep = rep
                 tracked_parameters.iid = iid
                 print(f"Running fundction {fid} instance {iid} repetition {rep} with A1, budget {budget_factor*dim}")
@@ -235,7 +235,7 @@ def collect_A2(budget_factor, dim, A2, algname):
     
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/A2_test_data/A2_{algname}_B{budget_factor*dim}_{dim}D',
+        folder_name=f'../data/A2_newReps/A2_{algname}_B{budget_factor*dim}_{dim}D',
         algorithm_name=algname,
         store_positions=False,
     )
@@ -243,11 +243,11 @@ def collect_A2(budget_factor, dim, A2, algname):
     logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
     
     for fid in range(1,25):
-        for iid in range(6,8):
+        for iid in range(6):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
             problem.attach_logger(logger)
             
-            for rep in range(20):
+            for rep in range(20, 101):
                 tracked_parameters.rep = rep
                 tracked_parameters.iid = iid
                 print(f"Running fundction {fid} instance {iid} repetition {rep} with A2 {algname}, budget {budget_factor*dim}")
