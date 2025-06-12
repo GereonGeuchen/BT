@@ -47,12 +47,16 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
             warnings.filterwarnings("ignore", category=RuntimeWarning)
             features.update(calculate_ela_meta(X, y))
 
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=UserWarning)
-            if budget == 50:
-                features.update(calculate_ela_level(X, y, ela_level_quantiles=[0.25, 0.50]))
-            else:
-                features.update(calculate_ela_level(X, y))
+        if budget > 16:
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=UserWarning)
+                if budget <= 88:
+                    if budget <= 32:
+                        features.update(calculate_ela_level(X, y, ela_level_quantiles=[0.50]))
+                    else:
+                        features.update(calculate_ela_level(X, y, ela_level_quantiles=[0.25, 0.50]))
+                else:
+                    features.update(calculate_ela_level(X, y))
 
         features.update(calculate_dispersion(X, y))
         assert isinstance(y, np.ndarray)
@@ -60,7 +64,11 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
         assert y.shape[0] == X.shape[0]
 
         features.update(calculate_information_content(X, y))
-        features.update(calculate_nbc(X, y))
+        if budget <= 16:
+            # For budgets <= 12, we use the raw_y values
+            features.update(calculate_nbc(X, y, fast_k = 2))
+        else:
+            features.update(calculate_nbc(X, y))
 
         # Add identifying metadata
         features["fid"] = fid
@@ -79,6 +87,12 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
             features["high_level_category"] = 5
         else:
             features["high_level_category"] = None
+
+        # Remove ela_meta.quad_w_interact.adj_r2 if budget <= 56
+
+        if budget <= 56:
+            features.pop('ela_meta.quad_w_interact.adj_r2', None)
+
 
         # Create DataFrame for one row, reorder columns
         row_df = pd.DataFrame([features])
@@ -271,6 +285,20 @@ if __name__ == "__main__":
     #normalize_single_ela_file("ela_initial_sampling.csv", "ela_initial_sampling_normalized.csv")
     # add_rep_column("ela_initial_sampling_normalized.csv", "ela_initial_sampling_with_normalized_rep.csv")
     # normalize_ela_features_across_budgets()
-    for budget in [50*i for i in range(1, 21)]:
-        print(f"Calculating ELA features for budget: {budget}")
-        calculate_ela_features()
+    # for budget in [50*i for i in range(1, 21)]:
+    #     print(f"Calculating ELA features for budget: {budget}")
+    #     calculate_ela_features(
+    #         budget = budget,
+    #         base_folder="../data/run_data/A1_newReps",
+    #         output_folder=f"../data/ela_data/A1_data_ela_newReps"
+    #     )
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+        warnings.filterwarnings("ignore", category=UserWarning)
+        for budget in reversed([8*i for i in range(1, 3)]):
+            print(f"Calculating ELA features for budget: {budget}")
+            calculate_ela_features(
+                budget=budget,
+                base_folder="../data/run_data/A1_early_switching",
+                output_folder=f"../data/ela_data/A1_data_ela_early_switching"
+            )

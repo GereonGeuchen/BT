@@ -1,0 +1,35 @@
+{
+  "stats": {
+    "submitted": 1,
+    "finished": 0,
+    "running": 1
+  },
+  "data": [
+    {
+      "config_id": 1,
+      "instance": null,
+      "seed": 1608637542,
+      "budget": null,
+      "cost": 2147483647.0,
+      "time": 0.0,
+      "cpu_time": 0.0,
+      "status": 0,
+      "starttime": 0.0,
+      "endtime": 0.0,
+      "additional_info": {}
+    }
+  ],
+  "configs": {
+    "1": {
+      "selector": "PerformanceModel",
+      "PerformanceModel:rf_regressor:bootstrap": true,
+      "PerformanceModel:rf_regressor:max_features": 0.9945911126211,
+      "PerformanceModel:rf_regressor:min_samples_leaf": 10,
+      "PerformanceModel:rf_regressor:min_samples_split": 5,
+      "PerformanceModel:rf_regressor:n_estimators": 97
+    }
+  },
+  "config_origins": {
+    "1": "Initial Design: Sobol"
+  }
+}

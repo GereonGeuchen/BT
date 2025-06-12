@@ -162,5 +162,5 @@ def extract_a2_precisions(base_dir, output_file="A2_precisions.csv", algorithms=
     return result_df
 
 if __name__ == "__main__":
-    extract_a2_precisions(base_dir="../data/run_data/A2_test_data", output_file="../data/A2_precisions_test.csv")
-    # process_ioh_data(base_path="../data/run_data/A1_data") 
+    # extract_a2_precisions(base_dir="../data/run_data/A2_newReps", output_file="../data/A2_newReps_precisions.csv")
+    process_ioh_data(base_path="../data/run_data/A1_early_switching") 

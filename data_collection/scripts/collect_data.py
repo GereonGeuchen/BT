@@ -127,7 +127,7 @@ class From_CMA_To_CMA():
         if A2 == "Same":
             budget = self.total_budget
         else:
-            budget = self.dim * self.budget_factor
+            budget = self.budget_factor
             
         cma = TrackedCMAES(
                     None, 
@@ -163,7 +163,7 @@ class Switched_From_CMA():
                     None, 
                     problem, 
                     self.dim, 
-                    budget= self.dim * self.budget_factor,
+                    budget= self.budget_factor,
                     active=True,
                     bound_correction='saturate',
                     sigma0 = 2.0,
@@ -198,7 +198,7 @@ def collect_A1_data(budget_factor, dim = 5):
 
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/A1_newReps/A1_B{budget_factor*dim}_{dim}D',
+        folder_name=f'../data/run_data/A1_early_switching/A1_B{budget_factor}_{dim}D',
         algorithm_name='ModCMA_A1',
         store_positions=True
     )
@@ -206,20 +206,20 @@ def collect_A1_data(budget_factor, dim = 5):
     logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
     
     for fid in range(1,25):
-        for iid in range(6):
+        for iid in range(1, 6):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
             problem.attach_logger(logger)
             
-            for rep in range(20, 101):
+            for rep in range(20):
                 tracked_parameters.rep = rep
                 tracked_parameters.iid = iid
-                print(f"Running fundction {fid} instance {iid} repetition {rep} with A1, budget {budget_factor*dim}")
+                print(f"Running fundction {fid} instance {iid} repetition {rep} with A1, budget {budget_factor}")
                 np.random.seed(rep)
                 cma = TrackedCMAES(
                     tracked_parameters, 
                     problem, 
                     dim, 
-                    budget=dim * budget_factor,
+                    budget=budget_factor,
                     active=True,
                     bound_correction='saturate',
                     sigma0 = 2.0,
@@ -235,7 +235,7 @@ def collect_A2(budget_factor, dim, A2, algname):
     
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/A2_newReps/A2_{algname}_B{budget_factor*dim}_{dim}D',
+        folder_name=f'../data/run_data/A2_early_switching/A2_{algname}_B{budget_factor}_{dim}D',
         algorithm_name=algname,
         store_positions=False,
     )
@@ -243,14 +243,14 @@ def collect_A2(budget_factor, dim, A2, algname):
     logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
     
     for fid in range(1,25):
-        for iid in range(6):
+        for iid in range(1, 6):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
             problem.attach_logger(logger)
             
-            for rep in range(20, 101):
+            for rep in range(20):
                 tracked_parameters.rep = rep
                 tracked_parameters.iid = iid
-                print(f"Running fundction {fid} instance {iid} repetition {rep} with A2 {algname}, budget {budget_factor*dim}")
+                print(f"Running fundction {fid} instance {iid} repetition {rep} with A2 {algname}, budget {budget_factor}")
                 np.random.seed(rep)
                 if algname in ["Same", "Non-elitist"]:
                     alg = From_CMA_To_CMA(budget_factor, dim, algname, total_budget_factor=200)
@@ -274,7 +274,7 @@ def collect_all(x = None):
                 
                 
 def get_combinations():
-    budget_factors = [10*i for i in range (1,21)] # 10, 20, ..., 1000
+    budget_factors = [8*i for i in range (1,14)] # 10, 20, ..., 1000
     dim = 5
     return [(bf, dim) for bf in budget_factors]
 
