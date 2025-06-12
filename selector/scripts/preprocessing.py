@@ -241,4 +241,9 @@ if __name__ == "__main__":
     #     precision_csv="../data/A2_precisions.csv",
     #     output_dir="../data/ela_with_algorithm_precisions"
     # )
-    clean_ela_folder("../data/ela_with_state_test_data", inplace=True)
+    # clean_ela_folder("../data/ela_with_state_test_data", inplace=True)
+    append_cma_state_to_ela(
+        ela_dir="../../data_collection/data/ela_data/A1_data_ela_newReps",
+        run_dir="../../data_collection/data/run_data/A1_newReps",
+        output_dir="../data/ela_with_state_newReps"
+    )

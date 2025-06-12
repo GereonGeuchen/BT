@@ -225,7 +225,7 @@ class SwitchingSelector:
                                 (precision_df["iid"] == iid) &
                                 (precision_df["rep"] == rep) &
                                 (precision_df["budget"] == 1000) &
-                                (precision_df["algorithm"] == "CMA-ES")
+                                (precision_df["algorithm"] == "Same")
                             ]
                             row[col_name] = match["precision"].values[0] if not match.empty else None
 
@@ -238,26 +238,26 @@ class SwitchingSelector:
 
 
 
-def main(fid = 1, iid = 6, rep = 0):
-    # Initialize the selector with default model directories
-    selector = SwitchingSelector(
-        selector_model_dir="switching_prediction_models",
-        performance_model_dir="algo_performance_models"
-    )
+# def main(fid = 1, iid = 6, rep = 0):
+#     # Initialize the selector with default model directories
+#     selector = SwitchingSelector(
+#         selector_model_dir="switching_prediction_models",
+#         performance_model_dir="algo_performance_models"
+#     )
 
 
-    # Run the simulation
-    for rep in range(20):
-        # Simulate a single run
-        result = selector.simulate_single_run(fid=fid, iid=iid, rep=rep)
+#     # Run the simulation
+#     for rep in range(20):
+#         # Simulate a single run
+#         result = selector.simulate_single_run(fid=fid, iid=iid, rep=rep)
 
-        # Print the result
-        print("=== Simulation Result ===")
-        print(f"FID: {result['fid']}, IID: {result['iid']}, REP: {result['rep']}")
-        print(f"Switch budget: {result['switch_budget']}")
-        print(f"Selected algorithm: {result['selected_algorithm']}")
-        print(f"Predicted precision: {result['predicted_precision']}")
-        print(f"VBS precision: {result['vbs_precision']}")
+#         # Print the result
+#         print("=== Simulation Result ===")
+#         print(f"FID: {result['fid']}, IID: {result['iid']}, REP: {result['rep']}")
+#         print(f"Switch budget: {result['switch_budget']}")
+#         print(f"Selected algorithm: {result['selected_algorithm']}")
+#         print(f"Predicted precision: {result['predicted_precision']}")
+#         print(f"VBS precision: {result['vbs_precision']}")
 
 if __name__ == "__main__":
     selector = SwitchingSelector(
@@ -266,9 +266,9 @@ if __name__ == "__main__":
     )
     selector.evaluate_selector_to_csv(
         fids=list(range(1, 25)),
-        iids=[6, 7],
-        reps=list(range(20)),
-        save_path="../data/results/selector_results.csv",
-        ela_dir="../data/ela_with_state_test_data",
-        precision_file="../data/A2_precisions_test.csv"
+        iids=[1, 2, 3, 4, 5],
+        reps=list(range(20, 30)),
+        save_path="../results/result_csvs/selector_results_newReps.csv",
+        ela_dir="../data/ela_with_state_newReps",
+        precision_file="../data/A2_newReps_precisions.csv"
     )
