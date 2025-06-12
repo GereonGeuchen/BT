@@ -1,7 +1,7 @@
 {
   "stats": {
-    "submitted": 73,
-    "finished": 71,
+    "submitted": 75,
+    "finished": 73,
     "running": 2
   },
   "data": [
@@ -953,6 +953,32 @@
       "starttime": 0.0,
       "endtime": 0.0,
       "additional_info": {}
+    },
+    {
+      "config_id": 74,
+      "instance": null,
+      "seed": 1608637542,
+      "budget": null,
+      "cost": 1294.5661331134602,
+      "time": 76.32296586036682,
+      "cpu_time": 76.21021800700001,
+      "status": 1,
+      "starttime": 1749747131.5449152,
+      "endtime": 1749747207.869176,
+      "additional_info": {}
+    },
+    {
+      "config_id": 75,
+      "instance": null,
+      "seed": 1608637542,
+      "budget": null,
+      "cost": 1294.5661331134602,
+      "time": 76.23702144622803,
+      "cpu_time": 76.131175686,
+      "status": 1,
+      "starttime": 1749747207.878359,
+      "endtime": 1749747284.1167314,
+      "additional_info": {}
     }
   ],
   "configs": {
@@ -1539,6 +1565,22 @@
       "PerformanceModel:rf_regressor:min_samples_leaf": 1,
       "PerformanceModel:rf_regressor:min_samples_split": 2,
       "PerformanceModel:rf_regressor:n_estimators": 99
+    },
+    "74": {
+      "selector": "PerformanceModel",
+      "PerformanceModel:rf_regressor:bootstrap": true,
+      "PerformanceModel:rf_regressor:max_features": 0.3972300020047,
+      "PerformanceModel:rf_regressor:min_samples_leaf": 1,
+      "PerformanceModel:rf_regressor:min_samples_split": 18,
+      "PerformanceModel:rf_regressor:n_estimators": 99
+    },
+    "75": {
+      "selector": "PerformanceModel",
+      "PerformanceModel:rf_regressor:bootstrap": true,
+      "PerformanceModel:rf_regressor:max_features": 0.3963773760819,
+      "PerformanceModel:rf_regressor:min_samples_leaf": 1,
+      "PerformanceModel:rf_regressor:min_samples_split": 18,
+      "PerformanceModel:rf_regressor:n_estimators": 99
     }
   },
   "config_origins": {
@@ -1614,6 +1656,8 @@
     "70": "Acquisition Function Maximizer: Local Search",
     "71": "Acquisition Function Maximizer: Local Search",
     "72": "Acquisition Function Maximizer: Local Search",
-    "73": "Acquisition Function Maximizer: Local Search"
+    "73": "Acquisition Function Maximizer: Local Search",
+    "74": "Acquisition Function Maximizer: Local Search",
+    "75": "Acquisition Function Maximizer: Local Search"
   }
 }

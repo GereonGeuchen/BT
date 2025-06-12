@@ -1,0 +1,19 @@
+[INFO][abstract_initial_design.py:87] Reducing the number of initial configurations from 60 to 18 (max_ratio == 0.25).
+[INFO][abstract_initial_design.py:139] Using 18 initial design configurations and 0 additional configurations.
+[INFO][smbo.py:509] Continuing from previous run.
+[INFO][abstract_intensifier.py:289] Added existing seed 1608637542 from runhistory to the intensifier.
+[INFO][abstract_intensifier.py:307] Using only one seed for deterministic scenario.
+1430.2331372117
+1181.0756836568
+1325.3793734286
+1160.7045911709001
+1375.4378800993
+1430.2331372117
+1181.0756836568
+1325.3793734286
+1160.7045911709001
+1375.4378800993
+[INFO][smbo.py:335] Configuration budget is exhausted:
+[INFO][smbo.py:336] --- Remaining wallclock time: inf
+[INFO][smbo.py:337] --- Remaining cpu time: inf
+[INFO][smbo.py:338] --- Remaining trials: 0
