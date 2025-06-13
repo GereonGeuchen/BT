@@ -3,10 +3,9 @@ import pandas as pd
 import os
 import joblib
 from asf.selectors import PerformanceModel, tune_selector
-from sklearn.ensemble import RandomForestRegressor
 
 def tune_performance_model(budget: int):
-    data = pd.read_csv(f"../data/ela_with_algorithm_precisions/A1_B{budget}_5D_ela_with_state.csv")
+    data = pd.read_csv(f"../data/ela_for_training/ela_with_algorithm_precisions/A1_B{budget}_5D_ela_with_state.csv")
     features = data.iloc[:, 4:-6]
     targets = data.iloc[:, -6:]
     groups = data["iid"]
@@ -14,7 +13,8 @@ def tune_performance_model(budget: int):
     pipeline = tune_selector(
         X=features,
         y=targets,
-        selector_class=[(PerformanceModel, {"model_class": RandomForestRegressor(random_state=42)})],
+        selector_class=[(PerformanceModel, {})],  # model is defined in configspace
+        selector_kwargs={"random_state": 42},
         budget=budget,
         maximize=False,
         groups=groups.values,
@@ -28,7 +28,7 @@ def tune_performance_model(budget: int):
 
 
 def tune_switching_model(budget: int):
-    data = pd.read_csv(f"../data/ela_with_optimal_precisions_ahead/A1_B{budget}_5D_ela_with_state.csv")
+    data = pd.read_csv(f"../data/ela_for_training/ela_with_optimal_precisions_ahead/A1_B{budget}_5D_ela_with_state.csv")
     number_of_predictions = (1000 - budget) // 50 + 1
 
     features = data.iloc[:, 4:-number_of_predictions]
@@ -38,7 +38,8 @@ def tune_switching_model(budget: int):
     pipeline = tune_selector(
         X=features,
         y=targets,
-        selector_class=[(PerformanceModel, {"model_class": RandomForestRegressor(random_state=42)})],
+        selector_class=[(PerformanceModel, {})],  # model is defined in configspace
+        selector_kwargs={"random_state": 42},
         budget=budget,
         maximize=False,
         groups=groups.values,
