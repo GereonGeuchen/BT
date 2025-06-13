@@ -21,10 +21,10 @@ def tune_performance_model(budget: int):
         cv=5,
         runcount_limit=75,
         seed=42,
-        output_dir=f"./smac_output_performance/B{budget}_performance"
+        output_dir=f"./smac_output_performance_test/B{budget}_performance"
     )
-    os.makedirs("algo_performance_models", exist_ok=True)
-    joblib.dump(pipeline, f"algo_performance_models/model_B{budget}.pkl")
+    # os.makedirs("algo_performance_models", exist_ok=True)
+    # joblib.dump(pipeline, f"algo_performance_models/model_B{budget}.pkl")
 
 
 def tune_switching_model(budget: int):
@@ -46,10 +46,10 @@ def tune_switching_model(budget: int):
         cv=5,
         runcount_limit=75,
         seed=42,
-        output_dir=f"./smac_output_switching/B{budget}_switching"
+        output_dir=f"./smac_output_switching_test/B{budget}_switching"
     )
-    os.makedirs("switching_prediction_models", exist_ok=True)
-    joblib.dump(pipeline, f"switching_prediction_models/model_B{budget}.pkl")
+    # os.makedirs("switching_prediction_models", exist_ok=True)
+    # joblib.dump(pipeline, f"switching_prediction_models/model_B{budget}.pkl")
 
 
 if __name__ == "__main__":
