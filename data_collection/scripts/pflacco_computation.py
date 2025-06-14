@@ -92,8 +92,12 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
 
         if budget <= 56:
             features.pop('ela_meta.quad_w_interact.adj_r2', None)
+            if budget <= 32:
+                features.pop('ela_meta.lin_w_interact.adj_r2', None)
 
-
+        for key in list(features.keys()):
+            if key.endswith(".costs_runtime"):
+                features.pop(key, None)
         # Create DataFrame for one row, reorder columns
         row_df = pd.DataFrame([features])
         cols = ["fid", "iid", "rep", "high_level_category"]
@@ -295,10 +299,10 @@ if __name__ == "__main__":
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         warnings.filterwarnings("ignore", category=UserWarning)
-        for budget in reversed([8*i for i in range(1, 3)]):
+        for budget in reversed([8*i for i in range(4, 5)]):
             print(f"Calculating ELA features for budget: {budget}")
             calculate_ela_features(
                 budget=budget,
                 base_folder="../data/run_data/A1_early_switching",
-                output_folder=f"../data/ela_data/A1_data_ela_early_switching"
+                output_folder=f"../data/ela_data/A1_data_ela_early_switching_test"
             )

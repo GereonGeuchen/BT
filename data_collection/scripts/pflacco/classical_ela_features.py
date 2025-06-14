@@ -1359,7 +1359,15 @@ def calculate_ela_level(
             if interface_mda_from_R:
                   mda_mmce.append(np.array(mda_mmce_prob).mean())
 
-      lda_qda = np.array([lda_mmce[i]/qda_mmce[i] for i in range(len(ela_level_quantiles))])
+      # === Added by me to avoid division by zero ===
+      lda_qda = np.array([
+            1.0 if lda_mmce[i] == 0 and qda_mmce[i] == 0 else
+            0.0 if qda_mmce[i] == 0 else
+            lda_mmce[i] / qda_mmce[i]
+            for i in range(len(ela_level_quantiles))
+            ])
+      # === End of added code =============================================
+
       if interface_mda_from_R:
             lda_mda = np.array([lda_mmce[i]/mda_mmce[i] for i in range(len(ela_level_quantiles))])
             qda_mda = np.array([lda_mmce[i]/mda_mmce[i] for i in range(len(ela_level_quantiles))])
