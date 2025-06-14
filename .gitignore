@@ -1,5 +1,4 @@
 # Ignore all files in the preliminary_experiments/data directory because they are too bi
-data_collection/data/ela_data
 data_collection/data/A1_newReps
 data_collection/data/A2_newReps
 data_collection/data/ela_initial_sampling
