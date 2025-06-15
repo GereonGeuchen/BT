@@ -51,7 +51,8 @@ def extract_final_internal_state(dat_path, target_iid, target_rep):
         return None
     
 def append_cma_state_to_ela(ela_dir, run_dir, output_dir):
-    budgets = list(range(50, 1050, 50))
+    # budgets = [8*i for i in range(1, 14)] + [50*i for i in range(3, 21)]  # 8, 16, ..., 104, 150, ..., 1000
+    budgets = [100]
     os.makedirs(output_dir, exist_ok=True)
 
     for budget in budgets:
@@ -242,8 +243,13 @@ if __name__ == "__main__":
     #     output_dir="../data/ela_with_algorithm_precisions"
     # )
     # clean_ela_folder("../data/ela_with_state_test_data", inplace=True)
+    # add_algorithm_precisions(
+    #     ela_dir="../data/ela_for_training/ela_with_state_early_switching",
+    #     precision_csv="../data/A2_early_and_late_precisions.csv",
+    #     output_dir="../data/ela_for_training/ela_with_algorithm_precisions_early_switching"
+    # )
     append_cma_state_to_ela(
         ela_dir="../../data_collection/data/ela_data/A1_data_ela_newReps",
-        run_dir="../../data_collection/data/run_data/A1_newReps",
-        output_dir="../data/ela_with_state_newReps"
+        run_dir="../../data_collection/data/run_data/A1_newReps_with_early",
+        output_dir="../data/ela_with_cma_state_newReps"
     )

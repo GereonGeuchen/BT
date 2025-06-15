@@ -162,22 +162,26 @@ def train_and_save_selector_only(mode: str, budget: int):
 
     if mode == "performance":
         input_path = f"algo_performance_models/model_B{budget}.pkl"
-        data_path = f"../data/ela_with_algorithm_precisions/A1_B{budget}_5D_ela_with_state.csv"
-        save_path = f"algo_performance_models/selector_B{budget}_trained.pkl"
+        data_path = f"../data/ela_for_training/ela_with_algorithm_precisions/A1_B{budget}_5D_ela_with_state.csv"
+        save_path = f"algo_performance_models_trained/selector_B{budget}_trained.pkl"
         y_cols = -6
     else:
         input_path = f"switching_prediction_models/model_B{budget}.pkl"
-        data_path = f"../data/ela_with_optimal_precisions_ahead/A1_B{budget}_5D_ela_with_state.csv"
-        save_path = f"switching_prediction_models/selector_B{budget}_trained.pkl"
-        y_cols = -((1000 - budget) // 50 + 1)
+        data_path = f"../data/ela_for_training/ela_with_optimal_precisions_ahead/A1_B{budget}_5D_ela_with_state.csv"
+        save_path = f"switching_prediction_models_trained/selector_B{budget}_trained.pkl"
+        if budget < 100:
+            y_cols = -(19 + ( (96 - budget) // 8 ) + 1) 
+        else:
+            y_cols = -(((1000 - budget) // 50 + 1))
 
-    print(f"Loading pipeline: {input_path}")
+    print(f"Loading pipeline: {input_path} and data: {data_path}")
     pipeline = joblib.load(input_path)
     selector = pipeline.selector  # extract selector only
 
     data = pd.read_csv(data_path)
     features = data.iloc[:, 4:y_cols]
     targets = data.iloc[:, y_cols:]
+    print(f"Target columns: {targets.columns.tolist()}")
     features.index = list(zip(data["fid"], data["iid"], data["rep"]))
     targets.index = features.index
 
@@ -193,15 +197,8 @@ def train_and_save_selector_only(mode: str, budget: int):
 
 
 if __name__ == "__main__":
-    budgets = [50 * i for i in range(1, 21)]
-    jobs = []
-
+    budgets = [8*i for i in range(5, 13)] + [50 * i for i in range(2, 21)]
+  
     for budget in budgets:
-        jobs.append(delayed(tune_performance_model)(budget))
-        jobs.append(delayed(tune_switching_model)(budget))
-
-    # Run with 4 parallel workers (adjust n_jobs based on your CPU and memory)
-    Parallel(n_jobs=8, backend="loky", verbose=10)(jobs)
-    for budget in [50*i for i in range(1, 20)]:
         train_and_save_selector_only("performance", budget)
         train_and_save_selector_only("switching", budget)
