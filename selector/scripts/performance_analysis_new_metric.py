@@ -5,7 +5,8 @@ import os
 
 eps = np.finfo(float).eps  # Small value to avoid division by zero
 # sbs_sum = 2690.130170 # For iid 6,7
-sbs_sum = 3656.7648633933 # For new reps
+sbs_sum = 3306.1779694383 # For new reps, all switching points, Non-elitist budget 16
+# sbs_sum = 3511.967 # For new reps, late switching points, 50 Non-elitist
 
 def compute_vbs_ratios(csv_path, fid = None):
 
@@ -15,7 +16,11 @@ def compute_vbs_ratios(csv_path, fid = None):
     res = {}
     for col in consider_cols:
         col_sum = df[col].sum()
+        print(f"Processing column: {col}, sum: {col_sum}")
         res[col] = (col_sum - vbs_sum) / (sbs_sum - vbs_sum) 
+        res[col] = col_sum
+    # res["selector_50"] = (selector_50_sum - vbs_sum) / (sbs_sum - vbs_sum)
+    
     return res
 
 def sum_selected_columns(csv_path):
@@ -96,14 +101,14 @@ def compute_total_precisions_for_fid(csv_path, fid):
     result = {col: df[col].sum() for col in consider_cols}
     return result
 
-def display_vbs_tables(csv_path, fid=None):
+def display_vbs_tables(csv_path,fid=None):
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/new_instances/vbs_precision_ratios.png"
+        output_path = "../results/new_Reps/all_sp/total_precisions.png"
         save_tables(ratios, "VBS Relative Ratios", output_path)
     else:
         totals = compute_total_precisions_for_fid(csv_path, fid)
-        output_dir = "../results/new_instances/vbs_precision_totals_fid"
+        output_dir = "../results/new_Reps/all_sp/vbs_precision_totals_fid_correct"
         os.makedirs(output_dir, exist_ok=True)
         output_path = f"{output_dir}/vbs_precision_totals_fid_{fid}.png"
         save_tables(totals, f"Sum of Precisions (fid={fid})", output_path)
@@ -221,9 +226,23 @@ def plot_switching_point_comparison(selector_csv, precision_csv, output_dir="../
 
 # Example usage
 if __name__ == "__main__":
-    precision_path = "../data/A2_precisions_new_instances.csv"  # Replace with your actual file path
-    result_csv = "../results/new_instances/selector_results.csv"
-    display_vbs_tables(result_csv)
-    for fid in range(1, 25):
-        display_vbs_tables(result_csv, fid=fid)
-        print(f"Processed fid={fid}")  
+    precision_path1 = "../data/precision_files/A2_late_precisions_newReps.csv"  # Replace with your actual file path
+    precision_path2 = "../data/precision_files/A2_all_precisions_newReps.csv"  # Replace with your actual file path
+    result_csv1 = "../results/new_Reps/late_sp/selector_results_newReps_late.csv"
+    result_csv2 = "../results/new_Reps/all_sp/selector_results_newReps_all.csv"
+    # res = find_sbs(precision_path2)
+    # for index, row in res.iterrows():
+    #     print(f"Budget: {row['budget']}, Algorithm: {row['algorithm']}, Precision sum: {row['precision']}")    
+    # compute_vbs_ratios(result_csv2)
+    # res = find_sbs(precision_path)
+    # for index, row in res.iterrows():
+    #     print(f"Budget: {row['budget']}, Algorithm: {row['algorithm']}, Precision sum: {row['precision']}")
+    # for fid in range(1, 25):
+    #     print(f"Processing fid: {fid}")
+    #     display_vbs_tables(result_csv1, fid=fid)
+    # for fid in range(1, 25):
+    #     display_vbs_tables(result_csv2, fid=fid)
+    # for fid in range(1, 25):
+    #     print(f"Processing fid: {fid}")
+    #     display_vbs_tables(result_csv2, fid=fid)
+    display_vbs_tables(result_csv2)

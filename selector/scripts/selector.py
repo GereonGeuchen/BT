@@ -5,7 +5,7 @@ from ioh import get_problem, ProblemClass
 import os
 
 class SwitchingSelector:
-    def __init__(self, selector_model_dir="switching_prediction_models", performance_model_dir="algo_performance_models"):
+    def __init__(self, selector_model_dir="trained_models/switching_prediction_models_trained", performance_model_dir="trained_models/algo_performance_models_trained"):
         """
         Initializes the selector and algorithm performance predictors.
 
@@ -47,7 +47,7 @@ class SwitchingSelector:
             dict: {fid, iid, rep, switch_budget, selected_algorithm, predicted_precision}
         """
         precision_df = pd.read_csv(precision_file)
-        budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 20)]  # 8, 16, ..., 96, 100, ..., 950
+        budgets = [50*i for i in range(1, 20)]
         for budget in budgets:
             # print(f"Checking budget {budget} for (fid={fid}, iid={iid}, rep={rep})...")
             ela_path = Path(ela_dir) / f"A1_B{budget}_5D_ela_with_state.csv"
@@ -153,8 +153,8 @@ class SwitchingSelector:
     precision_file="../data/A2_precisions_test.csv"
     ):
         precision_df = pd.read_csv(precision_file)
-        budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)] + [1000]  
-
+        # budgets = [8*i for i in range(1, 13)] + [50 * i for i in range(2, 21)]
+        budgets = [50*i for i in range(1, 21)]
         # Ensure output directory exists
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
@@ -263,14 +263,14 @@ class SwitchingSelector:
 
 if __name__ == "__main__":
     selector = SwitchingSelector(
-        selector_model_dir="switching_prediction_models_trained",
-        performance_model_dir="algo_performance_models_trained"
+        selector_model_dir="trained_models/switching_prediction_models_trained",
+        performance_model_dir="trained_models/algo_performance_models_trained"
     )
     selector.evaluate_selector_to_csv(
         fids=list(range(1, 25)),
         iids=[1, 2, 3, 4, 5],
         reps=list(range(20, 30)),
-        save_path="../results/result_csvs/selector_results_newReps_early.csv",
+        save_path="../results/new_Reps/late_sp/selector_results_newReps_late.csv",
         ela_dir="../data/ela_with_cma_state_newReps",
-        precision_file="../data/A2_early_and_late_precisions_newReps.csv"
+        precision_file="../data/precision_files/A2_late_precisions_newReps.csv"
     )

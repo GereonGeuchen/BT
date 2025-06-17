@@ -161,15 +161,15 @@ def train_and_save_selector_only(mode: str, budget: int):
     assert mode in {"performance", "switching"}, "Mode must be 'performance' or 'switching'"
 
     if mode == "performance":
-        input_path = f"algo_performance_models/model_B{budget}.pkl"
+        input_path = f"optimization/algo_performance_models/model_B{budget}.pkl"
         data_path = f"../data/ela_for_training/ela_with_algorithm_precisions/A1_B{budget}_5D_ela_with_state.csv"
-        save_path = f"algo_performance_models_trained/selector_B{budget}_trained.pkl"
+        save_path = f"trained_models/algo_performance_models_trained/selector_B{budget}_trained.pkl"
         y_cols = -6
     else:
-        input_path = f"switching_prediction_models/model_B{budget}.pkl"
+        input_path = f"optimization/switching_prediction_models/model_B{budget}.pkl"
         data_path = f"../data/ela_for_training/ela_with_optimal_precisions_ahead/A1_B{budget}_5D_ela_with_state.csv"
-        save_path = f"switching_prediction_models_trained/selector_B{budget}_trained.pkl"
-        if budget < 100:
+        save_path = f"trained_models/switching_prediction_models_trained/selector_B{budget}_trained.pkl"
+        if budget < 100 and budget != 50:
             y_cols = -(19 + ( (96 - budget) // 8 ) + 1) 
         else:
             y_cols = -(((1000 - budget) // 50 + 1))
@@ -197,8 +197,10 @@ def train_and_save_selector_only(mode: str, budget: int):
 
 
 if __name__ == "__main__":
-    budgets = [8*i for i in range(5, 13)] + [50 * i for i in range(2, 21)]
-  
+    # budgets = [8*i for i in range(5, 13)] + [50 * i for i in range(1, 21)]
+    budgets = [50*i for i in range(1, 20)]  # 50, 100, ..., 1000
     for budget in budgets:
+        print(f"Training performance model for budget: {budget}")
         train_and_save_selector_only("performance", budget)
+        print(f"Training switching model for budget: {budget}")
         train_and_save_selector_only("switching", budget)

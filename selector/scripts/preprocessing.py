@@ -52,7 +52,7 @@ def extract_final_internal_state(dat_path, target_iid, target_rep):
     
 def append_cma_state_to_ela(ela_dir, run_dir, output_dir):
     # budgets = [8*i for i in range(1, 14)] + [50*i for i in range(3, 21)]  # 8, 16, ..., 104, 150, ..., 1000
-    budgets = [100]
+    budgets = [50]
     os.makedirs(output_dir, exist_ok=True)
 
     for budget in budgets:
@@ -133,7 +133,7 @@ def add_algorithm_precisions(ela_dir, precision_csv, output_dir):
 
         # Extract budget from filename
         budget = int(file.split('_')[1][1:])  # e.g. B50 → 50
-
+        if budget != 50: continue
         # Add budget column for merging
         ela_df['budget'] = budget
 
@@ -248,8 +248,13 @@ if __name__ == "__main__":
     #     precision_csv="../data/A2_early_and_late_precisions.csv",
     #     output_dir="../data/ela_for_training/ela_with_algorithm_precisions_early_switching"
     # )
-    append_cma_state_to_ela(
-        ela_dir="../../data_collection/data/ela_data/A1_data_ela_newReps",
-        run_dir="../../data_collection/data/run_data/A1_newReps_with_early",
-        output_dir="../data/ela_with_cma_state_newReps"
+    add_algorithm_precisions(
+        ela_dir="../data/ela_for_training/ela_with_state",
+        precision_csv="../data/precision_files/A2_precisions.csv",
+        output_dir="../data/ela_for_training/ela_with_algorithm_precisions_early_switching"
+    )
+    extend_ela_with_optimal_precisions(
+        ela_input_dir="../data/ela_for_training/ela_with_state",
+        optimal_precisions_file="../data/precision_files/A2_optimal_precisions.csv",
+        output_dir="../data/ela_for_training/ela_with_optimal_precisions_ahead"
     )
