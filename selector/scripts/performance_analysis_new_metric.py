@@ -123,7 +123,7 @@ def plot_selector_budget_counts(csv_path, output_png="selector_budget_counts.png
     fig, ax = plt.subplots(figsize=(10, 5))
     bars = ax.bar(counts.index.astype(str), counts.values, color='steelblue')
 
-    ax.set_title("Frequency of Selector Switch Budgets", fontsize=14)
+    ax.set_title("Number of runs in which the selector switched at each budget", fontsize=14)
     ax.set_xlabel("Budget", fontsize=12)
     ax.set_ylabel("Count", fontsize=12)
     ax.grid(True, axis='y', linestyle='--', alpha=0.6)
@@ -245,4 +245,4 @@ if __name__ == "__main__":
     # for fid in range(1, 25):
     #     print(f"Processing fid: {fid}")
     #     display_vbs_tables(result_csv2, fid=fid)
-    display_vbs_tables(result_csv2)
+    plot_selector_budget_counts(result_csv2)
