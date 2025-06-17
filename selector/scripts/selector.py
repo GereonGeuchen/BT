@@ -15,7 +15,7 @@ class SwitchingSelector:
         """
         self.switching_prediction_models = {}
         self.performance_models = {}
-
+        print("Loading switching predictor models...")
         selector_model_dir = Path(selector_model_dir)
         performance_model_dir = Path(performance_model_dir)
 
@@ -23,11 +23,13 @@ class SwitchingSelector:
         for model_path in selector_model_dir.glob("selector_B*_trained.pkl"):
             budget = int(model_path.stem.split("_")[1][1:])  # e.g., selector_B500 → 500
             self.switching_prediction_models[budget] = joblib.load(model_path)
+            print(f"Loaded switching model for budget {budget}")
 
         # Load performance predictors
         for model_path in performance_model_dir.glob("selector_B*_trained.pkl"):
             budget = int(model_path.stem.split("_")[1][1:])  # e.g., performance_B1000_model → 1000
             self.performance_models[budget] = joblib.load(model_path)
+            print(f"Loaded performance model for budget {budget}")
 
     def simulate_single_run(self, fid, iid, rep, ela_dir="../data/ela_with_state_test_data", precision_file="../data/A2_precisions_test.csv", budgets=range(50, 1001, 50)):
         """
@@ -45,7 +47,7 @@ class SwitchingSelector:
             dict: {fid, iid, rep, switch_budget, selected_algorithm, predicted_precision}
         """
         precision_df = pd.read_csv(precision_file)
-
+        budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 20)]  # 8, 16, ..., 96, 100, ..., 950
         for budget in budgets:
             # print(f"Checking budget {budget} for (fid={fid}, iid={iid}, rep={rep})...")
             ela_path = Path(ela_dir) / f"A1_B{budget}_5D_ela_with_state.csv"
@@ -151,7 +153,7 @@ class SwitchingSelector:
     precision_file="../data/A2_precisions_test.csv"
     ):
         precision_df = pd.read_csv(precision_file)
-        budgets = list(range(50, 1001, 50))
+        budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)] + [1000]  
 
         # Ensure output directory exists
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
@@ -217,7 +219,7 @@ class SwitchingSelector:
                                 (precision_df["budget"] == b) &
                                 (precision_df["algorithm"] == algo)
                             ]
-                            row[col_name] = match["precision"].values[0] if not match.empty else None
+                            row[col_name] = match["precision"].values[0] if not match.empty else 100000000
                         else:
                             # Budget 1000 → use CMA-ES directly
                             match = precision_df[
@@ -261,14 +263,14 @@ class SwitchingSelector:
 
 if __name__ == "__main__":
     selector = SwitchingSelector(
-        selector_model_dir="switching_prediction_models",
-        performance_model_dir="algo_performance_models"
+        selector_model_dir="switching_prediction_models_trained",
+        performance_model_dir="algo_performance_models_trained"
     )
     selector.evaluate_selector_to_csv(
         fids=list(range(1, 25)),
         iids=[1, 2, 3, 4, 5],
         reps=list(range(20, 30)),
-        save_path="../results/result_csvs/selector_results_newReps.csv",
-        ela_dir="../data/ela_with_state_newReps",
-        precision_file="../data/A2_newReps_precisions.csv"
+        save_path="../results/result_csvs/selector_results_newReps_early.csv",
+        ela_dir="../data/ela_with_cma_state_newReps",
+        precision_file="../data/A2_early_and_late_precisions_newReps.csv"
     )
