@@ -1,7 +1,5 @@
 [INFO][abstract_initial_design.py:87] Reducing the number of initial configurations from 60 to 18 (max_ratio == 0.25).
 [INFO][abstract_initial_design.py:139] Using 18 initial design configurations and 0 additional configurations.
-[INFO][smbo.py:509] Continuing from previous run.
-[INFO][smbo.py:517] Since the previous run was not successful, SMAC will start from scratch again.
 [INFO][abstract_intensifier.py:307] Using only one seed for deterministic scenario.
 1410.8115214545
 1243.3230683049
