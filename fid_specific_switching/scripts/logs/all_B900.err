@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/fid_specific_switching/scripts/switching_predictors_optimization.py", line 99, in <module>
-    rf_wrapper, best_config = tune_rf_classifier_f1(
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/fid_specific_switching/scripts/switching_predictors_optimization.py", line 76, in tune_rf_classifier_f1
-    best_wrapper.estimator.set_params(random_state=42)
-AttributeError: 'RandomForestClassifierWrapper' object has no attribute 'estimator'

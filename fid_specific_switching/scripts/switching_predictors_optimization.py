@@ -73,7 +73,6 @@ def tune_rf_classifier_f1(
 
     # Rebuild the best wrapper (untrained)
     best_wrapper = wrapper_class.get_from_configuration(best_config)()
-    best_wrapper.estimator.set_params(random_state=42)
 
     return best_wrapper, best_config
 
