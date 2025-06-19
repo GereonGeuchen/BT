@@ -237,9 +237,9 @@ if __name__ == "__main__":
     )
     selector.evaluate_selector_to_csv(
         fids=list(range(1, 25)),
-        iids=[1, 2, 3, 4, 5],
-        reps=list(range(20, 30)),
-        save_path="../results/selector_results_late_greater.csv",
-        ela_dir="../data/ela_with_cma_state_newReps_late",
-        precision_file="../data/precision_files/A2_late_precisions_newReps.csv"
+        iids=[6 ,7],
+        reps=list(range(20)),
+        save_path="../results/newInstances/selector_results_late_greater.csv",
+        ela_dir="../data/ela_for_testing/ela_with_cma_state_newInstances",
+        precision_file="../data/precision_files/A2_precisions_newInstances.csv"
     )

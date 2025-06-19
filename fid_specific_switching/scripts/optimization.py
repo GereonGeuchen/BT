@@ -160,7 +160,7 @@ def train_and_save_selector_only(mode: str, budget: int):
     assert mode in {"performance", "switching"}, "Mode must be 'performance' or 'switching'"
 
     if mode == "performance":
-        input_path = f"algo_performance_models/model_B{budget}.pkl"
+        input_path = f"algo_performance_models_early/model_B{budget}.pkl"
         data_path = f"../data/ela_with_algorithm_precisions/A1_B{budget}_5D_ela_with_state.csv"
         save_path = f"algo_performance_models/selector_B{budget}_trained.pkl"
         y_cols = -6
@@ -201,6 +201,5 @@ if __name__ == "__main__":
 
     # # Run with 4 parallel workers (adjust n_jobs based on your CPU and memory)
     # Parallel(n_jobs=8, backend="loky", verbose=10)(jobs)
-    for budget in [50*i for i in range(1, 20)]:
+    for budget in [8*i for i in range(1, 23)] + [50*i for i in range(1, 21)]:
         train_and_save_selector_only("performance", budget)
-        train_and_save_selector_only("switching", budget)

@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import os
 
 eps = np.finfo(float).eps  # Small value to avoid division by zero
-# sbs_sum = 2690.130170 # For iid 6,7
-sbs_sum = 3306.1779694383 # For new reps, all switching points, Non-elitist budget 16
+sbs_sum = 2690.130170 # For iid 6,7, all ress
+sbs_sum = 2690.130170 # For iid 6,7, all ress, Non-elitist BFGS at 450
+# sbs_sum = 3306.1779694383 # For new reps, all switching points, Non-elitist budget 16
 # sbs_sum = 3511.967 # For new reps, late switching points, 50 Non-elitist
 
 def compute_vbs_ratios(csv_path, fid = None):
@@ -68,6 +69,10 @@ def compute_budget_specific_selector_ratio(main_csv, precision_csv, budget=150):
 def find_sbs(path):
     df = pd.read_csv(path)
 
+    mask = ~((df["budget"] % 8 == 0) & (df["budget"] < 100))
+    df = df[mask]
+
+
     score_table = (
         df.groupby(["budget", "algorithm"])["precision"]
         .sum()
@@ -104,7 +109,7 @@ def compute_total_precisions_for_fid(csv_path, fid):
 def display_vbs_tables(csv_path,fid=None):
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/all_sp/precision_ratios.png"
+        output_path = "../results/newInstances/precision_ratios.png"
         save_tables(ratios, "VBS Relative Ratios", output_path)
         print("✅ VBS ratios saved to:", output_path)
     else:
@@ -228,6 +233,6 @@ def plot_switching_point_comparison(selector_csv, precision_csv, output_dir="../
 # Example usage
 if __name__ == "__main__":
     # === 1) Load data ===
-    result_csv2 = "../results/selector_results_all_greater.csv"
-    display_vbs_tables(result_csv2)
-    
+    result_csv = "../results/newInstances/all_sp/selector_results_all_greater.csv"
+    display_vbs_tables(result_csv)
+   

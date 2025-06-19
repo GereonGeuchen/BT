@@ -51,7 +51,8 @@ def extract_final_internal_state(dat_path, target_iid, target_rep):
         return None
     
 def append_cma_state_to_ela(ela_dir, run_dir, output_dir):
-    budgets = list(range(50, 1050, 50))
+    budgets = [8*i for i in range(1, 13)]  # 8, 16, ..., 96
+    budgets += [50*i for i in range(1, 20)]  #
     os.makedirs(output_dir, exist_ok=True)
 
     for budget in budgets:
@@ -311,8 +312,15 @@ def mark_switch_budget_and_greater_budgets(
         print(f"✅ Wrote: {out_path}")
 
 if __name__ == "__main__":
-    mark_switch_budget_and_greater_budgets(
-        ela_with_state_dir="../data/ela_for_training/ela_with_state_late",
-        best_budgets_csv="../results/late_sp/best_static_budget_per_fid.csv",
-        output_dir="../data/ela_for_training/ela_with_state_late_switch_greater_budgets",
-    )
+    # mark_switch_budget_and_greater_budgets(
+    #     ela_with_state_dir="../data/ela_for_training/ela_with_state_late",
+    #     best_budgets_csv="../results/late_sp/best_static_budget_per_fid.csv",
+    #     output_dir="../data/ela_for_training/ela_with_state_late_switch_greater_budgets",
+    # )
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        append_cma_state_to_ela(
+            ela_dir="../../data_collection/data/ela_data/A1_data_ela_newInstances",
+            run_dir="../../data_collection/data/run_data/A1_newInstances",
+            output_dir="../data/ela_for_testing/ela_with_cmsa_state_newInstances"
+        )
