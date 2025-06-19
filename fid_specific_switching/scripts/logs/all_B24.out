@@ -1,0 +1,92 @@
+[INFO][abstract_initial_design.py:87] Reducing the number of initial configurations from 50 to 18 (max_ratio == 0.25).
+[INFO][abstract_initial_design.py:139] Using 18 initial design configurations and 0 additional configurations.
+[INFO][abstract_intensifier.py:307] Using only one seed for deterministic scenario.
+0.8155339805825242
+[INFO][abstract_intensifier.py:517] Added config 6a05d8 as new incumbent because there are no incumbents yet.
+0.8148148148148148
+[INFO][abstract_intensifier.py:596] Added config 1fd642 and rejected config 6a05d8 as incumbent because it is not better than the incumbents on 1 instances: 
+0.8
+0.8
+[INFO][abstract_intensifier.py:596] Added config abbef2 and rejected config 1fd642 as incumbent because it is not better than the incumbents on 1 instances: 
+0.7961165048543689
+0.8073394495412844
+0.7920792079207921
+0.7863247863247863
+0.7927927927927928
+[INFO][abstract_intensifier.py:596] Added config b64215 and rejected config abbef2 as incumbent because it is not better than the incumbents on 1 instances: 
+0.7850467289719626
+0.7884615384615384
+0.8035714285714286
+0.7884615384615384
+0.8108108108108109
+0.7692307692307693
+0.8073394495412844
+[INFO][abstract_intensifier.py:596] Added config 416c99 and rejected config b64215 as incumbent because it is not better than the incumbents on 1 instances: 
+0.7850467289719626
+0.7850467289719626
+0.7924528301886793
+0.8113207547169812
+0.7884615384615384
+0.7884615384615384
+0.8148148148148148
+0.7964601769911505
+0.8113207547169812
+0.7924528301886793
+[INFO][abstract_intensifier.py:596] Added config 8f57fe and rejected config 416c99 as incumbent because it is not better than the incumbents on 1 instances: 
+0.7924528301886793
+[INFO][abstract_intensifier.py:596] Added config 628522 and rejected config 8f57fe as incumbent because it is not better than the incumbents on 1 instances: 
+0.7924528301886793
+0.8076923076923077
+0.7924528301886793
+0.8037383177570093
+0.8035714285714286
+0.8
+0.7961165048543689
+0.822429906542056
+[INFO][abstract_intensifier.py:596] Added config 24b123 and rejected config 628522 as incumbent because it is not better than the incumbents on 1 instances: 
+0.8333333333333334
+0.8073394495412844
+0.822429906542056
+0.8113207547169812
+0.7735849056603774
+0.822429906542056
+0.8256880733944955
+0.8037383177570093
+0.7850467289719626
+0.7962962962962963
+0.7924528301886793
+0.7924528301886793
+0.8035714285714286
+0.7961165048543689
+0.8
+[INFO][smbo.py:327] Finished 50 trials.
+0.7964601769911505
+0.822429906542056
+0.822429906542056
+0.8073394495412844
+[INFO][abstract_intensifier.py:596] Added config 1b63d1 and rejected config 24b123 as incumbent because it is not better than the incumbents on 1 instances: 
+0.8073394495412844
+0.7850467289719626
+0.8073394495412844
+0.8073394495412844
+0.7961165048543689
+0.8
+0.7857142857142857
+0.8148148148148148
+0.7924528301886793
+0.7924528301886793
+0.8076923076923077
+0.7961165048543689
+0.8073394495412844
+0.8037383177570093
+0.8073394495412844
+0.8073394495412844
+0.7962962962962963
+0.8148148148148148
+0.8073394495412844
+0.8
+0.8288288288288288
+[INFO][smbo.py:335] Configuration budget is exhausted:
+[INFO][smbo.py:336] --- Remaining wallclock time: inf
+[INFO][smbo.py:337] --- Remaining cpu time: inf
+[INFO][smbo.py:338] --- Remaining trials: 0

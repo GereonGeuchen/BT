@@ -1,0 +1,88 @@
+[INFO][abstract_initial_design.py:87] Reducing the number of initial configurations from 50 to 18 (max_ratio == 0.25).
+[INFO][abstract_initial_design.py:139] Using 18 initial design configurations and 0 additional configurations.
+[INFO][abstract_intensifier.py:307] Using only one seed for deterministic scenario.
+0.0
+[INFO][abstract_intensifier.py:517] Added config 6a05d8 as new incumbent because there are no incumbents yet.
+0.25
+[INFO][abstract_intensifier.py:596] Added config 1fd642 and rejected config 6a05d8 as incumbent because it is not better than the incumbents on 1 instances: 
+0.09523809523809523
+0.3888888888888889
+[INFO][abstract_intensifier.py:596] Added config abbef2 and rejected config 1fd642 as incumbent because it is not better than the incumbents on 1 instances: 
+0.35714285714285715
+0.09090909090909091
+0.0
+0.4186046511627907
+0.2222222222222222
+0.17391304347826086
+0.0
+0.4117647058823529
+[INFO][abstract_intensifier.py:596] Added config fb927a and rejected config abbef2 as incumbent because it is not better than the incumbents on 1 instances: 
+0.0
+0.09090909090909091
+0.09523809523809523
+0.36363636363636365
+0.24
+0.09090909090909091
+0.42105263157894735
+0.4117647058823529
+0.48484848484848486
+0.4864864864864865
+0.3076923076923077
+0.4
+0.20689655172413793
+0.4444444444444444
+0.4375
+0.4375
+[INFO][abstract_intensifier.py:596] Added config a1111b and rejected config fb927a as incumbent because it is not better than the incumbents on 1 instances: 
+0.21428571428571427
+0.09090909090909091
+0.4444444444444444
+0.4375
+0.16
+0.0
+0.42424242424242425
+0.4444444444444444
+0.4444444444444444
+0.47058823529411764
+0.47058823529411764
+0.09523809523809523
+0.4375
+0.4444444444444444
+0.4375
+0.4375
+0.09523809523809523
+0.4375
+0.4375
+0.29411764705882354
+0.4375
+0.0
+[INFO][smbo.py:327] Finished 50 trials.
+0.47368421052631576
+0.09090909090909091
+0.09090909090909091
+0.09090909090909091
+0.09090909090909091
+0.4
+0.25
+0.25
+0.0
+0.4375
+0.47058823529411764
+0.09090909090909091
+0.45714285714285713
+0.3888888888888889
+0.09090909090909091
+0.09090909090909091
+0.4375
+0.09090909090909091
+0.4864864864864865
+0.4864864864864865
+0.4864864864864865
+0.4375
+0.4864864864864865
+0.0
+0.09090909090909091
+[INFO][smbo.py:335] Configuration budget is exhausted:
+[INFO][smbo.py:336] --- Remaining wallclock time: inf
+[INFO][smbo.py:337] --- Remaining cpu time: inf
+[INFO][smbo.py:338] --- Remaining trials: 0
