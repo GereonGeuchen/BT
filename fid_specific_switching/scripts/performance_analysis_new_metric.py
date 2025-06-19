@@ -4,31 +4,79 @@ import matplotlib.pyplot as plt
 import os
 
 eps = np.finfo(float).eps  # Small value to avoid division by zero
-sbs_sum = 7414.031202
-vbs_sum = 2389,7533785635997
+# sbs_sum = 2690.130170 # For iid 6,7
+sbs_sum = 3306.1779694383 # For new reps, all switching points, Non-elitist budget 16
+# sbs_sum = 3511.967 # For new reps, late switching points, 50 Non-elitist
 
+def compute_vbs_ratios(csv_path, fid = None):
 
-def compute_vbs_ratios(csv_path, fid=None):
+    df = pd.read_csv(csv_path)
+    vbs_sum = df["vbs_precision"].sum()
+    consider_cols = [col for col in df.columns if col.startswith("static_B") or col == "selector_precision"]
+    res = {}
+    for col in consider_cols:
+        col_sum = df[col].sum()
+        print(f"Processing column: {col}, sum: {col_sum}")
+        res[col] = (col_sum - vbs_sum) / (sbs_sum - vbs_sum) 
+        # res[col] = col_sum
+    # res["selector_50"] = (selector_50_sum - vbs_sum) / (sbs_sum - vbs_sum)
+    
+    return res
+
+def sum_selected_columns(csv_path):
+    # Load CSV
     df = pd.read_csv(csv_path)
 
-    if fid is not None:
-        df = df[df["fid"] == fid]
+    # Determine column indices to include: start from 3, skip 5
+    cols_to_sum = [i for i in range(3, len(df.columns)) if i != 5]
 
-    static_cols = [col for col in df.columns if col.startswith("static_B")]
-    
-    # vbs_sum = df["vbs_precision"].sum()
-    method_sums = {col: df[col].sum() for col in static_cols}
+    # Get corresponding column names
+    selected_cols = df.iloc[:, cols_to_sum]
 
-    
-    # Compute normalized scores (lower is better)
-    # ratios = {
-    #     col: (method_sums[col] - vbs_sum) / (sbs_sum - vbs_sum + eps)  # avoid zero-division
-    #     for col in static_cols
-    # }
+    # Sum values in the selected columns
+    total_sum = selected_cols.sum()
 
-    # return {"vbs_precision_ratios": ratios}
-    return method_sums
+    return total_sum
 
+   
+def compute_budget_specific_selector_ratio(main_csv, precision_csv, budget=150):
+
+    df = pd.read_csv(main_csv)
+    prec_df = pd.read_csv(precision_csv)
+
+    # Get VBS at budget 150 for each (fid, iid, rep)
+    vbs_budget = (
+        prec_df[prec_df["budget"] == budget]
+        .groupby(["fid", "iid", "rep"])["precision"]
+        .min()
+        .reset_index()
+        .rename(columns={"precision": "vbs_budget"})
+    )
+
+    # Merge with main result file
+    merged = pd.merge(df, vbs_budget, on=["fid", "iid", "rep"], how="inner")
+
+    # Compute ratio: vbs150 / selector_precision
+    denom = merged[f"static_B{budget}"].replace(0, eps)
+    numerator = merged["vbs_budget"].replace(0, eps)
+    merged["ratio"] = numerator / denom
+
+    # Average
+    avg_ratio = merged["ratio"].mean()
+    return avg_ratio
+
+def find_sbs(path):
+    df = pd.read_csv(path)
+
+    score_table = (
+        df.groupby(["budget", "algorithm"])["precision"]
+        .sum()
+        .reset_index()
+        .sort_values("precision")
+        .reset_index(drop=True)
+    )
+
+    return score_table
 
 def save_tables(data, title, filename):
     df = pd.DataFrame(list(data.items()), columns=["Method", "Ratio"])
@@ -45,65 +93,141 @@ def save_tables(data, title, filename):
     plt.savefig(filename, bbox_inches="tight")
     plt.close()
 
-def compute_raw_selector_totals_for_fid(csv_path, fid):
+def compute_total_precisions_for_fid(csv_path, fid):
     df = pd.read_csv(csv_path)
     df = df[df["fid"] == fid]
 
-    selector_cols = [col for col in df.columns if col.startswith("static_B") or col == "selector_precision"]
-    totals = {col: df[col].sum() for col in selector_cols}
+    consider_cols = [col for col in df.columns if col.startswith("static_B") or col == "selector_precision"]
+    result = {col: df[col].sum() for col in consider_cols}
+    return result
 
-    return totals
-
-def display_vbs_tables(csv_path, fid=None):
+def display_vbs_tables(csv_path,fid=None):
     if fid is None:
-        os.makedirs("../results/new_metric", exist_ok=True)
-        results = compute_vbs_ratios(csv_path)
-        save_tables(
-            results["vbs_precision_ratios"],
-            "VBS Precision Ratios",
-            "../results/new_metric/vbs_precision_ratios.png"
-        )
+        ratios = compute_vbs_ratios(csv_path)
+        output_path = "../results/all_sp/precision_ratios.png"
+        save_tables(ratios, "VBS Relative Ratios", output_path)
+        print("✅ VBS ratios saved to:", output_path)
     else:
-        os.makedirs("../results/late_sp/fid_totals", exist_ok=True)
-        totals = compute_raw_selector_totals_for_fid(csv_path, fid)
-        save_tables(
-            totals,
-            f"Sum of Precisions (fid={fid})",
-            f"../results/late_sp/fid_totals/precision_totals_fid_{fid}.png"
-        )
+        totals = compute_total_precisions_for_fid(csv_path, fid)
+        output_dir = "../results/new_Reps/all_sp/vbs_precision_totals_fid_correct"
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = f"{output_dir}/vbs_precision_totals_fid_{fid}.png"
+        save_tables(totals, f"Sum of Precisions (fid={fid})", output_path)
 
-def find_sbs(precision_csv_path):
-    """
-    Prints total precision per (budget, algorithm) pair.
+def plot_selector_budget_counts(csv_path, output_png="selector_budget_counts.png"):
+    df = pd.read_csv(csv_path)
 
-    Args:
-        precision_csv_path (str): Path to the precision CSV file.
-    """
-    df = pd.read_csv(precision_csv_path)
+    # Count occurrences of each budget
+    counts = df["selector_switch_budget"].value_counts().sort_index()
 
-    grouped = (
-        df.groupby(["budget", "algorithm"])["precision"]
-        .sum()
-        .reset_index()
-        .sort_values("precision")
-        .reset_index(drop=True)
-    )
+    # Plot
+    fig, ax = plt.subplots(figsize=(10, 5))
+    bars = ax.bar(counts.index.astype(str), counts.values, color='steelblue')
 
-    print("Budget | Algorithm           | Total Precision")
-    print("----------------------------------------------")
-    for _, row in grouped.iterrows():
-        print(f"{int(row['budget']):>6} | {row['algorithm']:<20} | {row['precision']:.6f}")
+    ax.set_title("Number of runs in which the selector switched at each budget", fontsize=14)
+    ax.set_xlabel("Budget", fontsize=12)
+    ax.set_ylabel("Count", fontsize=12)
+    ax.grid(True, axis='y', linestyle='--', alpha=0.6)
+
+    # Annotate bars with count values
+    for bar in bars:
+        height = bar.get_height()
+        ax.annotate(f'{int(height)}',
+                    xy=(bar.get_x() + bar.get_width() / 2, height),
+                    xytext=(0, 3),
+                    textcoords="offset points",
+                    ha='center', va='bottom', fontsize=9)
+
+    plt.tight_layout()
+    plt.savefig(output_png)
+    plt.close()
+
+def plot_switching_point_comparison(selector_csv, precision_csv, output_dir="../results/switching_point_plots"):
+    os.makedirs(output_dir, exist_ok=True)
+
+    selector_df = pd.read_csv(selector_csv)
+    precision_df = pd.read_csv(precision_csv)
+
+    precision_df["precision"] = pd.to_numeric(precision_df["precision"], errors="coerce")
+
+    for fid in sorted(selector_df["fid"].unique()):
+        for iid in sorted(selector_df["iid"].unique()):
+            fig, ax = plt.subplots(figsize=(10, 5))
+            first_blue, first_red, first_green = True, True, True
+
+            for rep in range(20):
+                # --- Get predicted switching point ---
+                row = selector_df[
+                    (selector_df["fid"] == fid) & 
+                    (selector_df["iid"] == iid) & 
+                    (selector_df["rep"] == rep)
+                ]
+                if row.empty:
+                    continue
+                row = row.iloc[0]
+                predicted = int(row["selector_switch_budget"])
+
+                # --- Get optimal switching budgets ---
+                prec_block = precision_df[
+                    (precision_df["fid"] == fid) & 
+                    (precision_df["iid"] == iid) & 
+                    (precision_df["rep"] == rep)
+                ]
+                if prec_block.empty:
+                    continue
+                min_precision = prec_block["precision"].min()
+                optimal_budgets = prec_block[prec_block["precision"] == min_precision]["budget"].astype(int).tolist()
+
+                # --- Get all best static switcher budgets ---
+                static_cols = [col for col in selector_df.columns if col.startswith("static_B")]
+                static_vals = row[static_cols].astype(float)
+                min_static_val = static_vals.min()
+                best_static_budgets = [
+                    int(col.split("_B")[1]) for col in static_vals.index if static_vals[col] == min_static_val
+                ]
+
+                # --- Plot all points with jitter ---
+                jitter = 0.15
+
+                if first_blue:
+                    ax.plot(rep + jitter, predicted, 'bo', label="Predicted")
+                    first_blue = False
+                else:
+                    ax.plot(rep + jitter, predicted, 'bo')
+
+                for b in optimal_budgets:
+                    if first_red:
+                        ax.plot(rep - jitter, b, 'ro', label="Optimal")
+                        first_red = False
+                    else:
+                        ax.plot(rep - jitter, b, 'ro')
+
+                for b in best_static_budgets:
+                    if first_green:
+                        ax.plot(rep, b, 'go', label="Best Static")
+                        first_green = False
+                    else:
+                        ax.plot(rep, b, 'go')
+
+            ax.set_title(f"Switching Budgets: fid={fid}, iid={iid}", fontsize=14)
+            ax.set_xlabel("Repetition", fontsize=12)
+            ax.set_ylabel("Budget", fontsize=12)
+            ax.set_xticks(range(20))
+            ax.set_ylim(0, 1050)
+            ax.grid(True, linestyle="--", alpha=0.6)
+            ax.legend()
+
+            plt.tight_layout()
+            filename = f"{output_dir}/switching_points_fid{fid}_iid{iid}.png"
+            plt.savefig(filename)
+            plt.close()
+            print(f"✅ Saved {filename}")
+
 
 
 # Example usage
 if __name__ == "__main__":
-    # precision_path = "../data/A2_precisions.csv"  # Replace with your actual file path
-    # result_path = "A2_results_updated.csv"
-    # df = pd.read_csv(result_path)
-    # vbs_sum = df["vbs_precision"].sum()
-    # print(f"VBS Sum: {vbs_sum}")
-    # # for fid in range(1, 25):
-    # #     display_vbs_tables(result_path, fid)
-    # # display_vbs_tables(result_path)
-    for fid in range(1, 25):
-        display_vbs_tables("../results/late_sp/predicted_static_precisions_rep_fold_late_sp.csv", fid=fid)
+    # === 1) Load data ===
+    result_csv2 = "../results/selector_results_all_greater.csv"
+    display_vbs_tables(result_csv2)
+    

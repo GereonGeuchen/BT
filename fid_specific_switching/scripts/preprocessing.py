@@ -199,46 +199,120 @@ def extend_ela_with_optimal_precisions(
 
         print(f"✅ Wrote: {output_path}")
 
-def clean_ela_folder(folder_path, inplace=False):
+def mark_switch_budget(
+    ela_with_state_dir,
+    best_budgets_csv,
+    output_dir,
+    valid_budgets=None
+):
     """
-    Removes columns ending with '.costs_runtime' from all CSV files in a folder.
+    For each ELA file with CMA-ES internal state:
+      - mark rows with a new column 'switch' == True if the file's budget is best for that fid
+      - optionally restrict to budgets in valid_budgets
+      - save the result in output_dir
 
     Args:
-        folder_path (str or Path): Path to folder containing ELA feature CSV files.
-        inplace (bool): If True, overwrites the files. If False, returns a dict of cleaned DataFrames.
-
-    Returns:
-        dict: {filename: cleaned DataFrame} if inplace is False, else None.
+        ela_with_state_dir (str): Folder with files like A1_B{budget}_5D_ela_with_state.csv
+        best_budgets_csv (str): CSV with columns ['fid', 'best_budget']
+        output_dir (str): Where to write files
+        valid_budgets (list[int] or None): If given, only budgets in this list are marked True.
     """
-    folder = Path(folder_path)
-    cleaned_data = {}
+    os.makedirs(output_dir, exist_ok=True)
 
-    for file in folder.glob("*.csv"):
-        df = pd.read_csv(file)
-        drop_cols = [col for col in df.columns if col.endswith('.costs_runtime')]
-        df.drop(columns=drop_cols, inplace=True)
+    # Load the best budgets per fid
+    best_df = pd.read_csv(best_budgets_csv)
 
-        if inplace:
-            df.to_csv(file, index=False)
-        else:
-            cleaned_data[file.name] = df
-        
-        print(f"Processed {file.name}: dropped {len(drop_cols)} columns.")
+    # Optionally filter best_df to valid_budgets only
+    if valid_budgets is not None:
+        best_df = best_df[best_df["best_budget"].isin(valid_budgets)]
 
-    if not inplace:
-        return cleaned_data
-    
+    # fid -> set of best budgets (filtered)
+    best_budget_map = (
+        best_df.groupby("fid")["best_budget"]
+        .apply(set)
+        .to_dict()
+    )
+
+    # Process each ELA file
+    for file in sorted(os.listdir(ela_with_state_dir)):
+        if not file.endswith(".csv"):
+            continue
+
+        budget_str = file.split("_")[1]  # B50
+        budget = int(budget_str[1:])
+
+        # If you want: skip files for budgets not in valid_budgets at all
+        if valid_budgets is not None and budget not in valid_budgets:
+            print(f"Skipping file for budget {budget} (not in valid_budgets)")
+            continue
+
+        ela_path = os.path.join(ela_with_state_dir, file)
+        df = pd.read_csv(ela_path)
+
+        df["fid"] = df["fid"].astype(int)
+
+        # Mark switch for each row: fid's best budgets includes this budget
+        df["switch"] = df["fid"].apply(
+            lambda fid: budget in best_budget_map.get(fid, set())
+        )
+
+        out_path = os.path.join(output_dir, file)
+        df.to_csv(out_path, index=False)
+        print(f"✅ Wrote: {out_path}")
+
+def mark_switch_budget_and_greater_budgets(
+    ela_with_state_dir,
+    best_budgets_csv,
+    output_dir,
+    valid_budgets=None
+):
+    """
+    For each ELA file with CMA-ES internal state:
+      - mark rows with a new column 'switch' == True if the budget >= best budget for that fid
+      - optionally restrict to budgets in valid_budgets
+      - save the result in output_dir
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Load best budgets per fid
+    best_df = pd.read_csv(best_budgets_csv)
+
+    # Optional filtering to valid budgets
+    if valid_budgets is not None:
+        best_df = best_df[best_df["best_budget"].isin(valid_budgets)]
+
+    # fid → int best_budget (one per fid)
+    best_budget_map = best_df.groupby("fid")["best_budget"].min().to_dict()
+
+    # Process each ELA file
+    for file in sorted(os.listdir(ela_with_state_dir)):
+        if not file.endswith(".csv"):
+            continue
+
+        budget_str = file.split("_")[1]  # B50
+        budget = int(budget_str[1:])
+
+        # Skip unwanted budgets
+        if valid_budgets is not None and budget not in valid_budgets:
+            print(f"Skipping file for budget {budget} (not in valid_budgets)")
+            continue
+
+        ela_path = os.path.join(ela_with_state_dir, file)
+        df = pd.read_csv(ela_path)
+        df["fid"] = df["fid"].astype(int)
+
+        # For each fid, mark True if this file's budget >= fid's best budget
+        df["switch"] = df["fid"].apply(
+            lambda fid: budget >= best_budget_map.get(fid, float('inf'))
+        )
+
+        out_path = os.path.join(output_dir, file)
+        df.to_csv(out_path, index=False)
+        print(f"✅ Wrote: {out_path}")
+
 if __name__ == "__main__":
-    # ela_dir = "../data/A1_data_ela"  
-    # run_dir = "../../data_collection/data/run_data/A1_data"        
-    # output_dir = "../data/ela_with_state"
-    # extend_ela_with_optimal_precisions(
-    #     ela_input_dir="../data/ela_with_state",
-    #     optimal_precisions_file="../data/A2_optimal_precisions.csv",
-    #     output_dir="../data/ela_with_optimal_precisions_ahead")
-    # add_algorithm_precisions(
-    #     ela_dir="../data/ela_with_state",
-    #     precision_csv="../data/A2_precisions.csv",
-    #     output_dir="../data/ela_with_algorithm_precisions"
-    # )
-    clean_ela_folder("../data/ela_with_state_test_data", inplace=True)
+    mark_switch_budget_and_greater_budgets(
+        ela_with_state_dir="../data/ela_for_training/ela_with_state_late",
+        best_budgets_csv="../results/late_sp/best_static_budget_per_fid.csv",
+        output_dir="../data/ela_for_training/ela_with_state_late_switch_greater_budgets",
+    )
