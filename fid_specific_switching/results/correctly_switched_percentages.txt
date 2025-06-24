@@ -1,0 +1,19 @@
+New instances, all sp:
+Percentage correct: 72.50%
+Percentage lower:   12.92%
+Percentage higher:  14.58%
+
+New instances, late sp:
+Percentage correct: 85.10%
+Percentage lower:   7.60%
+Percentage higher:  7.29%
+
+New Reps, all sp:
+Percentage correct: 82.50%
+Percentage lower:   8.50%
+Percentage higher:  9.00%
+
+New Reps, late sp:
+Percentage correct: 89.58%
+Percentage lower:   5.42%
+Percentage higher:  4.83%

@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 import os
 
 eps = np.finfo(float).eps  # Small value to avoid division by zero
-sbs_sum = 2690.130170 # For iid 6,7, all ress
-sbs_sum = 2690.130170 # For iid 6,7, all ress, Non-elitist BFGS at 450
+sbs_sum = 2690.130170 # For iid 6,7, late and all switching points, BFGS at 450
 # sbs_sum = 3306.1779694383 # For new reps, all switching points, Non-elitist budget 16
 # sbs_sum = 3511.967 # For new reps, late switching points, 50 Non-elitist
 
@@ -69,8 +68,8 @@ def compute_budget_specific_selector_ratio(main_csv, precision_csv, budget=150):
 def find_sbs(path):
     df = pd.read_csv(path)
 
-    mask = ~((df["budget"] % 8 == 0) & (df["budget"] < 100))
-    df = df[mask]
+    # mask = ~((df["budget"] % 8 == 0) & (df["budget"] < 100))
+    # df = df[mask]
 
 
     score_table = (
@@ -109,12 +108,12 @@ def compute_total_precisions_for_fid(csv_path, fid):
 def display_vbs_tables(csv_path,fid=None):
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/newInstances/precision_ratios.png"
+        output_path = "../results/newInstances/late_sp/precision_ratios_test.png"
         save_tables(ratios, "VBS Relative Ratios", output_path)
         print("✅ VBS ratios saved to:", output_path)
     else:
         totals = compute_total_precisions_for_fid(csv_path, fid)
-        output_dir = "../results/new_Reps/all_sp/vbs_precision_totals_fid_correct"
+        output_dir = "../results/newInstances/all_sp/vbs_precision_totals_fid"
         os.makedirs(output_dir, exist_ok=True)
         output_path = f"{output_dir}/vbs_precision_totals_fid_{fid}.png"
         save_tables(totals, f"Sum of Precisions (fid={fid})", output_path)
@@ -228,11 +227,46 @@ def plot_switching_point_comparison(selector_csv, precision_csv, output_dir="../
             plt.close()
             print(f"✅ Saved {filename}")
 
+# Function to compute the percentage of runs with correct switching budgets
+# based on the best static budgets for each fid
+# and the selector's predicted switching budgets.
+def percentage_of_correct_runs(best_static_file = "../data/switching_optimality_files/late_sp/best_static_budget_per_fid.csv",
+                               runs_file = "../results/newReps/late_sp/selector_results_late_greater.csv"):
+    
+    best_static = pd.read_csv(best_static_file)
+    runs = pd.read_csv(runs_file)
 
+    fid_to_budgets = best_static.groupby('fid')['best_budget'].apply(list).to_dict()
 
-# Example usage
+    def classify(row):
+        fid = row['fid']
+        budget = row['selector_switch_budget']
+        valid = fid_to_budgets.get(fid, [])
+        if budget in valid:
+            return 'correct'
+        elif valid and budget < min(valid):
+            return 'lower'
+        elif valid and budget > max(valid):
+            return 'higher'
+        else:
+            # In case there are no valid budgets for this fid: mark as unknown
+            return 'unknown'
+
+    runs['switch_class'] = runs.apply(classify, axis=1)
+
+    pct_correct = (runs['switch_class'] == 'correct').mean() * 100
+    pct_lower   = (runs['switch_class'] == 'lower').mean() * 100
+    pct_higher  = (runs['switch_class'] == 'higher').mean() * 100
+
+    print(f"Percentage correct: {pct_correct:.2f}%")
+    print(f"Percentage lower:   {pct_lower:.2f}%")
+    print(f"Percentage higher:  {pct_higher:.2f}%")
+    print(f"Sum: {pct_correct + pct_lower + pct_higher:.2f}%")
+
+    runs.to_csv("runs_with_switch_class.csv", index=False)
+    print("Saved runs_with_switch_class.csv with switch_class column.")
+
 if __name__ == "__main__":
-    # === 1) Load data ===
-    result_csv = "../results/newInstances/all_sp/selector_results_all_greater.csv"
+    result_csv = "../results/newInstances/late_sp/selector_results_late_greater.csv"
+    precision_file = "../data/precision_files/A2_precisions_newInstances.csv"
     display_vbs_tables(result_csv)
-   
