@@ -1,0 +1,1 @@
+ERROR: ld.so: object '/usr/lib/x86_64-linux-gnu/libstdc++.so.6' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
