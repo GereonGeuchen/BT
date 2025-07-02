@@ -58,18 +58,90 @@ def compute_total_precisions_for_fid(csv_path, fid):
     result = {col: df[col].sum() for col in consider_cols}
     return result
 
-def display_vbs_tables(csv_path,fid=None):
+def save_barplot(data, title, filename):
+    """
+    Saves a vertical bar plot of the given data.
+    Includes only specified columns and a fixed SBS bar with value 0.
+    Sorted by value descending: highest left, lowest right.
+    """
+
+    # Define desired columns
+    desired_cols = [
+        "selector_precision",
+        "static_B64",
+        "static_B80",
+        "static_B96",
+        "static_B56",
+        "static_B48",
+        "static_B150",
+        "static_B18",
+        "static_B8",
+        "static_B800"
+    ]
+
+    # Convert data dict to DataFrame
+    df = pd.DataFrame(list(data.items()), columns=["Method", "Value"])
+
+    # Filter to desired columns only
+    df = df[df["Method"].isin(desired_cols)]
+
+    # Add SBS row with value 0.000
+    sbs_row = pd.DataFrame({"Method": ["SBS (BFGS, 450)"], "Value": [0.000]})
+    df = pd.concat([df, sbs_row], ignore_index=True)
+
+    # Sort by Value descending: highest left, lowest right
+    df = df.sort_values("Value", ascending=False).reset_index(drop=True)
+
+    # Plotting
+    plt.figure(figsize=(0.5 * len(df) + 2, 6))
+    bars = plt.bar(df["Method"], df["Value"], color="skyblue", edgecolor="black")
+
+    # Annotate bars with their values
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, height,
+                 f"{height:.3f}",
+                 ha='center', va='bottom', fontsize=9)
+
+    plt.ylabel("Value")
+    plt.xticks(rotation=90)
+    plt.title(title, fontsize=14, pad=10)
+    plt.tight_layout()
+    plt.savefig(filename, bbox_inches="tight")
+    plt.close()
+    print(f"✅ Vertical bar plot saved to {filename}")
+
+
+def display_vbs_tables(csv_path, fid=None, plot_type="table"):
+    """
+    Displays VBS results as either table or bar plot.
+
+    plot_type: "table" or "bar"
+    """
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/newInstances/precision_ratios_all.pdf"
-        save_tables(ratios, "VBS Relative Ratios", output_path)
-        print("✅ VBS ratios saved to:", output_path)
+        output_path = "../results/newInstances/precision_ratios_all_bar.pdf"
+        if plot_type == "table":
+            save_tables(ratios, "VBS Relative Ratios", output_path)
+            print("✅ VBS ratios table saved to:", output_path)
+        elif plot_type == "bar":
+            save_barplot(ratios, "VBS Relative Ratios", output_path)
+            print("✅ VBS ratios bar plot saved to:", output_path)
+        else:
+            raise ValueError("Invalid plot_type. Choose 'table' or 'bar'.")
     else:
         totals = compute_total_precisions_for_fid(csv_path, fid)
         output_dir = "../data/switching_optimality_files/vbs_precision_totals_late"
         os.makedirs(output_dir, exist_ok=True)
         output_path = f"{output_dir}/vbs_precision_totals_fid_{fid}.png"
-        save_tables(totals, f"Sum of Precisions (fid={fid})", output_path)
+        if plot_type == "table":
+            save_tables(totals, f"Sum of Precisions (fid={fid})", output_path)
+            print(f"✅ Precision totals table saved to: {output_path}")
+        elif plot_type == "bar":
+            save_barplot(totals, f"Sum of Precisions (fid={fid})", output_path)
+            print(f"✅ Precision totals bar plot saved to: {output_path}")
+        else:
+            raise ValueError("Invalid plot_type. Choose 'table' or 'bar'.")
 
 def plot_selector_budget_counts(csv_path, output_png="selector_budget_counts.png"):
     df = pd.read_csv(csv_path)
@@ -104,43 +176,39 @@ def permutation_test_selector_vs_static(csv_path):
     df = pd.read_csv(csv_path)
     selector = df['selector_precision'].values
 
-    for budget in [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)]:
-        static = df[f'static_B{budget}'].values
+    static = df[f'static_B64'].values
 
-        # Compute observed mean difference
-        observed_diff = np.mean(selector - static)
-        print(f"Observed mean difference: {observed_diff:.6f}")
+    # Compute observed mean difference
+    observed_diff = np.mean(selector - static)
+    print(f"Observed mean difference: {observed_diff:.6f}")
 
-        # Number of permutations
-        n_permutations = 10000
-        perm_diffs = np.zeros(n_permutations)
+    # Use scipy's permutation_test
+    res = permutation_test(
+        (selector, static),
+        statistic=lambda x, y: np.mean(x - y),
+        permutation_type='samples',
+        vectorized=False,
+        n_resamples=10000,
+        alternative='less',
+        random_state=42
+    )
 
-        # Manual permutations
-        n = len(selector)
+    print(f"P-value (selector < static) for budget 64: {res.pvalue:.6f}")
 
-        for i in range(n_permutations):
-            # For each pair, decide whether to swap (50% chance)
-            swap = np.random.rand(n) < 0.5
-            
-            perm_selector = np.where(swap, static, selector)
-            perm_static   = np.where(swap, selector, static)
-            
-            # Compute permuted mean difference
-            perm_diffs[i] = np.mean(perm_selector - perm_static)
+    # Extract permutation distribution (available in res.distribution)
+    perm_distribution = res.null_distribution
 
-        # Calculate p-value for alternative hypothesis: selector < static
-        p_value_less = (np.sum(perm_diffs <= observed_diff)) / (n_permutations)
-        print(f"P-value (selector < static) for budget {budget}: {p_value_less:.6f}")
+    # Plot
+    plt.figure(figsize=(8,5))
+    plt.hist(perm_distribution, bins=50, color='skyblue', edgecolor='black')
+    plt.axvline(observed_diff, color='red', linestyle='--', label=f'Observed diff = {observed_diff:.4f}')
+    plt.xlabel('Permutation test statistic')
+    plt.ylabel('Frequency')
+    plt.title('Permutation Null Distribution (Selector vs Static B64)')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("permutation_test_selector_vs_static.png")
 
-    # plt.figure(figsize=(8,5))
-    # plt.hist(perm_diffs, bins=50, alpha=0.7, color='skyblue', edgecolor='k')
-    # plt.axvline(observed_diff, color='red', linestyle='dashed', linewidth=2, label=f'Observed mean diff = {observed_diff:.3f}')
-    # plt.xlabel('Permuted mean differences (selector - static)')
-    # plt.ylabel('Frequency')
-    # plt.title('Permutation Test Null Distribution')
-    # plt.legend()
-    # plt.tight_layout()
-    # plt.savefig("permutation_test_distribution.png")
 
 def get_sbs_precisions(precision_csv_path):
     """
@@ -156,20 +224,20 @@ def get_sbs_precisions(precision_csv_path):
     print(f"✅ Loaded {len(df_sbs)} SBS precision entries from {precision_csv_path}")
     return df_sbs['precision'].values
 
-def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="precision_boxplots_low_budgets.png"):
+def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="precision_boxplots_low_budgets.pdf"):
     """
     Generates boxplots of SBS, VBS, all static selectors, and selector.
     """
     # Load result file
     df = pd.read_csv(result_csv_path)
 
-    # Extract SBS per run
+    # Extract SBS per run (assuming your get_sbs_precisions function is defined elsewhere)
     sbs_precisions = get_sbs_precisions(precision_csv_path)
 
     # Extract columns of interest
     static_cols = [col for col in df.columns if col.startswith("static_B") 
-                   and (col != "static_B800" and col != "static_B850" and col != "static_B900"
-                        and col != "static_B950" and col != "static_B1000")]
+                   and (col not in ["static_B800", "static_B850", "static_B900",
+                                    "static_B950", "static_B1000"])]
     selector_col = "selector_precision"
     vbs_col = "vbs_precision"
 
@@ -185,7 +253,7 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
         print(f"⚠ Selector column {selector_col} not found in data.")
 
     # SBS next
-    data.append(sbs_precisions)
+    data.append(np.array(sbs_precisions))
     labels.append("SBS (BFGS_450)")
 
     # VBS
@@ -202,7 +270,13 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
 
     # Plot
     plt.figure(figsize=(max(10, len(labels) * 0.6), 6))
-    plt.boxplot(data, vert=True, patch_artist=True, showfliers=False)
+    box = plt.boxplot(data, vert=True, patch_artist=True, showfliers=False)
+    plt.yscale("log")
+
+    # Overlay means as prominent red circles with black edges
+    for median in box['medians']:
+        median.set(linewidth=3, color='orange')
+
     plt.xticks(ticks=np.arange(1, len(labels)+1), labels=labels, rotation=90)
     plt.ylabel("Reached Precision")
     plt.title("Boxplots of Reached Precisions: Selector, SBS, VBS, Statics")
@@ -216,4 +290,5 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
 if __name__ == "__main__":
     result_csv = "../results/newInstances/selector_results_all_greater.csv"
     precision_csv = "../data/precision_files/A2_newInstances_precisions.csv"
-    display_vbs_tables(result_csv)
+    # display_vbs_tables(result_csv, fid=None, plot_type="bar")
+    permutation_test_selector_vs_static(result_csv)

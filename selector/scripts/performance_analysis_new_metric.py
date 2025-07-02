@@ -101,11 +101,52 @@ def compute_total_precisions_for_fid(csv_path, fid):
     result = {col: df[col].sum() for col in consider_cols}
     return result
 
-def display_vbs_tables(csv_path,fid=None):
+
+def save_barplot(data, title, filename):
+    """
+    Saves a vertical bar plot of the given data.
+    Includes only specified columns and a fixed SBS bar with value 0.
+    Sorted by value descending: highest left, lowest right.
+    """
+
+
+    # Convert data dict to DataFrame
+    df = pd.DataFrame(list(data.items()), columns=["Method", "Value"])
+
+    # Add SBS row with value 0.000
+    sbs_row = pd.DataFrame({"Method": ["SBS (BFGS, 450)"], "Value": [0.000]})
+    df = pd.concat([df, sbs_row], ignore_index=True)
+
+    # Sort by Value descending: highest left, lowest right
+    df = df.sort_values("Value", ascending=False).reset_index(drop=True)
+
+    # Plotting
+    plt.figure(figsize=(0.5 * len(df) + 2, 6))
+    bars = plt.bar(df["Method"], df["Value"], color="skyblue", edgecolor="black")
+
+    # Annotate bars with their values
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, height,
+                 f"{height:.3f}",
+                 ha='center', va='bottom', fontsize=9)
+
+    plt.ylabel("Value")
+    plt.xticks(rotation=90)
+    plt.title(title, fontsize=14, pad=10)
+    plt.tight_layout()
+    plt.savefig(filename, bbox_inches="tight")
+    plt.close()
+    print(f"✅ Vertical bar plot saved to {filename}")
+
+def display_vbs_tables(csv_path,bar_plot = False, fid=None):
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/new_Instances/all_sp/precision_ratios_reduced.pdf"
-        save_tables(ratios, "VBS Relative Ratios", output_path)
+        output_path = "../results/new_Instances/all_sp/precision_ratios_bars.pdf"
+        if bar_plot:
+            save_barplot(ratios, "VBS Ratios", output_path)
+        else:
+            save_tables(ratios, "VBS Relative Ratios", output_path)
     else:
         totals = compute_total_precisions_for_fid(csv_path, fid)
         output_dir = "../results/new_Reps/all_sp/vbs_precision_totals_fid_correct"
@@ -152,4 +193,4 @@ if __name__ == "__main__":
     results_newReps = "../results/new_Reps/all_sp/selector_results_newReps_all.csv"
     results_newReps_late = "../results/new_Reps/late_sp/selector_results_newReps_late.csv"
 
-    display_vbs_tables(results_newInstances)
+    display_vbs_tables(results_newInstances, bar_plot=True)
