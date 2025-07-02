@@ -38,11 +38,24 @@ def plot_optimality_percentages(input_csv: str):
     # Plotting
     plt.figure(figsize=(10,6))
     plt.plot(percentages.index, percentages.values, marker='o', linestyle='-')
-    plt.xlabel('Budget')
-    plt.ylabel('Percentage of reps with optimal switching point at this budget')
-    plt.title('Distribution of Optimal Switching Budgets Across Reps')
-    plt.ylim(0, 100)  # Set y-axis from 0 to 100
+
+    # Axis labels and title with fontsize 15
+    plt.xlabel('Budget', fontsize=15)
+    plt.ylabel('Percentage of reps with optimal switching point at this budget', fontsize=15)
+    plt.title('Distribution of Optimal Switching Budgets Across Reps', fontsize=15)
+
+    # Set y-axis from 0 to 100
+    plt.ylim(0, 100)
+
+    # Format y-axis labels as percentages with fontsize 15
+    ax = plt.gca()
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f'{y:.0f}%'))
+
+    # Set tick label font sizes
+    ax.tick_params(axis='both', which='major', labelsize=15)
+
     plt.grid(True)
+    plt.tight_layout()
     plt.savefig('../results/optimal_switching_budgets_distribution.pdf')
 
 if __name__ == "__main__":
