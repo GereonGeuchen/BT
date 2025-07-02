@@ -1,7 +1,7 @@
 {
   "stats": {
-    "submitted": 68,
-    "finished": 68,
+    "submitted": 75,
+    "finished": 75,
     "running": 0
   },
   "data": [
@@ -888,6 +888,97 @@
       "starttime": 1751401943.3999903,
       "endtime": 1751404710.3308313,
       "additional_info": {}
+    },
+    {
+      "config_id": 69,
+      "instance": null,
+      "seed": 1608637542,
+      "budget": null,
+      "cost": 5293.584805854402,
+      "time": 2783.452100276947,
+      "cpu_time": 2775.6890276150007,
+      "status": 1,
+      "starttime": 1751404710.3396611,
+      "endtime": 1751407493.7934022,
+      "additional_info": {}
+    },
+    {
+      "config_id": 70,
+      "instance": null,
+      "seed": 1608637542,
+      "budget": null,
+      "cost": 5301.3366588906,
+      "time": 2772.0782594680786,
+      "cpu_time": 2761.962210724996,
+      "status": 1,
+      "starttime": 1751407493.815715,
+      "endtime": 1751410265.8955026,
+      "additional_info": {}
+    },
+    {
+      "config_id": 71,
+      "instance": null,
+      "seed": 1608637542,
+      "budget": null,
+      "cost": 5397.048924833403,
+      "time": 2867.5249965190887,
+      "cpu_time": 2859.7289730999983,
+      "status": 1,
+      "starttime": 1751410265.9060543,
+      "endtime": 1751413133.4325187,
+      "additional_info": {}
+    },
+    {
+      "config_id": 72,
+      "instance": null,
+      "seed": 1608637542,
+      "budget": null,
+      "cost": 5392.323483171201,
+      "time": 2819.503520965576,
+      "cpu_time": 2811.818831908,
+      "status": 1,
+      "starttime": 1751413134.0440242,
+      "endtime": 1751415953.5489652,
+      "additional_info": {}
+    },
+    {
+      "config_id": 73,
+      "instance": null,
+      "seed": 1608637542,
+      "budget": null,
+      "cost": 5454.553742475698,
+      "time": 2755.6647822856903,
+      "cpu_time": 2747.038417992,
+      "status": 1,
+      "starttime": 1751415953.5578759,
+      "endtime": 1751418709.2241685,
+      "additional_info": {}
+    },
+    {
+      "config_id": 74,
+      "instance": null,
+      "seed": 1608637542,
+      "budget": null,
+      "cost": 5454.553742475698,
+      "time": 2775.9650189876556,
+      "cpu_time": 2768.129077466001,
+      "status": 1,
+      "starttime": 1751418709.2349818,
+      "endtime": 1751421485.2015426,
+      "additional_info": {}
+    },
+    {
+      "config_id": 75,
+      "instance": null,
+      "seed": 1608637542,
+      "budget": null,
+      "cost": 5394.120057783299,
+      "time": 2776.5936172008514,
+      "cpu_time": 2767.4116224460013,
+      "status": 1,
+      "starttime": 1751421485.2126963,
+      "endtime": 1751424261.807898,
+      "additional_info": {}
     }
   ],
   "configs": {
@@ -1366,6 +1457,55 @@
       "rf_classifiermin_samples_leaf": 7,
       "rf_classifiermin_samples_split": 20,
       "rf_classifiern_estimators": 58
+    },
+    "69": {
+      "rf_classifierbootstrap": true,
+      "rf_classifiermax_features": 0.2553863276929,
+      "rf_classifiermin_samples_leaf": 7,
+      "rf_classifiermin_samples_split": 19,
+      "rf_classifiern_estimators": 60
+    },
+    "70": {
+      "rf_classifierbootstrap": true,
+      "rf_classifiermax_features": 0.2557339414363,
+      "rf_classifiermin_samples_leaf": 7,
+      "rf_classifiermin_samples_split": 19,
+      "rf_classifiern_estimators": 57
+    },
+    "71": {
+      "rf_classifierbootstrap": true,
+      "rf_classifiermax_features": 0.2415874036152,
+      "rf_classifiermin_samples_leaf": 9,
+      "rf_classifiermin_samples_split": 8,
+      "rf_classifiern_estimators": 104
+    },
+    "72": {
+      "rf_classifierbootstrap": false,
+      "rf_classifiermax_features": 0.2554603106989,
+      "rf_classifiermin_samples_leaf": 6,
+      "rf_classifiermin_samples_split": 20,
+      "rf_classifiern_estimators": 59
+    },
+    "73": {
+      "rf_classifierbootstrap": true,
+      "rf_classifiermax_features": 0.2553863276929,
+      "rf_classifiermin_samples_leaf": 11,
+      "rf_classifiermin_samples_split": 20,
+      "rf_classifiern_estimators": 59
+    },
+    "74": {
+      "rf_classifierbootstrap": true,
+      "rf_classifiermax_features": 0.2552404961401,
+      "rf_classifiermin_samples_leaf": 11,
+      "rf_classifiermin_samples_split": 20,
+      "rf_classifiern_estimators": 59
+    },
+    "75": {
+      "rf_classifierbootstrap": true,
+      "rf_classifiermax_features": 0.2553356326896,
+      "rf_classifiermin_samples_leaf": 12,
+      "rf_classifiermin_samples_split": 20,
+      "rf_classifiern_estimators": 59
     }
   },
   "config_origins": {
@@ -1436,6 +1576,13 @@
     "65": "Acquisition Function Maximizer: Local Search",
     "66": "Acquisition Function Maximizer: Local Search",
     "67": "Acquisition Function Maximizer: Local Search",
-    "68": "Acquisition Function Maximizer: Local Search"
+    "68": "Acquisition Function Maximizer: Local Search",
+    "69": "Acquisition Function Maximizer: Local Search",
+    "70": "Acquisition Function Maximizer: Local Search",
+    "71": "Random Search",
+    "72": "Acquisition Function Maximizer: Local Search",
+    "73": "Acquisition Function Maximizer: Local Search",
+    "74": "Acquisition Function Maximizer: Local Search",
+    "75": "Acquisition Function Maximizer: Local Search"
   }
 }

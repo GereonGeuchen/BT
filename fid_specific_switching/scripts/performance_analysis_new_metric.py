@@ -37,7 +37,7 @@ def find_sbs(path):
 
 def save_tables(data, title, filename):
     df = pd.DataFrame(list(data.items()), columns=["Method", "Ratio"])
-    df = df.sort_values("Ratio", ascending=True)
+    df = df.sort_values("Ratio", ascending=False)
 
     fig, ax = plt.subplots(figsize=(8.5, 0.35 * len(df) + 1))
     ax.axis('off')
@@ -61,8 +61,8 @@ def compute_total_precisions_for_fid(csv_path, fid):
 def display_vbs_tables(csv_path,fid=None):
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/newInstances/precision_ratios_all_tuned.png"
-        # save_tables(ratios, "VBS Relative Ratios", output_path)
+        output_path = "../results/newInstances/precision_ratios_all.pdf"
+        save_tables(ratios, "VBS Relative Ratios", output_path)
         print("✅ VBS ratios saved to:", output_path)
     else:
         totals = compute_total_precisions_for_fid(csv_path, fid)
@@ -156,7 +156,7 @@ def get_sbs_precisions(precision_csv_path):
     print(f"✅ Loaded {len(df_sbs)} SBS precision entries from {precision_csv_path}")
     return df_sbs['precision'].values
 
-def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="precision_boxplots.png"):
+def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="precision_boxplots_low_budgets.png"):
     """
     Generates boxplots of SBS, VBS, all static selectors, and selector.
     """
@@ -167,7 +167,9 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
     sbs_precisions = get_sbs_precisions(precision_csv_path)
 
     # Extract columns of interest
-    static_cols = [col for col in df.columns if col.startswith("static_B")]
+    static_cols = [col for col in df.columns if col.startswith("static_B") 
+                   and (col != "static_B800" and col != "static_B850" and col != "static_B900"
+                        and col != "static_B950" and col != "static_B1000")]
     selector_col = "selector_precision"
     vbs_col = "vbs_precision"
 
@@ -214,4 +216,4 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
 if __name__ == "__main__":
     result_csv = "../results/newInstances/selector_results_all_greater.csv"
     precision_csv = "../data/precision_files/A2_newInstances_precisions.csv"
-    plot_precision_boxplots(result_csv, precision_csv)
+    display_vbs_tables(result_csv)
