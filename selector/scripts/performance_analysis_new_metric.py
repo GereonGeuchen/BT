@@ -112,6 +112,7 @@ def save_barplot(data, title, filename):
 
     # Convert data dict to DataFrame
     df = pd.DataFrame(list(data.items()), columns=["Method", "Value"])
+    df["Method"] = df["Method"].replace({"selector_precision": "selector"})
 
     # Add SBS row with value 0.000
     sbs_row = pd.DataFrame({"Method": ["SBS (BFGS, 450)"], "Value": [0.000]})
@@ -121,7 +122,7 @@ def save_barplot(data, title, filename):
     df = df.sort_values("Value", ascending=False).reset_index(drop=True)
 
     # Plotting
-    plt.figure(figsize=(0.5 * len(df) + 2, 6))
+    plt.figure(figsize=(2.0 * len(df) + 2, 6))
     bars = plt.bar(df["Method"], df["Value"], color="skyblue", edgecolor="black")
 
     # Annotate bars with their values
@@ -129,11 +130,11 @@ def save_barplot(data, title, filename):
         height = bar.get_height()
         plt.text(bar.get_x() + bar.get_width()/2, height,
                  f"{height:.3f}",
-                 ha='center', va='bottom', fontsize=9)
+                 ha='center', va='bottom', fontsize=15)
 
-    plt.ylabel("Value")
-    plt.xticks(rotation=90)
-    plt.title(title, fontsize=14, pad=10)
+    plt.ylabel("Precision Ratio", fontsize=15)
+    plt.xticks(fontsize=15)
+    plt.title(title, fontsize=15, pad=10)
     plt.tight_layout()
     plt.savefig(filename, bbox_inches="tight")
     plt.close()

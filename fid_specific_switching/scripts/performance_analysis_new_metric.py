@@ -67,7 +67,7 @@ def save_barplot(data, title, filename):
 
     # Define desired columns
     desired_cols = [
-        "selector_precision",
+        "selector",
         "static_B64",
         "static_B80",
         "static_B96",
@@ -81,19 +81,20 @@ def save_barplot(data, title, filename):
 
     # Convert data dict to DataFrame
     df = pd.DataFrame(list(data.items()), columns=["Method", "Value"])
+    df["Method"] = df["Method"].replace({"selector_precision": "selector"})
 
     # Filter to desired columns only
     df = df[df["Method"].isin(desired_cols)]
 
     # Add SBS row with value 0.000
-    sbs_row = pd.DataFrame({"Method": ["SBS (BFGS, 450)"], "Value": [0.000]})
+    sbs_row = pd.DataFrame({"Method": ["BFGS, 450"], "Value": [0.000]})
     df = pd.concat([df, sbs_row], ignore_index=True)
 
     # Sort by Value descending: highest left, lowest right
     df = df.sort_values("Value", ascending=False).reset_index(drop=True)
 
     # Plotting
-    plt.figure(figsize=(0.5 * len(df) + 2, 6))
+    plt.figure(figsize=(1.5 * len(df) + 2, 6))
     bars = plt.bar(df["Method"], df["Value"], color="skyblue", edgecolor="black")
 
     # Annotate bars with their values
@@ -101,11 +102,11 @@ def save_barplot(data, title, filename):
         height = bar.get_height()
         plt.text(bar.get_x() + bar.get_width()/2, height,
                  f"{height:.3f}",
-                 ha='center', va='bottom', fontsize=9)
+                 ha='center', va='bottom', fontsize=15)
 
-    plt.ylabel("Value")
-    plt.xticks(rotation=90)
-    plt.title(title, fontsize=14, pad=10)
+    plt.ylabel("Precision Ratio", fontsize=15)
+    plt.xticks(fontsize=15)
+    plt.title(title, fontsize=15, pad=10)
     plt.tight_layout()
     plt.savefig(filename, bbox_inches="tight")
     plt.close()
@@ -122,10 +123,10 @@ def display_vbs_tables(csv_path, fid=None, plot_type="table"):
         ratios = compute_vbs_ratios(csv_path)
         output_path = "../results/newInstances/precision_ratios_all_bar.pdf"
         if plot_type == "table":
-            save_tables(ratios, "VBS Relative Ratios", output_path)
+            save_tables(ratios, "VBS Ratios", output_path)
             print("✅ VBS ratios table saved to:", output_path)
         elif plot_type == "bar":
-            save_barplot(ratios, "VBS Relative Ratios", output_path)
+            save_barplot(ratios, "VBS Ratios", output_path)
             print("✅ VBS ratios bar plot saved to:", output_path)
         else:
             raise ValueError("Invalid plot_type. Choose 'table' or 'bar'.")
@@ -201,13 +202,24 @@ def permutation_test_selector_vs_static(csv_path):
     # Plot
     plt.figure(figsize=(8,5))
     plt.hist(perm_distribution, bins=50, color='skyblue', edgecolor='black')
+
+    # Observed value line with label
     plt.axvline(observed_diff, color='red', linestyle='--', label=f'Observed diff = {observed_diff:.4f}')
-    plt.xlabel('Permutation test statistic')
-    plt.ylabel('Frequency')
-    plt.title('Permutation Null Distribution (Selector vs Static B64)')
-    plt.legend()
+
+    # Axis labels and title with fontsize 15
+    plt.xlabel('Permutation test statistic', fontsize=15)
+    plt.ylabel('Frequency', fontsize=15)
+    plt.title('Permutation Null Distribution (Selector vs Static B64)', fontsize=15)
+
+    # Tick label fonts
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+
+    # Legend with fontsize 15
+    plt.legend(fontsize=15)
+
     plt.tight_layout()
-    plt.savefig("permutation_test_selector_vs_static.png")
+    plt.savefig("permutation_test_selector_vs_static.pdf")
 
 
 def get_sbs_precisions(precision_csv_path):
@@ -254,7 +266,7 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
 
     # SBS next
     data.append(np.array(sbs_precisions))
-    labels.append("SBS (BFGS_450)")
+    labels.append("BFGS 450")
 
     # VBS
     if vbs_col in df.columns:
@@ -269,7 +281,7 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
         labels.append(col.replace("static_", ""))  # shorter label
 
     # Plot
-    plt.figure(figsize=(max(10, len(labels) * 0.6), 6))
+    plt.figure(figsize=(max(10, len(labels) * 0.5), 6))
     box = plt.boxplot(data, vert=True, patch_artist=True, showfliers=False)
     plt.yscale("log")
 
@@ -277,9 +289,13 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
     for median in box['medians']:
         median.set(linewidth=3, color='orange')
 
-    plt.xticks(ticks=np.arange(1, len(labels)+1), labels=labels, rotation=90)
-    plt.ylabel("Reached Precision")
-    plt.title("Boxplots of Reached Precisions: Selector, SBS, VBS, Statics")
+    # plt.xlabel("Method", fontsize=15)  # Added x-axis label with fontsize 15
+    plt.ylabel("Reached Precision", fontsize=15)
+    plt.title("Boxplots of Reached Precisions", fontsize=15)
+
+    # Also adjust tick label font sizes for consistency
+    plt.xticks(ticks=np.arange(1, len(labels)+1), labels=labels, rotation=90, fontsize=12)
+    plt.yticks(fontsize=12)
     plt.tight_layout()
     plt.savefig(output_png)
     plt.close()
@@ -290,5 +306,6 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
 if __name__ == "__main__":
     result_csv = "../results/newInstances/selector_results_all_greater.csv"
     precision_csv = "../data/precision_files/A2_newInstances_precisions.csv"
-    # display_vbs_tables(result_csv, fid=None, plot_type="bar")
+    #display_vbs_tables(result_csv, fid=None, plot_type="bar")
+    #plot_precision_boxplots(result_csv, precision_csv)
     permutation_test_selector_vs_static(result_csv)
