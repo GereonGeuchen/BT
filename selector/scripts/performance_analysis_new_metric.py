@@ -13,7 +13,7 @@ def compute_vbs_ratios(csv_path, fid = None):
     df = pd.read_csv(csv_path)
     vbs_sum = df["vbs_precision"].sum()
     consider_cols = [col for col in df.columns if col.startswith("static_B") or col == "selector_precision"]
-    consider_cols = ["selector_precision"] + ["static_B64"] + ["static_B16"] + ["static_B8"]
+    # consider_cols = ["selector_precision"] + ["static_B64"] + ["static_B16"] + ["static_B8"]
     res = {}
     for col in consider_cols:
         col_sum = df[col].sum()
@@ -88,7 +88,7 @@ def save_tables(data, title, filename):
     table.auto_set_font_size(False)
     table.set_fontsize(10)
     table.scale(1, 1.5)
-    plt.title(title, fontsize=14, pad=10)
+    # plt.title(title, fontsize=14, pad=10)
     plt.tight_layout()
     plt.savefig(filename, bbox_inches="tight")
     plt.close()
@@ -143,7 +143,7 @@ def save_barplot(data, title, filename):
 def display_vbs_tables(csv_path,bar_plot = False, fid=None):
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/new_Instances/all_sp/precision_ratios_bars.pdf"
+        output_path = "../results/new_Instances/all_sp/precision_ratios.pdf"
         if bar_plot:
             save_barplot(ratios, "VBS Ratios", output_path)
         else:
@@ -194,4 +194,4 @@ if __name__ == "__main__":
     results_newReps = "../results/new_Reps/all_sp/selector_results_newReps_all.csv"
     results_newReps_late = "../results/new_Reps/late_sp/selector_results_newReps_late.csv"
 
-    display_vbs_tables(results_newInstances, bar_plot=True)
+    display_vbs_tables(results_newInstances, bar_plot=False)
