@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import os
 
 eps = np.finfo(float).eps  # Small value to avoid division by zero
-sbs_sum = 2690.13 # For iid 6,7
+# sbs_sum = 2690.13 # For iid 6,7
+sbs_sum = 3429.5691758002
 # sbs_sum = 3306.18 # For new reps, all switching points, Non-elitist budget 16
 # sbs_sum = 3511.97 # For new reps, late switching points, 50 Non-elitist
 
@@ -115,12 +116,17 @@ def save_barplot(data, title, filename):
     df["Method"] = df["Method"].replace({"selector_precision": "selector"})
 
     # Add SBS row with value 0.000
-    sbs_row = pd.DataFrame({"Method": ["SBS (BFGS, 450)"], "Value": [0.000]})
+    sbs_row = pd.DataFrame({"Method": ["SBS (Non-elitist, 0)"], "Value": [0.000]})
     df = pd.concat([df, sbs_row], ignore_index=True)
+
+    
+   
+    # Filter to only keep the specified bars
+    desired_methods = ["static_B64", "selector", "static_b16", "SBS (Non-elitist, 0)", "static_B8"]
+    df = df[df["Method"].isin(desired_methods)]
 
     # Sort by Value descending: highest left, lowest right
     df = df.sort_values("Value", ascending=False).reset_index(drop=True)
-
     # Plotting
     plt.figure(figsize=(2.0 * len(df) + 2, 6))
     bars = plt.bar(df["Method"], df["Value"], color="skyblue", edgecolor="black")
@@ -143,7 +149,7 @@ def save_barplot(data, title, filename):
 def display_vbs_tables(csv_path,bar_plot = False, fid=None):
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/new_Instances/all_sp/precision_ratios.pdf"
+        output_path = "../results/new_Instances/all_sp/precision_ratios_bars.pdf"
         if bar_plot:
             save_barplot(ratios, "VBS Ratios", output_path)
         else:
@@ -165,10 +171,13 @@ def plot_selector_budget_counts(csv_path, output_png="selector_budget_counts.png
     fig, ax = plt.subplots(figsize=(10, 5))
     bars = ax.bar(counts.index.astype(str), counts.values, color='steelblue')
 
-    ax.set_title("Number of runs in which the selector switched at each budget", fontsize=14)
-    ax.set_xlabel("Budget", fontsize=12)
-    ax.set_ylabel("Count", fontsize=12)
+    ax.set_title("Number of runs in which the selector switched at each budget", fontsize=15)
+    ax.set_xlabel("Budget", fontsize=15)
+    ax.set_ylabel("Count", fontsize=15)
     ax.grid(True, axis='y', linestyle='--', alpha=0.6)
+
+    # Increase tick label font sizes
+    ax.tick_params(axis='both', which='major', labelsize=15)
 
     # Annotate bars with count values
     for bar in bars:
@@ -177,9 +186,11 @@ def plot_selector_budget_counts(csv_path, output_png="selector_budget_counts.png
                     xy=(bar.get_x() + bar.get_width() / 2, height),
                     xytext=(0, 3),
                     textcoords="offset points",
-                    ha='center', va='bottom', fontsize=9)
+                    ha='center', va='bottom', fontsize=15)
 
     plt.tight_layout()
+    if not os.path.exists(os.path.dirname(output_png)):
+        os.makedirs(os.path.dirname(output_png))
     plt.savefig(output_png)
     plt.close()
 
@@ -194,4 +205,5 @@ if __name__ == "__main__":
     results_newReps = "../results/new_Reps/all_sp/selector_results_newReps_all.csv"
     results_newReps_late = "../results/new_Reps/late_sp/selector_results_newReps_late.csv"
 
-    display_vbs_tables(results_newInstances, bar_plot=False)
+    # plot_selector_budget_counts(results_newInstances, output_png="../results/new_Instances/all_sp/selector_budget_counts.pdf")
+    display_vbs_tables(results_newInstances, bar_plot=True)

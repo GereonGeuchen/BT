@@ -101,7 +101,7 @@ def build_full_crossvalidated_table(precision_path, output_dir = None):
         print(f"⏳ Processing budget {budget}...")
 
         if budget < 1000:
-            df_b, df_a = crossvalidated_static_predictions(budget, fold="rep5fold")
+            df_b, df_a = crossvalidated_static_predictions(budget)
         else:
             # Use precision and algorithm "Same" directly
             df_b = precision_df.query("budget == 1000 and algorithm == 'Same'")
@@ -129,9 +129,18 @@ def build_full_crossvalidated_table(precision_path, output_dir = None):
 
 if __name__ == "__main__":
     # df_prec, df_algo = build_full_crossvalidated_table("../data/precision_files/A2_data_precisions.csv",
-    #                                                    output_dir="../data/switching_optimality_files/rep_5fold")
+    #                                                    output_dir="../data/switching_optimality_files_test")
     # # print("✅ Finished. Files saved.")
-    df = pd.read_csv("../data/switching_optimality_files/predicted_static_precisions_late_sp.csv")
-    for col in df.columns:
+    df1 = pd.read_csv("../data/switching_optimality_files/predicted_static_precisions_all_sp.csv")
+    df2 = pd.read_csv("../data/switching_optimality_files_test/predicted_static_precisions_rep_fold_late_sp.csv")
+    for col in df1.columns:
         if col.startswith("static_B"):
-            print(f"Column {col}: {df[col].sum() / 5}")
+            if df1[col].sum() != df2[col].sum():
+                print(f"Column {col} differs: {df1[col].sum()} vs {df2[col].sum()}")
+            else:
+                print(f"Column {col} matches: {df1[col].sum()}")
+    
+    # df = pd.read_csv("../data/switching_optimality_files_test/predicted_static_precisions_rep_fold_late_sp.csv")
+    # for col in df.columns:
+    #     if col.startswith("static_B"):
+    #         print(f"Column {col}: {df[col].sum() / 5}")

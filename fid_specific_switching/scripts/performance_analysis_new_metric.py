@@ -5,7 +5,16 @@ import os
 from scipy.stats import permutation_test
 
 eps = np.finfo(float).eps  # Small value to avoid division by zero
-sbs_sum = 2690.130170 # For iid 6,7, late and all switching points, BFGS at 450
+# sbs_sum = 2690.130170 # For iid 6,7, late and all switching points, BFGS at 450
+sbs_sum = 3429.5691758002
+# === Algorithm Sums for new Instances === 
+bfgs_sum = 92946.0950559139
+mlsl_sum = 128667.58299961702
+de_sum = 46440.1419644884
+pso_sum = 29118.065420629897
+same_sum = 18366.622388112395
+non_elitist_sum = 2928.8498329463
+
 # sbs_sum = 3306.1779694383 # For new reps, all switching points, Non-elitist budget 16
 # sbs_sum = 3511.967 # For new reps, late switching points, 50 Non-elitist
 
@@ -20,6 +29,10 @@ def compute_vbs_ratios(csv_path, fid = None):
         print(f"Processing column: {col}, sum: {col_sum}")
         res[col] = (sbs_sum - col_sum) / (sbs_sum - vbs_sum) 
 
+    # Optionally: Append values for Same, Non-elitist, and BFGS
+    res["Same 0"] = (sbs_sum - same_sum) / (sbs_sum - vbs_sum)
+    res["Non-elitist 0"] = (sbs_sum - non_elitist_sum) / (sbs_sum - vbs_sum)
+    res["BFGS 0"] = (sbs_sum - bfgs_sum) / (sbs_sum - vbs_sum)
     return res
 
 def find_sbs(path):
@@ -70,13 +83,16 @@ def save_barplot(data, title, filename):
         "selector",
         "static_B64",
         "static_B80",
-        "static_B96",
-        "static_B56",
-        "static_B48",
+        #"static_B96",
+        #"static_B56",
+        #"static_B48",
         "static_B150",
         "static_B18",
         "static_B8",
-        "static_B800"
+        "static_B800",
+        #"Same"
+        "Non-elitist 0"
+        #"BFGS"
     ]
 
     # Convert data dict to DataFrame
@@ -87,7 +103,7 @@ def save_barplot(data, title, filename):
     df = df[df["Method"].isin(desired_cols)]
 
     # Add SBS row with value 0.000
-    sbs_row = pd.DataFrame({"Method": ["BFGS, 450"], "Value": [0.000]})
+    sbs_row = pd.DataFrame({"Method": ["Non-elitist, 16"], "Value": [0.000]})
     df = pd.concat([df, sbs_row], ignore_index=True)
 
     # Sort by Value descending: highest left, lowest right
@@ -121,7 +137,7 @@ def display_vbs_tables(csv_path, fid=None, plot_type="table"):
     """
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/newInstances/precision_ratios_all_bar.pdf"
+        output_path = "../results/newInstances/precision_ratios_all_with_algos.pdf"
         if plot_type == "table":
             save_tables(ratios, "VBS Ratios", output_path)
             print("✅ VBS ratios table saved to:", output_path)
@@ -176,25 +192,27 @@ def permutation_test_selector_vs_static(csv_path):
 
     df = pd.read_csv(csv_path)
     selector = df['selector_precision'].values
+    budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21) ]
+    budgets = [64]
+    for budget in budgets:
+        static = df[f'static_B{budget}'].values
 
-    static = df[f'static_B64'].values
+        # Compute observed mean difference
+        observed_diff = np.mean(selector - static)
+        print(f"Observed mean difference: {observed_diff:.6f}")
 
-    # Compute observed mean difference
-    observed_diff = np.mean(selector - static)
-    print(f"Observed mean difference: {observed_diff:.6f}")
+        # Use scipy's permutation_test
+        res = permutation_test(
+            (selector, static),
+            statistic=lambda x, y: np.mean(x - y),
+            permutation_type='samples',
+            vectorized=False,
+            n_resamples=10000,
+            alternative='less',
+            random_state=42
+        )
 
-    # Use scipy's permutation_test
-    res = permutation_test(
-        (selector, static),
-        statistic=lambda x, y: np.mean(x - y),
-        permutation_type='samples',
-        vectorized=False,
-        n_resamples=10000,
-        alternative='less',
-        random_state=42
-    )
-
-    print(f"P-value (selector < static) for budget 64: {res.pvalue:.6f}")
+        print(f"P-value (selector < static) for budget {budget}: {res.pvalue:.6f}")
 
     # Extract permutation distribution (available in res.distribution)
     perm_distribution = res.null_distribution
@@ -224,31 +242,66 @@ def permutation_test_selector_vs_static(csv_path):
 
 def get_sbs_precisions(precision_csv_path):
     """
-    Loads the precision file and extracts SBS per run:
-    BFGS at budget 450.
+    Loads the precision file and extracts SBS per run and additional fixed configurations:
+    - BFGS at budget 450
+    - Non-elitist at budget 0
+    - BFGS at budget 0
+    - Same at budget 0
+
+    Returns a dictionary with numpy arrays for each.
     """
     df_prec = pd.read_csv(precision_csv_path)
-    df_sbs = df_prec[(df_prec['algorithm'] == 'BFGS') & (df_prec['budget'] == 450)]
 
-    # Sort by fid and iid for consistent ordering
-    df_sbs = df_sbs.sort_values(['fid', 'iid']).reset_index(drop=True)
+    # Extract BFGS at budget 450
+    df_bfgs_450 = df_prec[(df_prec['algorithm'] == 'BFGS') & (df_prec['budget'] == 450)]
+    df_bfgs_450 = df_bfgs_450.sort_values(['fid', 'iid']).reset_index(drop=True)
+    bfgs_450_precisions = df_bfgs_450['precision'].values
+    print(f"✅ Loaded {len(bfgs_450_precisions)} BFGS 450 precision entries from {precision_csv_path}")
 
-    print(f"✅ Loaded {len(df_sbs)} SBS precision entries from {precision_csv_path}")
-    return df_sbs['precision'].values
+    # Extract Non-elitist at budget 0
+    df_nonelitist_0 = df_prec[(df_prec['algorithm'] == 'Non-elitist') & (df_prec['budget'] == 0)]
+    df_nonelitist_0 = df_nonelitist_0.sort_values(['fid', 'iid']).reset_index(drop=True)
+    nonelitist_0_precisions = df_nonelitist_0['precision'].values
+    print(f"✅ Loaded {len(nonelitist_0_precisions)} Non-elitist 0 precision entries from {precision_csv_path}")
+
+    # Extract BFGS at budget 0
+    df_bfgs_0 = df_prec[(df_prec['algorithm'] == 'BFGS') & (df_prec['budget'] == 0)]
+    df_bfgs_0 = df_bfgs_0.sort_values(['fid', 'iid']).reset_index(drop=True)
+    bfgs_0_precisions = df_bfgs_0['precision'].values
+    print(f"✅ Loaded {len(bfgs_0_precisions)} BFGS 0 precision entries from {precision_csv_path}")
+
+    # Extract Same at budget 0
+    df_same_0 = df_prec[(df_prec['algorithm'] == 'Same') & (df_prec['budget'] == 0)]
+    df_same_0 = df_same_0.sort_values(['fid', 'iid']).reset_index(drop=True)
+    same_0_precisions = df_same_0['precision'].values
+    print(f"✅ Loaded {len(same_0_precisions)} Same 0 precision entries from {precision_csv_path}")
+
+    # Return as dictionary for flexible downstream use
+    return {
+        'BFGS_450': bfgs_450_precisions,
+        'Non-elitist_0': nonelitist_0_precisions,
+        'BFGS_0': bfgs_0_precisions,
+        'Same_0': same_0_precisions
+    }
 
 def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="precision_boxplots_low_budgets.pdf"):
     """
-    Generates boxplots of SBS, VBS, all static selectors, and selector.
+    Generates boxplots of SBS, VBS, Non-elitist/BFGS/Same at budget 0, all static selectors (excluding budgets 650, 700, 750), and selector.
     """
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+
     # Load result file
     df = pd.read_csv(result_csv_path)
 
-    # Extract SBS per run (assuming your get_sbs_precisions function is defined elsewhere)
-    sbs_precisions = get_sbs_precisions(precision_csv_path)
+    # Extract SBS and baseline precisions
+    precisions_dict = get_sbs_precisions(precision_csv_path)
 
     # Extract columns of interest
-    static_cols = [col for col in df.columns if col.startswith("static_B") 
-                   and (col not in ["static_B800", "static_B850", "static_B900",
+    static_cols = [col for col in df.columns if col.startswith("static_B")
+                   and (col not in ["static_B650", "static_B700", "static_B750",
+                                    "static_B800", "static_B850", "static_B900",
                                     "static_B950", "static_B1000"])]
     selector_col = "selector_precision"
     vbs_col = "vbs_precision"
@@ -264,9 +317,21 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
     else:
         print(f"⚠ Selector column {selector_col} not found in data.")
 
-    # SBS next
-    data.append(np.array(sbs_precisions))
+    # SBS BFGS 450
+    data.append(precisions_dict['BFGS_450'])
     labels.append("BFGS 450")
+
+    # Non-elitist 0
+    data.append(precisions_dict['Non-elitist_0'])
+    labels.append("Non-elitist 0")
+
+    # BFGS 0
+    data.append(precisions_dict['BFGS_0'])
+    labels.append("BFGS 0")
+
+    # Same 0
+    data.append(precisions_dict['Same_0'])
+    labels.append("Same 0")
 
     # VBS
     if vbs_col in df.columns:
@@ -285,15 +350,14 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
     box = plt.boxplot(data, vert=True, patch_artist=True, showfliers=False)
     plt.yscale("log")
 
-    # Overlay means as prominent red circles with black edges
+    # Style medians as orange lines
     for median in box['medians']:
         median.set(linewidth=3, color='orange')
 
-    # plt.xlabel("Method", fontsize=15)  # Added x-axis label with fontsize 15
+    # Labels and title
     plt.ylabel("Reached Precision", fontsize=15)
     plt.title("Boxplots of Reached Precisions", fontsize=15)
 
-    # Also adjust tick label font sizes for consistency
     plt.xticks(ticks=np.arange(1, len(labels)+1), labels=labels, rotation=90, fontsize=12)
     plt.yticks(fontsize=12)
     plt.tight_layout()
@@ -301,11 +365,35 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
     plt.close()
     print(f"✅ Precision boxplots saved to {output_png}")
 
+def find_sbs(precision_path):
+    df = pd.read_csv(precision_path)
+    print(df.columns)
+    # Remove all entries with budget 0
+    df = df[df["budget"] != 0]
+    score_table = (
+        df.groupby(["budget", "algorithm"])["precision"]
+        .sum()
+        .reset_index()
+        .sort_values("precision")
+        .reset_index(drop=True)
+    )
+    return score_table
+
 
 
 if __name__ == "__main__":
     result_csv = "../results/newInstances/selector_results_all_greater.csv"
-    precision_csv = "../data/precision_files/A2_newInstances_precisions.csv"
-    #display_vbs_tables(result_csv, fid=None, plot_type="bar")
-    #plot_precision_boxplots(result_csv, precision_csv)
-    permutation_test_selector_vs_static(result_csv)
+    # precision_csv = "../data/precision_files/A2_newInstances_precisions.csv"
+    # precision_0_csv = "../data/precision_files/A2_newInstances_0_budget_precisions.csv"
+    # precision_csv = "../data/precision_files/A2_data_precisions.csv"
+    # precision_csv = "../data/precision_files/A2_newInstances_precisions.csv"
+    # res = find_sbs(precision_csv)
+    
+    # for index, row in res.iterrows():
+    #     print(f"Budget: {row['budget']}, Algorithm: {row['algorithm']}, Precision: {row['precision']}")
+    # display_vbs_tables(result_csv, fid=None, plot_type="bar")
+    # plot_precision_boxplots(result_csv, precision_0_csv,
+    #                        output_png="../results/newInstances/precision_boxplots_with_0.pdf")
+    # permutation_test_selector_vs_static(result_csv)
+    # plot_selector_budget_counts(result_csv, output_png="../results/newInstances/selector_budget_counts.pdf")
+    display_vbs_tables(result_csv, fid=None, plot_type="bar")

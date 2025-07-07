@@ -19,9 +19,10 @@ class SwitchingSelector:
         performance_model_dir = Path(performance_model_dir)
 
         # Load switching predictor models
-        for model_path in selector_model_dir.glob("selector_B*_trained.pkl"):
-            budget = int(model_path.stem.split("_")[1][1:])  # e.g., selector_B500 → 500
+        for model_path in selector_model_dir.glob("switching_model_B*_trained.pkl"):
+            budget = int(model_path.stem.split("_")[2][1:])  # e.g., selector_B500 → 500
             self.switching_prediction_models[budget] = joblib.load(model_path)
+            print(self.switching_prediction_models[budget].model_class.get_params())
             print(f"Loaded switching model for budget {budget}")
 
         # Load performance predictors
@@ -232,7 +233,7 @@ class SwitchingSelector:
 
 if __name__ == "__main__":
     selector = SwitchingSelector(
-        selector_model_dir="../data/models/trained_models/switching_models_trained_best_50trials",
+        selector_model_dir="../data/models/trained_models/final_trained_binary_switching_models_all",
         performance_model_dir="../data/models/trained_models/algo_performance_models_trained"
     )
     selector.evaluate_selector_to_csv(
