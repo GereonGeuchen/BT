@@ -296,13 +296,14 @@ if __name__ == "__main__":
     #         base_folder="../data/run_data/A1_newReps",
     #         output_folder=f"../data/ela_data/A1_data_ela_newReps"
     #     )
+
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         warnings.filterwarnings("ignore", category=UserWarning)
         calculate_ela_features(
-            budget=56,
-            base_folder="../data/run_data/A1_newInstances_test",
-            output_folder="../data/ela_data/A1_data_ela_newInstances_test"
+            budget=500,
+            base_folder="../data/run_data/A1_data_test_2",
+            output_folder="../data/ela_data/A1_data_test_2"
         )
         # for budget in reversed([8*i for i in range(4, 5)]):
         #     print(f"Calculating ELA features for budget: {budget}")

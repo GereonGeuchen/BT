@@ -1,4 +1,5 @@
-from scipy_differentialevolution import DifferentialEvolutionSolver
+from scipy.optimize._differentialevolution import DifferentialEvolutionSolver
+# from scipy_differentialevolution import DifferentialEvolutionSolver
 # import numpy as np
 from algorithm import Algorithm
 import numpy as np

@@ -210,8 +210,10 @@ class MLSL(Algorithm):
                             return self.func(x)
 #                         try:
 #                         print(bounds)
+                        # solution = minimize(internal_func, self.xr[i], method='Powell', bounds=bounds,
+                        #                     options={'ftol': 1e-8, 'maxfev': local_budget})   
                         solution = minimize(internal_func, self.xr[i], method='Powell', bounds=bounds,
-                                            options={'ftol': 1e-8, 'maxfev': local_budget})     
+                                        options={'ftol': 1e-8}) 
 #                         except:
 #                             if self.verbose:
 #                                 print(f"MLSL FAILED")
@@ -222,6 +224,13 @@ class MLSL(Algorithm):
                     local_budget = local_budget - solution.nfev
                     if local_budget < 0:
                         local_budget = 0
+
+                    # Check if we need to stop
+                    if self.stop():
+                        if self.verbose:
+                            print(f' MLSL stopped')
+                        return
+
 
             self.k = self.k+1
             

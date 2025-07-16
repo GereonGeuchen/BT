@@ -5,7 +5,7 @@ import time
 
 from datetime import timedelta
 from functools import partial
-from numdifftools.core import Gradient, Hessian
+# from numdifftools.core import Gradient, Hessian
 
 from sklearn import linear_model
 from sklearn.decomposition import PCA
@@ -24,29 +24,29 @@ from typing import Callable, Dict, List, Optional, Union
 from utils import _determine_max_n_blocks, _create_blocks, _validate_variable_types, _transform_bounds_to_canonical, _check_blocks_variable, _cartesian_product_efficient
 
 
-def _calculate_num_derivate(f, lower_bound, upper_bound, delta, eps, zero_tol, x):
-      h0 = np.abs(delta * x) + eps * (np.abs(x) < zero_tol)
-      side = 1 * ((x - lower_bound) <= h0) - 1 * ((upper_bound - x) <= h0)
-      side = np.array([np.nan if x == 0 else x for x in side])
+# def _calculate_num_derivate(f, lower_bound, upper_bound, delta, eps, zero_tol, x):
+#       h0 = np.abs(delta * x) + eps * (np.abs(x) < zero_tol)
+#       side = 1 * ((x - lower_bound) <= h0) - 1 * ((upper_bound - x) <= h0)
+#       side = np.array([np.nan if x == 0 else x for x in side])
 
-      grad = np.abs(Gradient(f, method = 'central')(x))
-      if grad.min() > 0:
-            gr_scale = grad.max()/grad.min()
-            gr_scale_norm = np.sqrt(np.sum(gr_scale) ** 2)
+#       grad = np.abs(Gradient(f, method = 'central')(x))
+#       if grad.min() > 0:
+#             gr_scale = grad.max()/grad.min()
+#             gr_scale_norm = np.sqrt(np.sum(gr_scale) ** 2)
 
-      else:
-            gr_scale = np.nan
-            gr_scale_norm = np.nan
+#       else:
+#             gr_scale = np.nan
+#             gr_scale_norm = np.nan
       
-      hess = Hessian(f, method = 'central')(x)
-      eig = np.abs(np.linalg.eig(hess)[0])
+#       hess = Hessian(f, method = 'central')(x)
+#       eig = np.abs(np.linalg.eig(hess)[0])
       
-      if eig.min() > 0:
-            hess_cond = eig.max()/eig.min()
-      else:
-            hess_cond = np.nan
+#       if eig.min() > 0:
+#             hess_cond = eig.max()/eig.min()
+#       else:
+#             hess_cond = np.nan
       
-      return np.array([gr_scale_norm, gr_scale, hess_cond])
+#       return np.array([gr_scale_norm, gr_scale, hess_cond])
 
 def calculate_ela_meta(
       X: Union[pd.DataFrame, np.ndarray, List[List[float]]],

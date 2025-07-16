@@ -5,18 +5,70 @@ import datetime
 from shutil import make_archive
 import copy
 
-from scipy.optimize.optimize import _prepare_scalar_function
-from scipy.optimize.optimize import vecnorm
-from scipy.optimize.optimize import _line_search_wolfe12
-from scipy.optimize.optimize import _LineSearchError
-from scipy.optimize.optimize import OptimizeResult
-from scipy.optimize.optimize import _status_message
-from scipy.optimize._differentiable_functions import ScalarFunction, FD_METHODS
+# My imports
+from scipy.optimize import line_search
+from scipy.optimize._numdiff import approx_derivative
+from scipy.optimize import line_search
+from scipy.optimize._linesearch import line_search_wolfe1
 from scipy.optimize import line_search
 
 from algorithm import Algorithm
 
+# My own functions
 
+def line_search_wolfe12(f, grad, xk, pk, gfk=None, old_fval=None, old_old_fval=None,
+                        c1=1e-4, c2=0.9, amin=1e-100, amax=1e100, bounds=None):
+    """
+    Tries More–Thuente Wolfe line search (line_search), then falls back to Wolfe1 if needed.
+    If bounds are provided, clamps evaluations to within those bounds.
+    """
+    if bounds is not None:
+        lb, ub = bounds
+
+        def f_clipped(x):
+            return f(np.clip(x, lb, ub))
+
+        def grad_clipped(x):
+            return grad(np.clip(x, lb, ub))
+    else:
+        f_clipped = f
+        grad_clipped = grad
+
+    try:
+        res = line_search(
+            f_clipped, grad_clipped, xk, pk, gfk, old_fval, old_old_fval,
+            c1=c1, c2=c2, amax=amax
+        )
+        alpha_k, fc, gc, new_fval, new_old_fval, new_gfk = res
+
+        if alpha_k is not None:
+            return alpha_k, fc, gc, new_fval, new_old_fval, new_gfk
+    except Exception:
+        pass
+
+    # Fall back to Wolfe1
+    res = line_search_wolfe1(
+        f_clipped, grad_clipped, xk, pk, gfk, old_fval, old_old_fval,
+        c1=c1, c2=c2, amin=amin, amax=amax
+    )
+
+    if res[0] is None:
+        raise RuntimeError("Both Wolfe2 and Wolfe1 line search failed")
+
+    return res
+
+def vecnorm(x, ord=None):
+    """Calculate the vector norm of x."""
+    if ord is None:
+        return np.linalg.norm(x)
+    elif ord == 1:
+        return np.linalg.norm(x, ord=1)
+    elif ord == 2:
+        return np.linalg.norm(x, ord=2)
+    elif ord == np.inf:
+        return np.linalg.norm(x, ord=np.inf)
+    else:
+        raise ValueError(f"Unsupported norm order: {ord}")
 
 class BFGS(Algorithm):
 
@@ -141,6 +193,11 @@ class BFGS(Algorithm):
         
         return parameters
 
+    def gradient(self, x):
+        """Calculate the gradient at point x using finite differences."""
+        return approx_derivative(self.func, x, 
+                                 rel_step=self.finite_diff_rel_step,
+                                 bounds=(self.func.bounds.lb, self.func.bounds.ub))
 
     def run(self):
         """ Runs the BFGS algorithm.
@@ -181,14 +238,14 @@ class BFGS(Algorithm):
         # Prepare scalar function object and derive function and gradient function
 #         def internal_func(x): #Needed since new functions return list by default
 #             return self.func(x)[0]
-        sf = _prepare_scalar_function(self.func, self.x0, self.jac, epsilon=self.eps,
-                              finite_diff_rel_step=self.finite_diff_rel_step)
-        f = sf.fun    # function object to evaluate function
-        gradient = sf.grad    # function object to evaluate gradient
+        # sf = _prepare_scalar_function(self.func, self.x0, self.jac, epsilon=self.eps,
+        #                       finite_diff_rel_step=self.finite_diff_rel_step)
+        # f = sf.fun    # function object to evaluate function
+        # gradient = sf.grad    # function object to evaluate gradient
 
 
-        old_fval = f(self.x0)    # evaluate x0
-        gfk = gradient(self.x0)   # gradient at x0
+        old_fval = self.func(self.x0)    # evaluate x0
+        gfk = self.gradient(self.x0)   # gradient at x0
         
         self.x_hist.append(self.x0)
         self.f_hist.append(old_fval)
@@ -216,14 +273,24 @@ class BFGS(Algorithm):
             gfkp1 : gradient at new point xkp1
             """
             try:
+                # self.alpha_k, fc, gc, old_fval, old_old_fval, gfkp1 = \
+                #      _line_search_wolfe12(self.func, self.gradient, xk, pk, gfk,
+                #                           old_fval, old_old_fval, amin=1e-100, amax=1e100)
                 self.alpha_k, fc, gc, old_fval, old_old_fval, gfkp1 = \
-                     _line_search_wolfe12(f, gradient, xk, pk, gfk,
-                                          old_fval, old_old_fval, amin=1e-100, amax=1e100)
-                
-            except _LineSearchError:
+                    line_search_wolfe12(
+                        self.func, self.gradient, xk, pk, gfk,
+                        old_fval, old_old_fval, c1=1e-4, c2=0.9,
+                        amin=1e-100, amax=1e100,
+                        bounds=(self.func.bounds.lb, self.func.bounds.ub)  
+                    )
+            except Exception as e:
                 if self.verbose:
-                    print('break because of line search error')
+                    print(f"Line search failed with error: {e}")
                 break
+            # except _LineSearchError:
+            #     if self.verbose:
+            #         print('break because of line search error')
+            #     break
 
             # Save parameters for plot and analysis
             self.stepsizes.append(self.alpha_k)
@@ -233,6 +300,9 @@ class BFGS(Algorithm):
 
             # calculate xk+1 with alpha_k and pk
             xkp1 = xk + self.alpha_k * pk
+
+            # Make sure we sty within bounds
+            xkp1 = np.clip(xkp1, self.func.bounds.lb, self.func.bounds.ub)
             if self.return_all:
                 allvecs.append(xkp1)
             sk = xkp1 - xk    # step sk is difference between xk+1 and xk
@@ -243,7 +313,7 @@ class BFGS(Algorithm):
 
             # Calculate gradient of xk+1 if not already found by Wolfe search
             if gfkp1 is None:
-                gfkp1 = gradient(xkp1)
+                gfkp1 = self.gradient(xkp1)
             yk = gfkp1 - gfk    # gradient difference
             gfk = gfkp1    # copy gradient to gfk for new iteration
             k += 1
@@ -278,12 +348,12 @@ class BFGS(Algorithm):
         fval = old_fval
 
         # Create OptimizeResult object based on found point and value
-        result = OptimizeResult(fun=fval, jac=gfk, hess_inv=self.Hk, nfev=sf.nfev,
-                        njev=sf.ngev, x=xk,
-                        nit=k)
+        # result = OptimizeResult(fun=fval, jac=gfk, hess_inv=self.Hk, nfev=sf.nfev,
+        #                 njev=sf.ngev, x=xk,
+        #                 nit=k)
 
-        if self.return_all:
-            result['allvecs'] = allvecs
+        # if self.return_all:
+        #     result['allvecs'] = allvecs
             
         if self.verbose:
             print(f'BFGS complete (stopping returned: {self.stop()})')

@@ -8,11 +8,11 @@ from dataclasses import dataclass, fields
 import pandas as pd
 
 import ioh
-from ioh import ProblemClass
+from ioh import ProblemClass, problem
 from modcma import ModularCMAES, Parameters
 import numpy as np
 
-from bfgs import BFGS # type: ignore
+from bfgs_new_scipy import BFGS # type: ignore
 from pso import PSO # type: ignore
 from mlsl import MLSL # type: ignore
 from de import DE # type: ignore
@@ -25,7 +25,7 @@ from multiprocessing import Pool
 def runParallelFunction(runFunction, arguments):
     """
         Return the output of runFunction for each set of arguments,
-        making use of as much parallelization as possible on this system
+        making use of as much parallelization as possible on this systemc
 
         :param runFunction: The function that can be executed in parallel
         :param arguments:   List of tuples, where each tuple are the arguments
@@ -198,7 +198,7 @@ def collect_A1_data(budget_factor, dim = 5):
 
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/run_data/A1_early_switching/A1_B{budget_factor}_{dim}D',
+        folder_name=f'../data/run_data/A1_data_test_2/A1_B{budget_factor}_{dim}D',
         algorithm_name='ModCMA_A1',
         store_positions=True
     )
@@ -230,14 +230,16 @@ def collect_A1_data(budget_factor, dim = 5):
             problem.detach_logger()
             
             
-def collect_A2(budget_factor, dim, A2, algname):
+def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False):
+    if budget_factor == 0:
+        run_A2_from_scratch = True
     trigger = ioh.logger.trigger.OnImprovement()
     
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/run_data/A2_early_switching/A2_{algname}_B{budget_factor}_{dim}D',
+        folder_name=f'../data/run_data/A2_data_positions_test/A2_{algname}_B{budget_factor}_{dim}D',
         algorithm_name=algname,
-        store_positions=False,
+        store_positions=True,
     )
     tracked_parameters = TrackedParameters()
     logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
@@ -250,31 +252,66 @@ def collect_A2(budget_factor, dim, A2, algname):
             for rep in range(20):
                 tracked_parameters.rep = rep
                 tracked_parameters.iid = iid
-                print(f"Running fundction {fid} instance {iid} repetition {rep} with A2 {algname}, budget {budget_factor}")
+                print(f"Running function {fid} instance {iid} repetition {rep} with A2 {algname}, budget {budget_factor}, run_from_scratch={run_A2_from_scratch}")
                 np.random.seed(rep)
-                if algname in ["Same", "Non-elitist"]:
+                
+                if run_A2_from_scratch:
+                    if algname not in ["Same", "Non-elitist"]:
+                        # Run A2 directly from scratch without CMA-ES warm-starting
+                        algorithm = A2(problem, verbose=False, seed=np.random.get_state())
+                        # Run for 1000 evals
+                        algorithm.set_params({'budget': 1000})
+                        algorithm.set_hyperparams({})
+                        def stopping_criteria():
+                            return problem.state.evaluations >= 1000
+                        
+                        algorithm.set_stopping_criteria(stopping_criteria)
+                        algorithm.run()
+                    else:
+                        cma = TrackedCMAES(
+                            None, 
+                            problem, 
+                            dim, 
+                            budget= 1000,
+                            active=True,
+                            bound_correction='saturate',
+                            sigma0 = 2.0,
+                            x0 = np.zeros((5,1)),
+                            elitist = True if algname == "Same" else False
+                        ).run()
+                    
+                elif algname in ["Same", "Non-elitist"]:
                     alg = From_CMA_To_CMA(budget_factor, dim, algname, total_budget_factor=200)
                     alg(problem, algname)
                 else:
                     alg = Switched_From_CMA(budget_factor, dim, A2, total_budget_factor=200)
                     alg(problem, A2)
+                
                 problem.reset()
             problem.detach_logger()
-            
             
 def collect_all(x = None):
     budget_factor, dim = x
     # First, collect A1 data
-    collect_A1_data(budget_factor, dim)
+    # collect_A1_data(budget_factor, dim)
     
     # Then collect A2 data
-    for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
-        collect_A2(budget_factor, dim, A2, algname)
+    # for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
+    #     collect_A2(budget_factor, dim, A2, algname)
+
+    #collect_A2(budget_factor, 5, BFGS, "BFGS", run_A2_from_scratch=False)
+    collect_A2(budget_factor, dim, BFGS, "BFGS", run_A2_from_scratch=False)
+    # for A2, algname in zip([None, None], ["Same", "Non-elitist"]):
+    #     collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=True)
+
+    # for A2, algname in zip([MLSL], ["MLSL"]):
+    #     collect_A2(budget_factor, dim, A2, algname)
     
                 
                 
 def get_combinations():
-    budget_factors = [8*i for i in range (1,14)] # 10, 20, ..., 1000
+    # budget_factors = [8*i for i in range (1,14)] # 10, 20, ..., 1000
+    budget_factors = [500]
     dim = 5
     return [(bf, dim) for bf in budget_factors]
 
@@ -289,3 +326,6 @@ if __name__=='__main__':
     #     collect_all(combination
     partial_run = partial(collect_all)
     runParallelFunction(partial_run, temp)
+
+    # problem = ioh.get_problem(1, 1, 5, ProblemClass.BBOB)
+    # print(type(problem))

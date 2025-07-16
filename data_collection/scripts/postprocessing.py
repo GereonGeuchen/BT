@@ -9,15 +9,15 @@ from dataclasses import dataclass, fields
 import pandas as pd
 import glob
 
-# import ioh
-# from ioh import ProblemClass
-# from modcma import ModularCMAES, Parameters
+import ioh
+from ioh import ProblemClass
+from modcma import ModularCMAES, Parameters
 import numpy as np
 
-# from bfgs import BFGS # type: ignore
-# from pso import PSO # type: ignore
-# from mlsl import MLSL # type: ignore
-# from de import DE # type: ignore
+from bfgs_new_scipy import BFGS # type: ignore
+from pso import PSO # type: ignore
+from mlsl import MLSL # type: ignore
+from de import DE # type: ignore
 import warnings
 from itertools import product
 from functools import partial
@@ -301,8 +301,9 @@ if __name__ == "__main__":
     #     precision_csv="../data/precision_files/A2_data_late_precisions.csv",
     #     output_dir="../data/ela_with_algorithm_precisions/A1_data_with_precisions_100"
     # )
-    extend_ela_with_optimal_precisions(
-        ela_input_dir="../data/ela_with_cma/ela_with_cma_late",
-        optimal_precisions_file="../data/precision_files/A2_data_late_precisions_min.csv",
-        output_dir="../data/ela_with_optimal_precisions/A1_data_ela_with_optimal_precisions_late_with_precisions"
-    )
+    # extend_ela_with_optimal_precisions(
+    #     ela_input_dir="../data/ela_with_cma/ela_with_cma_late",
+    #     optimal_precisions_file="../data/precision_files/A2_data_late_precisions_min.csv",
+    #     output_dir="../data/ela_with_optimal_precisions/A1_data_ela_with_optimal_precisions_late_with_precisions"
+    # )
+    process_ioh_data("../data/run_data/A1_data_test_2")
