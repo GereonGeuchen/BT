@@ -19,10 +19,9 @@ class SwitchingSelector:
         performance_model_dir = Path(performance_model_dir)
 
         # Load switching predictor models
-        for model_path in selector_model_dir.glob("switching_model_B*_trained.pkl"):
-            budget = int(model_path.stem.split("_")[2][1:])  # e.g., selector_B500 → 500
+        for model_path in selector_model_dir.glob("selector_B*_trained.pkl"):
+            budget = int(model_path.stem.split("_")[1][1:])  # e.g., selector_B500 → 500
             self.switching_prediction_models[budget] = joblib.load(model_path)
-            print(self.switching_prediction_models[budget].model_class.get_params())
             print(f"Loaded switching model for budget {budget}")
 
         # Load performance predictors
@@ -39,7 +38,6 @@ class SwitchingSelector:
         """
 
         precision_df = pd.read_csv(precision_file)
-
         for budget in budgets:
             ela_path = Path(ela_dir) / f"A1_B{budget}_5D_ela_with_state.csv"
             if not ela_path.exists():
@@ -63,7 +61,6 @@ class SwitchingSelector:
             # New: binary classification
             prediction = switch_model.predict(features)
             should_switch = prediction[0] # if hasattr(prediction, "__len__") else prediction
-
             if should_switch:
                 # Now decide which algorithm to switch to
                 performance_model = self.performance_models.get(budget)
@@ -82,7 +79,6 @@ class SwitchingSelector:
                     (precision_df["budget"] == budget) &
                     (precision_df["algorithm"] == predicted_algorithm)
                 ]
-
                 precision = match_row["precision"].values[0] if not match_row.empty else None
 
                 vbs_precision = precision_df[
@@ -233,14 +229,14 @@ class SwitchingSelector:
 
 if __name__ == "__main__":
     selector = SwitchingSelector(
-        selector_model_dir="../data/models/trained_models/final_trained_binary_switching_models_all",
-        performance_model_dir="../data/models/trained_models/algo_performance_models_trained"
+        selector_model_dir="../data/models/trained_models/switching_all_greater_clipped",
+        performance_model_dir="../data/models/trained_models/algo_performance_models_trained_clipped"
     )
     selector.evaluate_selector_to_csv(
         fids=list(range(1, 25)),
         iids=[6, 7],
         reps=list(range(20)),
-        save_path="../results/newInstances/selector_results_all_greater_tuned.csv",
-        ela_dir="../data/ela_for_testing/A1_data_with_cma_newInstances",
-        precision_file="../data/precision_files/A2_newInstances_precisions.csv"
+        save_path="../results/selector_results_all_greater_clipped.csv",
+        ela_dir="../data/ela_for_testing/A1_data_ela_cma_std_newInstances_normalized",
+        precision_file="../data/precision_files/A2_precisions_newInstances_clipped.csv"
     )

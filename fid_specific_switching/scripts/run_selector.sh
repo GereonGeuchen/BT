@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # === Path to your unpacked conda-pack environment ===
-ENV_PATH="$HOME/asf-env"
+ENV_PATH="$HOME/general-env"
 
 # === Project working directory ===
 WORKDIR="$HOME/Dokumente/BT/fid_specific_switching/scripts"

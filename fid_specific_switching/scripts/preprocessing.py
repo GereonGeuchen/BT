@@ -339,7 +339,7 @@ def compute_best_budgets(input_csv):
 
     return pd.DataFrame(results)
 
-def compute_late_switching_predicionts(input_csv, output_csv):
+def compute_late_switching_predictions(input_csv, output_csv):
     # Read the CSV
     df = pd.read_csv(input_csv)
 
@@ -374,16 +374,12 @@ def compute_late_switching_predicionts(input_csv, output_csv):
     print(f"✅ Saved filtered file to {output_csv}")
 
 if __name__ == "__main__":
-    # mark_switch_budget_and_greater_budgets(
-    #     ela_with_state_dir="../data/ela_for_training/ela_with_state_late",
-    #     best_budgets_csv="../results/late_sp/best_static_budget_per_fid.csv",
-    #     output_dir="../data/ela_for_training/ela_with_state_late_switch_greater_budgets",
-    # )
-    # df = compute_best_budgets(
-    #     input_csv="../data/switching_optimality_files/rep_fold_late_sp/predicted_static_precisions_rep_fold_late_sp.csv"
+    # compute_best_budgets("../data/switching_optimality_files/clipped/predicted_static_precisions_rep_fold_all_sp.csv").to_csv(
+    #     "../data/switching_optimality_files/clipped/best_static_budget_per_fid.csv", index=False
     # )
     mark_switch_budget_and_greater_budgets(
-        ela_with_state_dir="../data/ela_for_training/A1_data_with_cma_late",
-        best_budgets_csv="../data/switching_optimality_files/rep_5fold/best_static_budget_per_fid_late_sp.csv",
-        output_dir="../data/ela_for_training/ela_with_state_late_switch_greater_budgets/rep_5fold"
+        ela_with_state_dir="../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized_clipped",
+        best_budgets_csv="../data/switching_optimality_files/clipped/best_static_budget_per_fid.csv",
+        output_dir="../data/ela_for_training/A1_data_all_switch_clipped",
     )
+   

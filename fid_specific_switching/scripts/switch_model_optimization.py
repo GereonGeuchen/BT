@@ -22,10 +22,10 @@ IIDS = [1, 2, 3, 4, 5]
 REPS = list(range(20))
 
 # === Paths ===
-ELA_DIR_SWITCH = "../data/ela_for_training/ela_with_state_all_switch_greater_budgets"
-ELA_DIR_ALGO = "../data/ela_for_training/ela_with_algorithm_precisions"
-PRECISION_FILE = "../data/precision_files/A2_data_precisions.csv"
-ELA_DIR = "../data/ela_for_training/A1_data_with_cma"
+ELA_DIR_SWITCH = "../data/ela_for_training/A1_data_all_switch_clipped"
+ELA_DIR_ALGO = "../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized_clipped"
+PRECISION_FILE = "../data/precision_files/A2_precisions_clipped.csv"
+ELA_DIR = "../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized_clipped"
 
 # ========== Helper classes ==========
 
@@ -49,6 +49,7 @@ class SwitchingSelectorCV:
                 continue
 
             df = pd.read_csv(ela_path)
+            df = df.iloc[:, :-6]
             row = df[(df["fid"] == fid) & (df["iid"] == iid) & (df["rep"] == rep)]
             if row.empty:
                 continue
@@ -111,6 +112,7 @@ def smac_objective(config, seed):
                 print(f"Skipping budget {budget} - no switching data available.")
                 continue
             train_df = pd.read_csv(ela_path_switch)
+            train_df = train_df.drop(columns=["Same", "Non-elitist", "MLSL", "PSO", "DE", "BFGS"])
             train_df = train_df[train_df["iid"].isin(train_iids)]
 
             model = wrapper_partial()
@@ -128,9 +130,18 @@ def smac_objective(config, seed):
             train_df = train_df[train_df["iid"].isin(train_iids)]
             X_train = train_df.iloc[:, 4:-6]
             y_train= train_df.iloc[:, -6:]
-            perf_model = joblib.load(f"../data/models/algo_performance_models/model_B{budget}.pkl").selector
 
-            perf_model.fit(X_train, y_train)
+            trained_model_path = Path(f"../data/models/trained_models/algo_performance_models_iid{test_iid}/selector_B{budget}_trained.pkl")
+            if trained_model_path.exists():
+                print(f"Loading existing model for budget {budget}...")
+                perf_model = joblib.load(trained_model_path)
+            else:
+                print(f"Training new model for budget {budget}...")
+                perf_model = joblib.load(f"../data/models/algo_performance_models_clipped/model_B{budget}.pkl").selector
+                perf_model.fit(X_train, y_train)
+                os.makedirs(os.path.dirname(trained_model_path), exist_ok=True)
+                joblib.dump(perf_model, trained_model_path)
+
             performance_models[budget] = perf_model
 
         # === Evaluate on test_iid ===
@@ -176,6 +187,8 @@ def main():
         train_df = pd.read_csv(ela_path_switch)
         # === Train switching model ===
         model = wrapper_partial()
+        # Drop columns switch, MLSL, PSO, DE, BFGS, Same, Non-elitist
+        train_df = train_df.drop(columns=["Same", "Non-elitist", "MLSL", "PSO", "DE", "BFGS"])
         X_train = train_df.iloc[:, 4:].drop(columns=["switch"])
         y_train = train_df["switch"]  # adjust to your target column
         model.fit(X_train, y_train)

@@ -16,10 +16,10 @@ budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 20)]  # Budgets 
 
 for budget in budgets:
     print(f"Processing budget {budget}...")
-    train_df = pd.read_csv(f"../data/ela_for_training/ela_with_state_all_switch_greater_budgets/instance_fold/A1_B{budget}_5D_ela_with_state.csv")
+    train_df = pd.read_csv(f"../data/ela_for_training/A1_data_all_switch_clipped/A1_B{budget}_5D_ela_with_state.csv")
     # test_df = pd.read_csv(f"../data/ela_for_testing/ela_with_cma_state_newReps_all_with_switch_budget/A1_B{budget}_5D_ela_with_state.csv")
 
-    non_feature_cols = ['fid', 'iid', 'rep', 'high_level_category', 'switch']
+    non_feature_cols = ['fid', 'iid', 'rep', 'high_level_category', 'switch', 'MLSL', 'PSO', 'Non-elitist', 'Same', 'BFGS', 'DE']
     feature_cols = [col for col in train_df.columns if col not in non_feature_cols]
 
     X_train = train_df[feature_cols]
@@ -32,7 +32,7 @@ for budget in budgets:
     clf.fit(X_train, y_train)
 
     # Save the model    
-    model_path = f"../data/models/trained_models/switching_all_greater_test/selector_B{budget}_trained.pkl"
+    model_path = f"../data/models/trained_models/switching_all_greater_clipped/selector_B{budget}_trained.pkl"
     os.makedirs(os.path.dirname(model_path), exist_ok=True)
     joblib.dump(clf, model_path)    
     print(f"Model saved to {model_path}")

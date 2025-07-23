@@ -6,8 +6,9 @@ from functools import reduce
 def crossvalidated_static_predictions(
     budget,
     fold="instance",
-    selector_dir="../data/models/algo_performance_models",
-    ela_template="../data/ela_for_training/ela_with_algorithm_precisions/A1_B{budget}_5D_ela_with_state.csv",
+    selector_dir="../data/models/algo_performance_models_clipped",
+    ela_template="../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized_clipped/A1_B{budget}_5D_ela_with_state.csv",
+    precision_df=None
 ):
     selector_path = os.path.join(selector_dir, f"model_B{budget}.pkl")
 
@@ -33,6 +34,7 @@ def crossvalidated_static_predictions(
         test_column = "rep"
     else:
         raise ValueError("fold must be 'instance', 'rep', or 'rep5fold4test'")
+    showed_config = False
 
     for test_fold in test_values:
         if isinstance(test_fold, list):
@@ -56,8 +58,11 @@ def crossvalidated_static_predictions(
 
         selector.algorithms = list(y.columns)
         selector.fit(X_train, y_train)
-
-        # Check random staste
+        if not showed_config:
+            showed_config = True
+            print(f"Selector config for budget {budget}: {selector.regressors[0].model_class.get_params()}")
+            
+        # Check random state
         print(f"Selector random state: {selector.regressors[0].model_class.get_params()}")
 
         predictions = selector.predict(X_test)
@@ -67,7 +72,14 @@ def crossvalidated_static_predictions(
                 "fid": fid,
                 "iid": iid,
                 "rep": rep,
-                f"static_B{budget}": y.at[(fid, iid, rep), algo]
+                    f"static_B{budget}": precision_df.loc[
+                    (precision_df["fid"] == fid) & 
+                    (precision_df["iid"] == iid) & 
+                    (precision_df["rep"] == rep) & 
+                    (precision_df["budget"] == budget) & 
+                    (precision_df["algorithm"] == algo),
+                    "precision"
+                ].values[0] if not precision_df.empty else None
             })
             algorithm_results.append({
                 "fid": fid,
@@ -86,8 +98,8 @@ def build_full_crossvalidated_table(precision_path, output_dir = None):
 
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
-        precision_output = os.path.join(output_dir, "predicted_static_precisions_rep_fold_late_sp.csv")
-        algo_output = os.path.join(output_dir, "selected_algorithms_rep_fold_late_sp.csv")
+        precision_output = os.path.join(output_dir, "predicted_static_precisions_rep_fold_all_sp.csv")
+        algo_output = os.path.join(output_dir, "selected_algorithms_rep_fold_all_sp.csv")
     else:
         precision_output = "predicted_static_precisions_rep_fold_late_sp.csv"
         algo_output = "selected_algorithms_rep_fold_late_sp.csv"
@@ -96,12 +108,11 @@ def build_full_crossvalidated_table(precision_path, output_dir = None):
 
     budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)]
     # budgets = [50*i for i in range(1, 21)]
-
     for budget in budgets:
         print(f"⏳ Processing budget {budget}...")
 
         if budget < 1000:
-            df_b, df_a = crossvalidated_static_predictions(budget)
+            df_b, df_a = crossvalidated_static_predictions(budget, precision_df=precision_df)
         else:
             # Use precision and algorithm "Same" directly
             df_b = precision_df.query("budget == 1000 and algorithm == 'Same'")
@@ -128,19 +139,11 @@ def build_full_crossvalidated_table(precision_path, output_dir = None):
 
 
 if __name__ == "__main__":
-    # df_prec, df_algo = build_full_crossvalidated_table("../data/precision_files/A2_data_precisions.csv",
-    #                                                    output_dir="../data/switching_optimality_files_test")
-    # # print("✅ Finished. Files saved.")
-    df1 = pd.read_csv("../data/switching_optimality_files/predicted_static_precisions_all_sp.csv")
-    df2 = pd.read_csv("../data/switching_optimality_files_test/predicted_static_precisions_rep_fold_late_sp.csv")
-    for col in df1.columns:
-        if col.startswith("static_B"):
-            if df1[col].sum() != df2[col].sum():
-                print(f"Column {col} differs: {df1[col].sum()} vs {df2[col].sum()}")
-            else:
-                print(f"Column {col} matches: {df1[col].sum()}")
-    
-    # df = pd.read_csv("../data/switching_optimality_files_test/predicted_static_precisions_rep_fold_late_sp.csv")
+    build_full_crossvalidated_table(
+        "../data/precision_files/A2_precisions_clipped.csv",
+        output_dir="../data/switching_optimality_files/clipped"
+    )
+    # df = pd.read_csv("../data/switching_optimality_files/instance_fold_all_sp/predicted_static_precisions_rep_fold_all_sp.csv")
     # for col in df.columns:
     #     if col.startswith("static_B"):
-    #         print(f"Column {col}: {df[col].sum() / 5}")
+    #         print(f"{col}: {df[col].sum()/5}")
