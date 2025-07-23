@@ -304,8 +304,8 @@ def count_best_at_budget(df, target_budget):
         int: Number of groups where `target_budget` is best.
     """
     def is_target_best(group):
-        min_fopt = group["fopt"].min()
-        best_budgets = group[group["fopt"] == min_fopt]["budget"]
+        min_fopt = group["precision"].min()
+        best_budgets = group[group["precision"] == min_fopt]["budget"]
         return target_budget in best_budgets.values
 
     grouped = df.groupby(["fid", "iid", "rep"])
@@ -392,7 +392,5 @@ def average_optimal_switching_points_per_rep_filtered(df, min_budget=0):
 
 if __name__ == "__main__":
     # df = read_csv_file(True)
-    df = read_csv_file(True)
-    plot_robust_switching_point(df)
-    input("Press Enter to close all plots...")
-    
+    df = pd.read_csv("../data/precision_files/A2_data_0_budget_precisions.csv")
+    count_best_at_budget(df, 0)

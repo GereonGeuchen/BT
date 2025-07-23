@@ -17,13 +17,23 @@ class DE(Algorithm):
         super(DE, self).__init__(func, **kwargs)
         if self.uses_old_ioh:
             bounds = Bounds(self.func.lowerbound, self.func.upperbound)
-            self.de_wrapper = DifferentialEvolutionSolver(self.func, bounds = bounds)
+            self.de_wrapper = DifferentialEvolutionSolver(
+                internal_eval, 
+                bounds=bounds, 
+                tol=0,                # ← disable relative convergence
+                atol=0               # ← disable absolute convergence
+            )
         else:
             bounds = Bounds(self.func.bounds.lb, self.func.bounds.ub)
             def internal_eval(x):
                 return self.func(x)
-            self.de_wrapper = DifferentialEvolutionSolver(internal_eval, bounds = bounds)
-#         self.random_number_generator = check_random_state(seed=None)
+            self.de_wrapper = DifferentialEvolutionSolver(
+                internal_eval, 
+                bounds=bounds, 
+                tol=0,                # ← disable relative convergence
+                atol=0               # ← disable absolute convergence
+            )
+            #         self.random_number_generator = check_random_state(seed=None)
 
     def set_params(self, parameters):
         self.budget = parameters['budget']
@@ -72,7 +82,6 @@ class DE(Algorithm):
     def run(self):
         if self.verbose:
             print(f'DE started')
-
         self.de_wrapper.maxfun = self.budget
         self.de_wrapper.stop = self.stop
         self.de_wrapper.solve()

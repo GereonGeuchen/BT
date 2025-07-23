@@ -2,6 +2,7 @@
 import sys
 import os 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'algorithms'))
+from sklearn.preprocessing import MinMaxScaler
 
 import shutil
 import argparse
@@ -117,7 +118,7 @@ def extract_a2_precisions(base_dir, output_file="A2_precisions.csv", algorithms=
     if algorithms is None:
         algorithms = ["BFGS", "DE", "MLSL", "Non-elitist", "PSO", "Same"]
     if budgets is None:
-        budgets = list(range(50, 1050, 50))
+        budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)]
 
     results = []
 
@@ -208,8 +209,7 @@ def add_algorithm_precisions(ela_dir, precision_csv, output_dir):
 
         # Extract budget from filename
         budget = int(file.split('_')[1][1:])  
-        if budget != 100: continue  # Only process budget 100 for now
-        # Add budget column for merging
+        if budget == 50: continue
         ela_df['budget'] = budget
 
         # Merge on fid, iid, rep, budget
@@ -290,20 +290,203 @@ def extend_ela_with_optimal_precisions(
         print(f"✅ Wrote: {output_path}")
 
 
+def extract_final_internal_state(dat_path, target_iid, target_rep):
+    try:
+        # Read and clean repeated headers
+        with open(dat_path, "r") as f:
+            lines = f.readlines()
+
+        cleaned_lines = []
+        header_seen = False
+        for line in lines:
+            if line.strip().startswith("evaluations"):
+                if not header_seen:
+                    cleaned_lines.append(line)
+                    header_seen = True
+                # else: skip repeated headers
+            else:
+                cleaned_lines.append(line)
+
+        # Parse cleaned content into DataFrame
+        from io import StringIO
+        df = pd.read_csv(StringIO("".join(cleaned_lines)), delim_whitespace=True)
+
+        # Convert iid and rep to int for matching
+        df["rep"] = pd.to_numeric(df["rep"], errors="coerce").astype(int)
+        df["iid"] = pd.to_numeric(df["iid"], errors="coerce").astype(int)
+        target_rep = int(target_rep)
+        target_iid = int(target_iid)
+
+        # Filter for target rep and iid
+        df = df[(df["rep"] == target_rep) & (df["iid"] == target_iid)]
+        if df.empty:
+            return None
+
+        # Get final row (maximum evaluations)
+        final_row = df.loc[df["evaluations"].idxmax()]
+        state_dict = final_row.loc["sigma":"mhl_sum"].to_dict()
+
+        # Remove unwanted keys
+        for key in ["t", "ps_squared"]:
+            state_dict.pop(key, None)
+
+        return state_dict
+
+    except Exception as e:
+        print(f"Error processing {dat_path}: {e}")
+        return None
+    
+def append_cma_state_to_ela(ela_dir, run_dir, output_dir):
+    budgets = [8*i for i in range(1, 13)]  # 8, 16, ..., 96
+    budgets += [50*i for i in range(1, 20)]  #
+    os.makedirs(output_dir, exist_ok=True)
+
+    for budget in budgets:
+    
+        print(f"Processing budget: {budget}")
+        ela_path = os.path.join(ela_dir, f"A1_B{budget}_5D_ela.csv")
+        run_path = os.path.join(run_dir, f"A1_B{budget}_5D")
+
+        if not os.path.isfile(ela_path):
+            print(f"Skipping: {ela_path} not found.")
+            continue
+        if not os.path.isdir(run_path):
+            print(f"Skipping: {run_path} not found.")
+            continue
+
+        df_ela = pd.read_csv(ela_path)
+        df_ela["iid"] = df_ela["iid"].astype(int)
+        df_ela["rep"] = df_ela["rep"].astype(int)
+
+        appended_data = []
+        for _, row in df_ela.iterrows():
+            fid, iid, rep = int(row["fid"]), int(row["iid"]), int(row["rep"])
+            pattern = os.path.join(run_path, f"data_f{fid}*", f"IOHprofiler_f{fid}_DIM5.dat")
+            dat_files = glob(pattern)
+            if not dat_files:
+                print(f"No matching file for fid={fid}, iid={iid}, rep={rep} at budget {budget}")
+                appended_data.append({})  # empty row for failed match
+                continue
+
+            state = extract_final_internal_state(dat_files[0], iid, rep)
+            if state is None:
+                print(f"  ✘ No state found in {dat_files[0]} for iid={iid}, rep={rep}")
+                state = {}
+            appended_data.append(state)
+
+        df_state = pd.DataFrame(appended_data)
+        df_combined = pd.concat([df_ela.reset_index(drop=True), df_state.reset_index(drop=True)], axis=1)
+
+        out_path = os.path.join(output_dir, f"A1_B{budget}_5D_ela_with_state.csv")
+        df_combined.to_csv(out_path, index=False)
+        print(f"Saved: {out_path}")
+
+def normalize_ela_with_precisions(path_in, path_out):
+    df = pd.read_csv(path_in)
+
+    index_cols = ["fid", "iid", "rep"]
+    algo_cols = ["BFGS", "DE", "MLSL", "Non-elitist", "PSO", "Same"]
+    feature_cols = [col for col in df.columns if col not in index_cols + algo_cols]
+
+    # Step 1: Normalize feature columns globally to [0, 1]
+    feature_scaler = MinMaxScaler()
+    df_scaled_features = pd.DataFrame(
+        feature_scaler.fit_transform(df[feature_cols]),
+        columns=feature_cols,
+        index=df.index
+    )
+
+    # Step 2: Normalize algorithm columns jointly per iid using 1D flattening
+    df_scaled_algos = df[algo_cols].copy()
+
+    for (fid, iid), group in df.groupby(["fid", "iid"]):
+        algo_matrix = group[algo_cols].to_numpy()  # shape (num_rows, 6)
+        flat_vals = algo_matrix.flatten().reshape(-1, 1)  # shape (num_rows * 6, 1)
+
+        scaler = MinMaxScaler(feature_range=(1e-12, 1))
+        flat_scaled = scaler.fit_transform(flat_vals).flatten()
+
+        # Reshape back and insert
+        scaled_matrix = flat_scaled.reshape(algo_matrix.shape)
+        df_scaled_algos.loc[group.index] = scaled_matrix
+
+    # Combine everything
+    df_final = pd.concat([df[index_cols], df_scaled_features, df_scaled_algos], axis=1)
+    df_final = df_final.sort_values(by=["fid", "iid", "rep"]).reset_index(drop=True)
+    if not os.path.exists(os.path.dirname(path_out)):
+        os.makedirs(os.path.dirname(path_out))
+    df_final.to_csv(path_out, index=False)
+    print(f"Saved normalized file to: {path_out}")
+
+
+def normalize_test_ela(train_csv_path, test_csv_path, test_out_path):
+    # Load training and test data
+    df_train = pd.read_csv(train_csv_path)
+    df_test = pd.read_csv(test_csv_path)
+
+    # Define index columns
+    index_cols = ["fid", "iid", "rep"]
+
+    # Identify feature columns (anything that's not an index col)
+    feature_cols = [col for col in df_train.columns if col not in index_cols]
+
+    # Fit scaler on training data's feature columns
+    feature_scaler = MinMaxScaler()
+    feature_scaler.fit(df_train[feature_cols])
+
+    # Transform test data's feature columns
+    df_scaled_features = pd.DataFrame(
+        feature_scaler.transform(df_test[feature_cols]),
+        columns=feature_cols,
+        index=df_test.index
+    )
+
+    # Reattach index columns and save
+    df_final = pd.concat([df_test[index_cols], df_scaled_features], axis=1)
+    df_final = df_final.sort_values(by=["fid", "iid", "rep"]).reset_index(drop=True)
+
+    if not os.path.exists(os.path.dirname(test_out_path)):
+        os.makedirs(os.path.dirname(test_out_path))
+    df_final.to_csv(test_out_path, index=False)
+
+    print(f"Saved normalized test file to: {test_out_path}")
+
+def split_precision_by_budget(
+    df: pd.DataFrame,
+    output_dir: str = "split_precision_csvs"
+) -> dict[int, pd.DataFrame]:
+    """
+    Converts a long-format precision DataFrame into a dict of wide-format DataFrames, one per budget.
+    Also saves each wide-format DataFrame as a CSV file.
+
+    Args:
+        df (pd.DataFrame): A long-format DataFrame with columns:
+                           ['fid', 'iid', 'rep', 'budget', 'algorithm', 'precision']
+        output_dir (str): Directory to save the resulting CSVs. Created if it doesn't exist.
+
+    Returns:
+        dict[int, pd.DataFrame]: Dictionary mapping each budget to its corresponding wide-format DataFrame.
+                                 Each DataFrame has columns ['fid', 'iid', 'rep', <algorithms...>].
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    result = {}
+
+    for budget, group in df.groupby("budget"):
+        pivoted = group.pivot(index=["fid", "iid", "rep"], columns="algorithm", values="precision").reset_index()
+        result[budget] = pivoted
+
+        filename = os.path.join(output_dir, f"precision_budget_{budget}.csv")
+        pivoted.to_csv(filename, index=False)
+
+    return result
+
 if __name__ == "__main__":
-    # with warnings.catch_warnings():
-    #     warnings.simplefilter("ignore")
-    #     extract_a2_precisions(base_dir="../data/run_data/A2_newInstances", 
-    #                           output_file="../data/precision_files/A2_newInstances_precisions_test.csv",
-    #                           budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)])
-    # add_algorithm_precisions(
-    #     ela_dir="../data/ela_with_cma/A1_data_with_cma",
-    #     precision_csv="../data/precision_files/A2_data_late_precisions.csv",
-    #     output_dir="../data/ela_with_algorithm_precisions/A1_data_with_precisions_100"
+    # extract_a2_precisions(
+    #     base_dir="../data/run_data_new/A2_mirrored",
+    #     output_file="../data/precision_files/A2_precisions_mirrored.csv"
     # )
-    # extend_ela_with_optimal_precisions(
-    #     ela_input_dir="../data/ela_with_cma/ela_with_cma_late",
-    #     optimal_precisions_file="../data/precision_files/A2_data_late_precisions_min.csv",
-    #     output_dir="../data/ela_with_optimal_precisions/A1_data_ela_with_optimal_precisions_late_with_precisions"
-    # )
-    process_ioh_data("../data/run_data/A1_data_test_2")
+    df = pd.read_csv("../data/precision_files/A2_precisions_mirrored.csv")
+    df = df[df['algorithm'] == 'BFGS']
+    # Only consider fids 10 and 12
+    df = df[df['fid'].isin([12])]
+    print(df['precision'].sum())

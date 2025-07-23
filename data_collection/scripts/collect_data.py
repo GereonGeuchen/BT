@@ -1,6 +1,7 @@
 import sys
 import os 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'algorithms'))
+import time
 
 import shutil
 import argparse
@@ -12,7 +13,7 @@ from ioh import ProblemClass, problem
 from modcma import ModularCMAES, Parameters
 import numpy as np
 
-from bfgs_new_scipy import BFGS # type: ignore
+from bfgs import BFGS # type: ignore
 from pso import PSO # type: ignore
 from mlsl import MLSL # type: ignore
 from de import DE # type: ignore
@@ -40,6 +41,51 @@ def runParallelFunction(runFunction, arguments):
     results = p.map(runFunction, arguments)
     p.close()
     return results
+
+# Class to time the algorithm execution
+class TimedProblemWrapper:
+    def __init__(self, problem, start_eval=0, stop_eval=1000):
+        self.problem = problem
+        self.start_eval = start_eval
+        self.stop_eval = stop_eval
+        self._start_time = None
+        self._start_cpu = None
+        self._timing_done = False
+
+    def __call__(self, x):
+        evals = self.problem.state.evaluations
+
+        if evals <= self.start_eval:
+            self._start_time = time.time()
+            self._start_cpu = time.process_time()
+
+        y = self.problem(x)
+
+        evals = self.problem.state.evaluations
+        if evals >= self.stop_eval and not self._timing_done:
+            self._timing_done = True
+            wall = time.time() - self._start_time
+            cpu = time.process_time() - self._start_cpu
+            print(f"[Timing] Evaluations {self.start_eval}–{self.stop_eval}, {self.state.evaluations}:")
+            print(f"  Wall-clock time: {wall:.6f} seconds")
+            print(f"  CPU time:        {cpu:.6f} seconds")
+
+        return y
+
+    def attach_logger(self, logger):
+        self.problem.attach_logger(logger)
+
+    def detach_logger(self):
+        self.problem.detach_logger()
+
+    def reset(self):
+        self.problem.reset()
+        self._start_time = None
+        self._start_cpu = None
+        self._timing_done = False
+
+    def __getattr__(self, attr):
+        return getattr(self.problem, attr)
 
 @dataclass
 class TrackedParameters:
@@ -193,12 +239,12 @@ class Switched_From_CMA():
         algorithm.run()
 
         
-def collect_A1_data(budget_factor, dim = 5):
+def collect_A1_data(budget_factor, dim = 5, time_run=False):
     trigger = ioh.logger.trigger.Always()
 
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/run_data/A1_data_test_2/A1_B{budget_factor}_{dim}D',
+        folder_name=f'../data/new_data/run_data_new/A1_data_newReps/A1_B{budget_factor}_{dim}D',
         algorithm_name='ModCMA_A1',
         store_positions=True
     )
@@ -208,9 +254,16 @@ def collect_A1_data(budget_factor, dim = 5):
     for fid in range(1,25):
         for iid in range(1, 6):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
+
+            # If we want to time the run, wrap the problem in a TimedProblemWrapper
+            if time_run:
+                problem = TimedProblemWrapper(problem, start_eval=0, stop_eval=1000)
+                print(f"Timing enabled for function {fid}, instance {iid}, budget {budget_factor}")
+            
+            # Attach the logger to the problem
             problem.attach_logger(logger)
             
-            for rep in range(20):
+            for rep in range(20, 30):
                 tracked_parameters.rep = rep
                 tracked_parameters.iid = iid
                 print(f"Running fundction {fid} instance {iid} repetition {rep} with A1, budget {budget_factor}")
@@ -230,14 +283,14 @@ def collect_A1_data(budget_factor, dim = 5):
             problem.detach_logger()
             
             
-def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False):
+def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_run=False):
     if budget_factor == 0:
         run_A2_from_scratch = True
     trigger = ioh.logger.trigger.OnImprovement()
     
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/run_data/A2_data_positions_test/A2_{algname}_B{budget_factor}_{dim}D',
+        folder_name=f'../data/run_data_new/A2_mirrored/A2_{algname}_B{budget_factor}_{dim}D',
         algorithm_name=algname,
         store_positions=True,
     )
@@ -246,9 +299,16 @@ def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False):
     
     for fid in range(1,25):
         for iid in range(1, 6):
+
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
-            problem.attach_logger(logger)
             
+            # If we want to time the run, wrap the problem in a TimedProblemWrapper
+            if time_run:
+                problem = TimedProblemWrapper(problem, start_eval=0, stop_eval=1000)
+
+            # Attach the logger to the problem
+            problem.attach_logger(logger)
+
             for rep in range(20):
                 tracked_parameters.rep = rep
                 tracked_parameters.iid = iid
@@ -286,23 +346,20 @@ def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False):
                 else:
                     alg = Switched_From_CMA(budget_factor, dim, A2, total_budget_factor=200)
                     alg(problem, A2)
-                
+                print("Evaluations:", problem.state.evaluations)
                 problem.reset()
             problem.detach_logger()
             
 def collect_all(x = None):
     budget_factor, dim = x
     # First, collect A1 data
-    # collect_A1_data(budget_factor, dim)
+    # collect_A1_data(budget_factor, dim, time_run=False)
     
     # Then collect A2 data
-    # for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
-    #     collect_A2(budget_factor, dim, A2, algname)
-
-    #collect_A2(budget_factor, 5, BFGS, "BFGS", run_A2_from_scratch=False)
-    collect_A2(budget_factor, dim, BFGS, "BFGS", run_A2_from_scratch=False)
-    # for A2, algname in zip([None, None], ["Same", "Non-elitist"]):
-    #     collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=True)
+    for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
+        collect_A2(budget_factor, dim, A2, algname, time_run=False)
+    # Only run BFGS
+    # collect_A2(budget_factor, dim, BFGS, "BFGS", run_A2_from_scratch=False, time_run=False)
 
     # for A2, algname in zip([MLSL], ["MLSL"]):
     #     collect_A2(budget_factor, dim, A2, algname)
@@ -310,22 +367,34 @@ def collect_all(x = None):
                 
                 
 def get_combinations():
-    # budget_factors = [8*i for i in range (1,14)] # 10, 20, ..., 1000
-    budget_factors = [500]
+    budget_factors = [8*i for i in range (1,13)] + [50*i for i in range(1, 21)] # 10, 20, ..., 1000
+    # budget_factors = [300]
     dim = 5
     return [(bf, dim) for bf in budget_factors]
 
-if __name__=='__main__':
+# if __name__=='__main__':
+#     warnings.filterwarnings("ignore", category=RuntimeWarning) 
+#     warnings.filterwarnings("ignore", category=FutureWarning)
+    
+    
+#     x = get_combinations()
+#     temp = list(x)
+#     # collect_all(temp[0])  # Run the first combination for testing
+#     for combination in temp:
+#         collect_all(combination)
+#     partial_run = partial(collect_all)
+#     runParallelFunction(partial_run, temp)
+
+#     # problem = ioh.get_problem(1, 1, 5, ProblemClass.BBOB)
+#     # print(type(problem))
+
+if __name__ == '__main__':
     warnings.filterwarnings("ignore", category=RuntimeWarning) 
     warnings.filterwarnings("ignore", category=FutureWarning)
-    
-    
-    x = get_combinations()
-    temp = list(x)
-    # for combination in temp:
-    #     collect_all(combination
-    partial_run = partial(collect_all)
-    runParallelFunction(partial_run, temp)
 
-    # problem = ioh.get_problem(1, 1, 5, ProblemClass.BBOB)
-    # print(type(problem))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--budget', type=int, required=True, help='Budget factor (e.g., 100, 200, ...)')
+    args = parser.parse_args()
+    dim = 5  # Fixed dimensionality
+    budget_factor = args.budget
+    collect_all((budget_factor, dim))

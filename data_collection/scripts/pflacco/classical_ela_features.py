@@ -94,7 +94,12 @@ def calculate_ela_meta(
  
       model = linear_model.LinearRegression()
       model.fit(X_interact, y)
-      lin_w_interact_adj_r2 = 1 - (1 - model.score(X_interact, y)) * (len(y) - 1) / (len(y) - X_interact.shape[1] - 1)
+      # Added by me to deal with ZeroDivisionError in case we do not have enough samples
+      try:
+            lin_w_interact_adj_r2 = 1 - (1 - model.score(X_interact, y)) * (len(y) - 1) / (len(y) - X_interact.shape[1] - 1)
+      except ZeroDivisionError:
+            lin_w_interact_adj_r2 = 0
+      # ======================== #
 
       # Create quadratic model and calculate qm features
       model = linear_model.LinearRegression()
@@ -102,6 +107,7 @@ def calculate_ela_meta(
       model.fit(X_squared, y)
 
       quad_simple_adj_r2 = 1 - (1 - model.score(X_squared, y)) * (len(y) - 1) / (len(y) - X_squared.shape[1]-1)
+     
 
       quad_model_con_min = np.abs(model.coef_[int(X_squared.shape[1]/2):]).min()
       quad_model_con_max = np.abs(model.coef_[int(X_squared.shape[1]/2):]).max()
@@ -118,7 +124,13 @@ def calculate_ela_meta(
 
       model = linear_model.LinearRegression()
       model.fit(X_interact, y)
-      quad_w_interact_adj_r2 = 1 - (1 - model.score(X_interact, y)) * (len(y) - 1) / (len(y) - X_interact.shape[1]-1)
+
+      # Added by me to deal with ZeroDivisionError in case we do not have enough samples
+      try:
+            quad_w_interact_adj_r2 = 1 - (1 - model.score(X_interact, y)) * (len(y) - 1) / (len(y) - X_interact.shape[1]-1)
+      except ZeroDivisionError:
+            quad_w_interact_adj_r2 = 0
+      # ======================== #
 
       return {
             'ela_meta.lin_simple.adj_r2': lin_simple_adj_r2,
@@ -447,6 +459,7 @@ def calculate_information_content(
       ic_sorting: str = 'nn',
       ic_nn_neighborhood: int = 20,
       ic_nn_start: Optional[int] = None,
+      # Added start=-10 to have epsilons really close to zero
       ic_epsilon: List[float] = np.insert(10 ** np.linspace(start = -5, stop = 15, num = 1000), 0, 0),
       ic_settling_sensitivity: float = 0.05,
       ic_info_sensitivity: float = 0.5,
@@ -624,7 +637,9 @@ def calculate_information_content(
 
       m0 = M[epsilon == 0]
       eps05 = np.where(M > ic_info_sensitivity * m0)[0]
+      print(f'eps05: {eps05}, m0: {m0}')
       eps05 = np.log(epsilon[eps05].max()) / np.log(10) if len(eps05) > 0 else None
+      print(f'eps05: {eps05}, m0: {m0}')
 
       return {
             'ic.h_max': H.max(),

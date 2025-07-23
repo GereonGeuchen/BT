@@ -146,6 +146,8 @@ class MLSL(Algorithm):
         if self.verbose:
             print(f' MLSL started')
 
+        print(f"Initial population: {self.pop}, Initial fitness: {self.f}")
+
         # Set parameters depending on function characteristics
         if self.uses_old_ioh:
             local_budget = 0.1 * (self.budget - self.func.evaluations)        

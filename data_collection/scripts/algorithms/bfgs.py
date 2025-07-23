@@ -5,14 +5,11 @@ import datetime
 from shutil import make_archive
 import copy
 
-from scipy.optimize.optimize import _prepare_scalar_function
-from scipy.optimize.optimize import vecnorm
-from scipy.optimize.optimize import _line_search_wolfe12
-from scipy.optimize.optimize import _LineSearchError
-from scipy.optimize.optimize import OptimizeResult
-from scipy.optimize.optimize import _status_message
-from scipy.optimize._differentiable_functions import ScalarFunction, FD_METHODS
-from scipy.optimize import line_search
+from scipy.optimize._optimize import _prepare_scalar_function
+from scipy.optimize._optimize import vecnorm
+from scipy.optimize._optimize import _line_search_wolfe12
+from scipy.optimize._optimize import _LineSearchError
+from scipy.optimize._optimize import OptimizeResult
 
 from algorithm import Algorithm
 
@@ -121,7 +118,11 @@ class BFGS(Algorithm):
             
 #         if 'stepsizes' in parameters.internal_dict:
 #             self.stepsizes = parameters.internal_dict['stepsizes']
-        
+    
+    def f_clipped(self, x):
+        res = self.func(x)
+        # res = self.func(np.clip(x, self.func.bounds.lb, self.func.bounds.ub))
+        return res
 
     def get_params(self, parameters):
         parameters = super(BFGS, self).get_params(parameters)
@@ -141,6 +142,23 @@ class BFGS(Algorithm):
         
         return parameters
 
+    def f_clipped(self, x):
+        """Clips the input x to the bounds of the function and evaluates it."""
+        res = self.func(np.clip(x, self.func.bounds.lb, self.func.bounds.ub))
+        return res
+
+    def f_mirrored(self, x):
+        """Mirrors all coordinates of x into the bounds by repeated reflection, then evaluates the function."""
+        lb = self.func.bounds.lb
+        ub = self.func.bounds.ub
+        width = ub - lb
+
+        # Normalize to [0, ∞), then apply mirrored modulus reflection
+        y = (x - lb) / width
+        mirrored_y = np.abs(y - np.floor(y) - np.mod(np.floor(y), 2))
+        x_mirrored = lb + width * mirrored_y
+
+        return self.func(x_mirrored)
 
     def run(self):
         """ Runs the BFGS algorithm.
@@ -165,9 +183,6 @@ class BFGS(Algorithm):
         I = np.eye(self.dim, dtype=int)    # identity matrix
         k = 0
 
-        if not self.uses_old_ioh:
-            print("We use new IOHs")
-
         # Initialize first point x0 at random
         if self.x0 is None:
             if self.uses_old_ioh:
@@ -181,7 +196,7 @@ class BFGS(Algorithm):
         # Prepare scalar function object and derive function and gradient function
 #         def internal_func(x): #Needed since new functions return list by default
 #             return self.func(x)[0]
-        sf = _prepare_scalar_function(self.func, self.x0, self.jac, epsilon=self.eps,
+        sf = _prepare_scalar_function(self.f_mirrored, self.x0, self.jac, epsilon=self.eps,
                               finite_diff_rel_step=self.finite_diff_rel_step)
         f = sf.fun    # function object to evaluate function
         gradient = sf.grad    # function object to evaluate gradient
@@ -204,6 +219,7 @@ class BFGS(Algorithm):
         # Calculate initial gradient norm
         gnorm = vecnorm(gfk, ord = self.norm)
         
+
         # Algorithm loop
         while not self.stop():
             pk = -np.dot(self.Hk, gfk)    # derive direction pk from HK and gradient at x0 (gfk)
@@ -215,15 +231,25 @@ class BFGS(Algorithm):
             old_old_fval: function value of start point xk
             gfkp1 : gradient at new point xkp1
             """
-            try:
-                self.alpha_k, fc, gc, old_fval, old_old_fval, gfkp1 = \
-                     _line_search_wolfe12(f, gradient, xk, pk, gfk,
-                                          old_fval, old_old_fval, amin=1e-100, amax=1e100)
-                
-            except _LineSearchError:
-                if self.verbose:
-                    print('break because of line search error')
-                break
+            if gnorm == 0:
+                self.alpha_k = 0.0
+                old_old_fval = old_fval
+                old_fval = self.f_clipped(xk)
+                gfkp1 = gfk
+            else:
+                try:
+                    self.alpha_k, fc, gc, old_fval, old_old_fval, gfkp1 = \
+                        _line_search_wolfe12(f, gradient, xk, pk, gfk,
+                                            old_fval, old_old_fval, amin=1e-100, amax=1e100)
+                    
+                except _LineSearchError:
+                    if self.verbose:
+                        print('break because of line search error')
+                    self.alpha_k = 0.0
+                    old_old_fval = old_fval
+                    old_fval = self.f_clipped(xk)
+                    gfkp1 = gfk
+
 
             # Save parameters for plot and analysis
             self.stepsizes.append(self.alpha_k)
@@ -258,7 +284,7 @@ class BFGS(Algorithm):
             if (gnorm <= self.gtol):
                 if self.verbose:
                     print('break because of gnorm')
-                break
+                # break
 
             # Calculate rhok factor for inverse Hessian approximation matrix update
             try:

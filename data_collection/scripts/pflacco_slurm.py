@@ -20,13 +20,15 @@ from classical_ela_features import ( # type: ignore
 )
 
 def calculate_ela_features(budget):
-    base_folder = "../data/run_data_csvs/A1_newReps"   # FIXED
-    output_folder = "../data/ela_data/A1_data_ela_newReps_test"              # FIXED
+    base_folder = "../data/new_data/run_data_new_csvs/A1_data_newInstances"   # FIXED
+    output_folder = "../data/new_data/ela_data_new/A1_data_ela_newInstances"              # FIXED
 
     os.makedirs(output_folder, exist_ok=True)
     filename = f"A1_B{budget}_5D.csv"
     filepath = os.path.join(base_folder, filename)
     df = pd.read_csv(filepath)
+
+    print(f"Processing file: {filepath}")
 
     x_cols = [col for col in df.columns if col.startswith("x")]
     output_path = os.path.join(output_folder, f"A1_B{budget}_5D_ela.csv")
@@ -67,7 +69,10 @@ def calculate_ela_features(budget):
         assert y.ndim == 1
         assert y.shape[0] == X.shape[0]
 
-        features.update(calculate_information_content(X, y))
+        # Set range of epsilon values for information content to deal with early convergence
+        features.update(calculate_information_content(X, y,
+                                                      ic_epsilon=np.insert(10 ** np.linspace(start=-7, stop=15, num=1000), 0, 0)))
+        
         if budget <= 16:
             # For budgets <= 12, we use the raw_y values
             features.update(calculate_nbc(X, y, fast_k = 2))
@@ -114,12 +119,53 @@ def calculate_ela_features(budget):
 
     print(f"Completed processing for budget: {budget}")
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--budget", type=int, required=True, help="Budget to process")
-    args = parser.parse_args()
+# Function that adds the new "internal" features
+def append_standard_deviation_stats(budget, ela_path, raw_data_path, output_path):
+    df_ela = pd.read_csv(ela_path)
+    df_raw = pd.read_csv(raw_data_path)
 
+    x_cols = [col for col in df_raw.columns if col.startswith("x")]
+    tail_counts = {8: [1], 16: [1,2], 24: [1, 2, 3], 32: [1, 2, 4], 40: [1, 2, 5], float("inf"): [1, 2, 5]}
+    applicable_ns = next(v for k, v in tail_counts.items() if budget <= k)
+
+    appended_rows = []
+
+    for (fid, iid, rep), group in df_raw.groupby(["fid", "iid", "rep"]):
+        group = group.reset_index(drop=True)
+        row = {"fid": fid, "iid": iid, "rep": rep}
+
+        for n in applicable_ns:
+            k = 8 * n
+            tail = group.iloc[-k:] if len(group) >= k else group
+
+            row[f"std_y_last_{n}"] = float(np.std(tail["true_y"].values, ddof=1))
+
+            stds_x = np.std(tail[x_cols].values, axis=0, ddof=1)
+            row[f"mean_std_x_last_{n}"] = float(np.mean(stds_x))
+
+        appended_rows.append(row)
+
+    df_stats = pd.DataFrame(appended_rows)
+    df_combined = pd.merge(df_ela, df_stats, on=["fid", "iid", "rep"], how="left")
+
+    if not os.path.exists(os.path.dirname(output_path)):
+        os.makedirs(os.path.dirname(output_path))
+
+    df_combined.to_csv(output_path, index=False)
+    print(f"Tail statistics added and saved to: {output_path}")
+
+
+
+if __name__ == "__main__":
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("--budget", type=int, required=True, help="Budget to process")
+    # args = parser.parse_args()
+    budget = 16
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         warnings.filterwarnings("ignore", category=UserWarning)
-        calculate_ela_features(args.budget)
+        append_standard_deviation_stats(budget=budget,
+                                        ela_path=f"../data/ela_with_cma/A1_data_with_cma_newInstances/A1_B{budget}_5D_ela_with_state.csv",
+                                        raw_data_path=f"../data/run_data_new_csvs/A1_data_newInstances/A1_B{budget}_5D.csv",
+                                        output_path=f"../data/ela_with_cma_std/A1_data_ela_cma_std_newInstances/A1_B{budget}_5D_ela_with_state.csv")
+        # calculate_ela_features(args.budget)

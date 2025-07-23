@@ -30,6 +30,9 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
     first_write = True  # controls header
 
     for (fid, iid, rep), group in df.groupby(["fid", "iid", "rep"]):
+        if fid != 22: continue
+        if iid != 1: continue
+        if rep != 16: continue
         int_rep = int(rep)
         np.random.seed(int_rep)
         print(f"Processing fid: {fid}, iid: {iid}, rep: {rep}, budget: {budget}")
@@ -63,7 +66,10 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
         assert y.ndim == 1
         assert y.shape[0] == X.shape[0]
 
-        features.update(calculate_information_content(X, y))
+        # Set range of epsilon values for information content to deal with early convergence
+        features.update(calculate_information_content(X, y,
+                                                      ic_epsilon=np.insert(10 ** np.linspace(start=-7, stop=15, num=1000), 0, 0)))
+        
         if budget <= 16:
             # For budgets <= 12, we use the raw_y values
             features.update(calculate_nbc(X, y, fast_k = 2))
@@ -105,7 +111,7 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
         row_df = row_df[ordered_cols]
 
         # Append row to file
-        row_df.to_csv(output_path, mode='a', header=first_write, index=False)
+        # row_df.to_csv(output_path, mode='a', header=first_write, index=False)
         first_write = False  # only write header once
 
     print(f"Completed processing for budget: {budget}")
@@ -286,29 +292,8 @@ def normalize_ela_features_across_budgets(input_folder="A1_data_ela_disp",
         print(f"Normalized and saved: {filename}")
 
 if __name__ == "__main__":
-    #normalize_single_ela_file("ela_initial_sampling.csv", "ela_initial_sampling_normalized.csv")
-    # add_rep_column("ela_initial_sampling_normalized.csv", "ela_initial_sampling_with_normalized_rep.csv")
-    # normalize_ela_features_across_budgets()
-    # for budget in [50*i for i in range(1, 21)]:
-    #     print(f"Calculating ELA features for budget: {budget}")
-    #     calculate_ela_features(
-    #         budget = budget,
-    #         base_folder="../data/run_data/A1_newReps",
-    #         output_folder=f"../data/ela_data/A1_data_ela_newReps"
-    #     )
-
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         warnings.filterwarnings("ignore", category=UserWarning)
-        calculate_ela_features(
-            budget=500,
-            base_folder="../data/run_data/A1_data_test_2",
-            output_folder="../data/ela_data/A1_data_test_2"
-        )
-        # for budget in reversed([8*i for i in range(4, 5)]):
-        #     print(f"Calculating ELA features for budget: {budget}")
-        #     calculate_ela_features(
-        #         budget=budget,
-        #         base_folder="../data/run_data/A1_early_switching",
-        #         output_folder=f"../data/ela_data/A1_data_ela_early_switching_test"
-        #     )
+        warnings.filterwarnings("ignore", category=FutureWarning)
+        calculate_ela_features(budget=850, base_folder="../data/new_data/run_data_new_csvs/A1_data", output_folder="A1_data_ela_doesitwork")

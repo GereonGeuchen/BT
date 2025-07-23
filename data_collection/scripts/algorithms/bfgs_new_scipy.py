@@ -11,6 +11,7 @@ from scipy.optimize._numdiff import approx_derivative
 from scipy.optimize import line_search
 from scipy.optimize._linesearch import line_search_wolfe1
 from scipy.optimize import line_search
+from scipy.optimize import minimize
 
 from algorithm import Algorithm
 
@@ -19,9 +20,15 @@ from algorithm import Algorithm
 def line_search_wolfe12(f, grad, xk, pk, gfk=None, old_fval=None, old_old_fval=None,
                         c1=1e-4, c2=0.9, amin=1e-100, amax=1e100, bounds=None):
     """
-    Tries More–Thuente Wolfe line search (line_search), then falls back to Wolfe1 if needed.
+    Tries More–Thuente Wolfe line search (line_search), then Wolfe1, then Armijo (BFGS-style).
     If bounds are provided, clamps evaluations to within those bounds.
     """
+    print(vecnorm(gfk, ord=np.inf) )
+    #Check if pk is descent direction
+    print(np.dot(gfk, pk))
+    if gfk is not None and vecnorm(gfk, ord=np.inf) <= 1e-5:
+        return 0.0, 0, 0, f(xk), old_fval, gfk
+
     if bounds is not None:
         lb, ub = bounds
 
@@ -34,28 +41,40 @@ def line_search_wolfe12(f, grad, xk, pk, gfk=None, old_fval=None, old_old_fval=N
         f_clipped = f
         grad_clipped = grad
 
+    # Try Wolfe2 (More–Thuente)
     try:
         res = line_search(
             f_clipped, grad_clipped, xk, pk, gfk, old_fval, old_old_fval,
             c1=c1, c2=c2, amax=amax
         )
         alpha_k, fc, gc, new_fval, new_old_fval, new_gfk = res
-
         if alpha_k is not None:
             return alpha_k, fc, gc, new_fval, new_old_fval, new_gfk
     except Exception:
         pass
 
-    # Fall back to Wolfe1
-    res = line_search_wolfe1(
-        f_clipped, grad_clipped, xk, pk, gfk, old_fval, old_old_fval,
-        c1=c1, c2=c2, amin=amin, amax=amax
-    )
+    # Try Wolfe1 fallback
+    try:
+        res = line_search_wolfe1(
+            f_clipped, grad_clipped, xk, pk, gfk, old_fval, old_old_fval,
+            c1=c1, c2=c2, amin=amin, amax=amax
+        )
+        if res[0] is not None:
+            return res
+    except Exception:
+        pass
 
-    if res[0] is None:
-        raise RuntimeError("Both Wolfe2 and Wolfe1 line search failed")
-
-    return res
+    # Final fallback: Armijo-only (BFGS-style)
+    try:
+        res = line_search_BFGS(
+            f_clipped, xk, pk, gfk, old_fval, c1=c1, alpha0=1.0
+        )
+        alpha_k, fc, gc, new_fval = res
+        if alpha_k is not None:
+            return alpha_k, fc, gc, new_fval, old_fval, None
+    except Exception:
+        pass
+    print("Line search failed to find a suitable step size.")
 
 def vecnorm(x, ord=None):
     """Calculate the vector norm of x."""
@@ -196,9 +215,9 @@ class BFGS(Algorithm):
     def gradient(self, x):
         """Calculate the gradient at point x using finite differences."""
         return approx_derivative(self.func, x, 
-                                 rel_step=self.finite_diff_rel_step,
+                                 rel_step=1e-8,
                                  bounds=(self.func.bounds.lb, self.func.bounds.ub))
-
+    
     def run(self):
         """ Runs the BFGS algorithm.
 
@@ -217,13 +236,30 @@ class BFGS(Algorithm):
         """
         if self.verbose:
             print(f' BFGS started')
+        
+        print(self.Hk)
+
+        return minimize(
+            fun=self.func,
+            x0=self.x0,
+            method='BFGS',
+            jac='3-point',
+            hess='3-point',
+            options={
+                'maxiter': self.budget,
+                'gtol': self.gtol,
+                'norm': self.norm,
+                'eps': self.eps,
+                'return_all': self.return_all,
+                'finite_diff_rel_step': self.finite_diff_rel_step,
+                'hess_inv0': self.Hk
+            },
+            bounds=list(zip(self.func.bounds.lb, self.func.bounds.ub))
+        )
 
         # Initialization 
         I = np.eye(self.dim, dtype=int)    # identity matrix
         k = 0
-
-        if not self.uses_old_ioh:
-            print("We use new IOHs")
 
         # Initialize first point x0 at random
         if self.x0 is None:
@@ -245,6 +281,7 @@ class BFGS(Algorithm):
 
 
         old_fval = self.func(self.x0)    # evaluate x0
+
         gfk = self.gradient(self.x0)   # gradient at x0
         
         self.x_hist.append(self.x0)
@@ -264,6 +301,7 @@ class BFGS(Algorithm):
         # Algorithm loop
         while not self.stop():
             pk = -np.dot(self.Hk, gfk)    # derive direction pk from HK and gradient at x0 (gfk)
+            print("Is Hk SPD? ", self.is_spd(self.Hk))
             """Derive alpha_k with Wolfe conditions.
             
             alpha_k : step size
@@ -284,9 +322,12 @@ class BFGS(Algorithm):
                         bounds=(self.func.bounds.lb, self.func.bounds.ub)  
                     )
             except Exception as e:
+                print(f"Line search failed with error: {e}")
                 if self.verbose:
                     print(f"Line search failed with error: {e}")
                 break
+
+            
             # except _LineSearchError:
             #     if self.verbose:
             #         print('break because of line search error')
@@ -324,13 +365,14 @@ class BFGS(Algorithm):
                 break
 
             # Check if gnorm is already smaller than tolerance
-            gnorm = vecnorm(gfk, ord=self.norm)
-            if (gnorm <= self.gtol):
-                if self.verbose:
-                    print('break because of gnorm')
-                break
+            # gnorm = vecnorm(gfk, ord=self.norm)
+            # if (gnorm <= self.gtol):
+            #     if self.verbose:
+            #         print('break because of gnorm')
+            #     break
 
             # Calculate rhok factor for inverse Hessian approximation matrix update
+            print("Cross product: ", np.dot(yk, sk))
             try:
                 rhok = 1.0 / (np.dot(yk, sk))
             except ZeroDivisionError:

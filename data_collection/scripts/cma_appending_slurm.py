@@ -37,8 +37,14 @@ def extract_final_internal_state(dat_path, target_iid, target_rep):
 
         # Get final row (maximum evaluations)
         final_row = df.loc[df["evaluations"].idxmax()]
-        return final_row.loc["sigma":"mhl_sum"].to_dict()
+        state_dict = final_row.loc["sigma":"mhl_sum"].to_dict()
 
+        # Remove unwanted keys
+        for key in ["t", "ps_squared"]:
+            state_dict.pop(key, None)
+
+        return state_dict
+    
     except Exception as e:
         print(f"Error processing {dat_path}: {e}")
         return None
@@ -95,8 +101,8 @@ if __name__ == "__main__":
     budget = int(sys.argv[1])
 
     append_cma_state_to_ela(
-        ela_dir="../data/ela_data/A1_data_ela_newReps",
-        run_dir="../data/run_data/A1_newReps",
-        output_dir="../data/ela_with_cma/A1_data_with_cma_newReps",
+        ela_dir="../data/new_data/ela_data_new/A1_data_ela_newInstances",
+        run_dir="../data/new_data/run_data_new/A1_data_newInstances",
+        output_dir="../data/new_data/ela_with_cma_new/A1_data_with_cma_newInstances",
         budgets=[budget]
     )
