@@ -116,13 +116,13 @@ def save_barplot(data, title, filename):
     df["Method"] = df["Method"].replace({"selector_precision": "selector"})
 
     # Add SBS row with value 0.000
-    sbs_row = pd.DataFrame({"Method": ["SBS (Non-elitist, 0)"], "Value": [0.000]})
+    sbs_row = pd.DataFrame({"Method": ["SBS (Non-elitist, 16)"], "Value": [0.000]})
     df = pd.concat([df, sbs_row], ignore_index=True)
 
     
    
     # Filter to only keep the specified bars
-    desired_methods = ["static_B64", "selector", "static_b16", "SBS (Non-elitist, 0)", "static_B8"]
+    desired_methods = ["static_B64", "selector", "static_B16", "SBS (Non-elitist, 16)", "static_B8"]
     df = df[df["Method"].isin(desired_methods)]
 
     # Sort by Value descending: highest left, lowest right
@@ -149,9 +149,9 @@ def save_barplot(data, title, filename):
 def display_vbs_tables(csv_path,bar_plot = False, fid=None):
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/new_Instances/all_sp/precision_ratios_bars.pdf"
+        output_path = "../results/new_Instances/all_sp/precision_ratios_table.pdf"
         if bar_plot:
-            save_barplot(ratios, "VBS Ratios", output_path)
+            save_barplot(ratios, "Fraction of the gap closed", output_path)
         else:
             save_tables(ratios, "VBS Relative Ratios", output_path)
     else:
@@ -206,4 +206,4 @@ if __name__ == "__main__":
     results_newReps_late = "../results/new_Reps/late_sp/selector_results_newReps_late.csv"
 
     # plot_selector_budget_counts(results_newInstances, output_png="../results/new_Instances/all_sp/selector_budget_counts.pdf")
-    display_vbs_tables(results_newInstances, bar_plot=True)
+    display_vbs_tables(results_newInstances, bar_plot=False)

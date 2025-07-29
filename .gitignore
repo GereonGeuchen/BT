@@ -1,11 +1,7 @@
 # Ignore all files in the preliminary_experiments/data directory because they are too bi
 data_collection/data/A1_newReps
 data_collection/data/A2_newReps
-data_collection/data/ela_data/ela_experiments
 data_collection/data/run_data/A1_test_data
-data_collection/data/ela_data/A1_data_ela
-data_collection/data/ela_data/A1_data_ela_newInstances
-data_collection/data/ela_data/A1_data_ela_newReps
 
 !data_collection/data/run_data/*.csv
 data_collection/data/run_data/A1_data
@@ -14,6 +10,9 @@ data_collection/scripts/pflacco/__pycache__
 data_collection/data/run_data/*newReps
 data_collection/data/run_data/*early_switching
 
+IOHexperimenter
+
+preliminary_experiments/data
 
 selector/scripts/old_hpo
 selector/scripts/asf-env.tar.gz

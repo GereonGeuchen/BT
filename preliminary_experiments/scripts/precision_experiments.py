@@ -1,5 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+
 
 def plot_optimality_percentages(input_csv: str):
     # Read CSV
@@ -41,8 +43,8 @@ def plot_optimality_percentages(input_csv: str):
 
     # Axis labels and title with fontsize 15
     plt.xlabel('Budget', fontsize=15)
-    plt.ylabel('Percentage of reps with optimal switching point at this budget', fontsize=15)
-    plt.title('Distribution of Optimal Switching Budgets Across Reps', fontsize=15)
+    # plt.ylabel('Runs w', fontsize=15)
+    # plt.title('Distribution of Optimal Switching Budgets Across Reps', fontsize=15)
 
     # Set y-axis from 0 to 100
     plt.ylim(0, 100)
@@ -56,8 +58,8 @@ def plot_optimality_percentages(input_csv: str):
 
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig('../results/optimal_switching_budgets_distribution.pdf')
+    plt.savefig('../results/optimal_switching_budgets_distribution_with_0.pdf')
 
 if __name__ == "__main__":
-    input_csv = '../data/precision_files/A2_data_late_precisions.csv'  
+    input_csv = '../data/precision_files/A2_data_0_budget_precisions.csv'  
     plot_optimality_percentages(input_csv)
