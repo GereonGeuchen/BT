@@ -163,7 +163,7 @@ def train_and_save_selector_only(mode: str, budget: int):
 
     if mode == "performance":
         input_path = f"algo_performance_models_clipped/model_B{budget}.pkl"
-        data_path = f"../data/A1_data_ela_cma_std_precisions_normalized_clipped/A1_B{budget}_5D_ela_with_state.csv"
+        data_path = f"../data/A1_data_ela_cma_std_precisions_clipped/A1_B{budget}_5D_ela_with_state.csv"
         save_path = f"trained_models/algo_performance_models_trained_clipped/selector_B{budget}_trained.pkl"
         y_cols = -6
     else:
