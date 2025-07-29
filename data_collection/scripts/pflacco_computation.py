@@ -24,15 +24,14 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
     filepath = os.path.join(base_folder, filename)
     df = pd.read_csv(filepath)
 
+    print(f"Processing file: {filepath}")
+
     x_cols = [col for col in df.columns if col.startswith("x")]
     output_path = os.path.join(output_folder, f"A1_B{budget}_5D_ela.csv")
 
     first_write = True  # controls header
 
     for (fid, iid, rep), group in df.groupby(["fid", "iid", "rep"]):
-        if fid != 22: continue
-        if iid != 1: continue
-        if rep != 16: continue
         int_rep = int(rep)
         np.random.seed(int_rep)
         print(f"Processing fid: {fid}, iid: {iid}, rep: {rep}, budget: {budget}")
@@ -98,7 +97,7 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
 
         if budget <= 56:
             features.pop('ela_meta.quad_w_interact.adj_r2', None)
-            if budget <= 32:
+            if budget <= 16:
                 features.pop('ela_meta.lin_w_interact.adj_r2', None)
 
         for key in list(features.keys()):
@@ -111,7 +110,7 @@ def calculate_ela_features(budget=50, base_folder="../data/run_data/A1_data", ou
         row_df = row_df[ordered_cols]
 
         # Append row to file
-        # row_df.to_csv(output_path, mode='a', header=first_write, index=False)
+        row_df.to_csv(output_path, mode='a', header=first_write, index=False)
         first_write = False  # only write header once
 
     print(f"Completed processing for budget: {budget}")
@@ -296,4 +295,4 @@ if __name__ == "__main__":
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         warnings.filterwarnings("ignore", category=UserWarning)
         warnings.filterwarnings("ignore", category=FutureWarning)
-        calculate_ela_features(budget=850, base_folder="../data/new_data/run_data_new_csvs/A1_data", output_folder="A1_data_ela_doesitwork")
+        calculate_ela_features(budget=850, base_folder="../data/run_data_csvs/A1_data", output_folder="A1_data_ela_doesitwork")

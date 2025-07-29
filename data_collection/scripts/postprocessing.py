@@ -399,7 +399,7 @@ def normalize_ela_with_precisions(path_in, path_out):
     # Step 2: Normalize algorithm columns jointly per iid using 1D flattening
     df_scaled_algos = df[algo_cols].copy()
 
-    for (fid, iid), group in df.groupby(["fid", "iid"]):
+    for _, group in df.groupby(["fid"]):
         algo_matrix = group[algo_cols].to_numpy()  # shape (num_rows, 6)
         flat_vals = algo_matrix.flatten().reshape(-1, 1)  # shape (num_rows * 6, 1)
 
@@ -481,12 +481,24 @@ def split_precision_by_budget(
     return result
 
 if __name__ == "__main__":
-    # extract_a2_precisions(
-    #     base_dir="../data/run_data_new/A2_mirrored",
-    #     output_file="../data/precision_files/A2_precisions_mirrored.csv"
+    # split_precision_by_budget(pd.read_csv("../data/precision_files/A2_precisions_l_BFGS_b.csv"))
+    # add_algorithm_precisions(
+    #     ela_dir="../data/ela_with_cma_std/A1_data_ela_cma_std",
+    #     precision_csv="../data/precision_files/A2_precisions_l_BFGS_b.csv",
+    #     output_dir="../data/ela_with_algorithm_precisions/A1_data_ela_cma_std_precisions_l_BFGS_b"
     # )
-    df = pd.read_csv("../data/precision_files/A2_precisions_mirrored.csv")
-    df = df[df['algorithm'] == 'BFGS']
-    # Only consider fids 10 and 12
-    df = df[df['fid'].isin([12])]
-    print(df['precision'].sum())
+    budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 20)]  # 8, 16, ..., 96, 50, 100, ..., 950
+    # for budget in budgets:
+    #     normalize_ela_with_precisions(
+    #         path_in=f"../data/ela_with_algorithm_precisions/A1_data_ela_cma_std_precisions_l_BFGS_b/A1_B{budget}_5D_ela_with_state.csv",
+    #         path_out=f"../data/ela_normalized/A1_data_ela_cma_std_precisions_normalized_l_BFGS_b/A1_B{budget}_5D_ela_with_state.csv"
+    #     )
+    extract_a2_precisions("../data/run_data/A2_clipped_newReps",
+                          output_file="../data/precision_files/A2_precisions_clipped_newReps.csv",)
+    # for budget in budgets:
+    #     normalize_test_ela(
+    #         train_csv_path=f"../data/ela_with_cma_std/A1_data_ela_cma_std/A1_B{budget}_5D_ela_with_state.csv",
+    #         test_csv_path=f"../data/ela_with_cma_std/A1_data_ela_cma_std_newReps/A1_B{budget}_5D_ela_with_state.csv",
+    #         test_out_path=f"../data/ela_normalized/A1_data_ela_cma_std_newReps_normalized/A1_B{budget}_5D_ela_with_state.csv"
+    #     )
+    # process_ioh_data("../data/run_data/A1_data_newReps")

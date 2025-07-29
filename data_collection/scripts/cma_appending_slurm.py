@@ -101,8 +101,8 @@ if __name__ == "__main__":
     budget = int(sys.argv[1])
 
     append_cma_state_to_ela(
-        ela_dir="../data/new_data/ela_data_new/A1_data_ela_newInstances",
-        run_dir="../data/new_data/run_data_new/A1_data_newInstances",
-        output_dir="../data/new_data/ela_with_cma_new/A1_data_with_cma_newInstances",
+        ela_dir="../data/ela_data_new/A1_data_ela_newReps",
+        run_dir="../data/run_data/A1_data_newReps",
+        output_dir="../data/ela_with_cma/A1_data_with_cma_newReps",
         budgets=[budget]
     )

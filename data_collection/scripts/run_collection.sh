@@ -24,7 +24,7 @@ for i in $(seq 1 20); do
   BUDGETS+=($((50 * i)))
 done
 
-# === Loop over budgets and submit jobs ===
+# # === Loop over budgets and submit jobs ===
 for BUDGET in "${BUDGETS[@]}"; do
 
   sbatch <<EOF
@@ -34,7 +34,7 @@ for BUDGET in "${BUDGETS[@]}"; do
 #SBATCH --output=${WORKDIR}/logs/ela_B${BUDGET}.out
 #SBATCH --error=${WORKDIR}/logs/ela_B${BUDGET}.err
 #SBATCH --time=02:00:00
-#SBATCH --mem=8G
+#SBATCH --mem=4G
 #SBATCH --cpus-per-task=1
 
 # Go to the working directory

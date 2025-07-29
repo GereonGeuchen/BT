@@ -196,7 +196,7 @@ class BFGS(Algorithm):
         # Prepare scalar function object and derive function and gradient function
 #         def internal_func(x): #Needed since new functions return list by default
 #             return self.func(x)[0]
-        sf = _prepare_scalar_function(self.f_mirrored, self.x0, self.jac, epsilon=self.eps,
+        sf = _prepare_scalar_function(self.f_clipped, self.x0, self.jac, epsilon=self.eps,
                               finite_diff_rel_step=self.finite_diff_rel_step)
         f = sf.fun    # function object to evaluate function
         gradient = sf.grad    # function object to evaluate gradient

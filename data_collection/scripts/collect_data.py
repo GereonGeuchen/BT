@@ -244,7 +244,7 @@ def collect_A1_data(budget_factor, dim = 5, time_run=False):
 
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/new_data/run_data_new/A1_data_newReps/A1_B{budget_factor}_{dim}D',
+        folder_name=f'../data/new_data/run_data/A1_data_newReps/A1_B{budget_factor}_{dim}D',
         algorithm_name='ModCMA_A1',
         store_positions=True
     )
@@ -290,7 +290,7 @@ def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_
     
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/run_data_new/A2_mirrored/A2_{algname}_B{budget_factor}_{dim}D',
+        folder_name=f'../data/run_data/A2_clipped_newReps/A2_{algname}_B{budget_factor}_{dim}D',
         algorithm_name=algname,
         store_positions=True,
     )
@@ -309,7 +309,7 @@ def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_
             # Attach the logger to the problem
             problem.attach_logger(logger)
 
-            for rep in range(20):
+            for rep in range(20, 30):
                 tracked_parameters.rep = rep
                 tracked_parameters.iid = iid
                 print(f"Running function {fid} instance {iid} repetition {rep} with A2 {algname}, budget {budget_factor}, run_from_scratch={run_A2_from_scratch}")

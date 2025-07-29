@@ -173,11 +173,19 @@ class BFGS(Algorithm):
                 self.x0 = np.random.uniform(self.func.bounds.lb, self.func.bounds.ub)
         
         # Run scipy's l-bfgs 
-        res = minimize(self.func, self.x0, method='L-BFGS-B', jac=self.jac,
-                       options={'gtol': 0.0, 'disp': self.verbose, 'maxiter': self.budget, 'ftol': 0.0},
-                       bounds=list(zip(self.func.bounds.lb, self.func.bounds.ub)),
-                       tol=0.0)
-        
+        res = minimize(
+                self.func,
+                self.x0,
+                method='L-BFGS-B',
+                jac=self.jac,
+                bounds=list(zip(self.func.bounds.lb, self.func.bounds.ub)),
+                options={
+                    'gtol': 1e-100,       # gradient tolerance
+                    'ftol': 1e-100,       # function value change tolerance
+                    'maxiter': self.budget,
+                    'disp': self.verbose,
+                }
+            )
         return res
 #             for i in range(0, self.dim):
 #                 self.x0[i] = rd.uniform(-5, 5)
