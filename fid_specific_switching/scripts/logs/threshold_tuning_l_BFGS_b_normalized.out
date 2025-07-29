@@ -1,0 +1,88 @@
+[INFO][abstract_initial_design.py:139] Using 210 initial design configurations and 1 additional configurations.
+[INFO][abstract_intensifier.py:307] Using only one seed for deterministic scenario.
+[INFO][abstract_intensifier.py:517] Added config 8ab52f as new incumbent because there are no incumbents yet.
+[INFO][abstract_intensifier.py:596] Added config 4f85c9 and rejected config 8ab52f as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 5a280c and rejected config 4f85c9 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config ca8bba and rejected config 5a280c as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 50 trials.
+[INFO][smbo.py:327] Finished 100 trials.
+[INFO][smbo.py:327] Finished 150 trials.
+[INFO][smbo.py:327] Finished 200 trials.
+[INFO][abstract_intensifier.py:596] Added config d228dc and rejected config ca8bba as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 2b5669 and rejected config d228dc as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 1a5ad8 and rejected config 2b5669 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config e95609 and rejected config 1a5ad8 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 250 trials.
+[INFO][abstract_intensifier.py:596] Added config b5f4ea and rejected config e95609 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 2bb53a and rejected config b5f4ea as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config d538ee and rejected config 2bb53a as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config d66e35 and rejected config d538ee as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 300 trials.
+[INFO][abstract_intensifier.py:596] Added config af7fb3 and rejected config d66e35 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 55cff5 and rejected config af7fb3 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config ad6b77 and rejected config 55cff5 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 7e067d and rejected config ad6b77 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 350 trials.
+[INFO][abstract_intensifier.py:596] Added config 7e5cc7 and rejected config 7e067d as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 400 trials.
+[INFO][abstract_intensifier.py:596] Added config 9bfa75 and rejected config 7e5cc7 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config a62872 and rejected config 9bfa75 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 450 trials.
+[INFO][abstract_intensifier.py:596] Added config 9da173 and rejected config a62872 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config e2d5e7 and rejected config 9da173 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 500 trials.
+[INFO][abstract_intensifier.py:596] Added config 0ad04a and rejected config e2d5e7 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 2b309e and rejected config 0ad04a as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 550 trials.
+[INFO][smbo.py:327] Finished 600 trials.
+[INFO][abstract_intensifier.py:596] Added config 7fb0d4 and rejected config 2b309e as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 9a2b79 and rejected config 7fb0d4 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config c9023d and rejected config 9a2b79 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 650 trials.
+[INFO][abstract_intensifier.py:596] Added config 0a47fc and rejected config c9023d as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 09a43b and rejected config 0a47fc as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 700 trials.
+[INFO][abstract_intensifier.py:596] Added config 989c8d and rejected config 09a43b as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 4c359e and rejected config 989c8d as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config df0575 and rejected config 4c359e as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 750 trials.
+[INFO][abstract_intensifier.py:596] Added config cc552f and rejected config df0575 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config f51551 and rejected config cc552f as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 800 trials.
+[INFO][smbo.py:327] Finished 850 trials.
+[INFO][abstract_intensifier.py:596] Added config 1e7b7f and rejected config f51551 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 882042 and rejected config 1e7b7f as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 8b3a27 and rejected config 882042 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 900 trials.
+[INFO][smbo.py:327] Finished 950 trials.
+[INFO][abstract_intensifier.py:596] Added config 1fd28a and rejected config 8b3a27 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 0d2017 and rejected config 1fd28a as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 96a999 and rejected config 0d2017 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 1000 trials.
+[INFO][smbo.py:335] Configuration budget is exhausted:
+[INFO][smbo.py:336] --- Remaining wallclock time: inf
+[INFO][smbo.py:337] --- Remaining cpu time: inf
+[INFO][smbo.py:338] --- Remaining trials: 0
+
+Best threshold configuration found:
+  threshold_b100: 0.85
+  threshold_b150: 0.55
+  threshold_b16: 0.7
+  threshold_b200: 0.9
+  threshold_b24: 0.4
+  threshold_b250: 0.3
+  threshold_b300: 0.1
+  threshold_b32: 0.5
+  threshold_b350: 0.85
+  threshold_b40: 0.7
+  threshold_b400: 1.0
+  threshold_b450: 0.3
+  threshold_b48: 1.0
+  threshold_b500plus: 0.3
+  threshold_b56: 0.9
+  threshold_b64: 0.55
+  threshold_b72: 0.85
+  threshold_b8: 0.9
+  threshold_b80: 0.95
+  threshold_b88: 1.0
+  threshold_b96: 0.7

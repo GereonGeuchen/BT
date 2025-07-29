@@ -1,0 +1,23 @@
+{
+      "threshold_b100": 1.0,
+      "threshold_b150": 0.75,
+      "threshold_b16": 0.35,
+      "threshold_b200": 0.3,
+      "threshold_b24": 0.35,
+      "threshold_b250": 1.0,
+      "threshold_b300": 0.8,
+      "threshold_b32": 0.5,
+      "threshold_b350": 0.65,
+      "threshold_b40": 0.3,
+      "threshold_b400": 0.3,
+      "threshold_b450": 0.05,
+      "threshold_b48": 1.0,
+      "threshold_b500plus": 0.5,
+      "threshold_b56": 1.0,
+      "threshold_b64": 0.05,
+      "threshold_b72": 0.65,
+      "threshold_b8": 0.45,
+      "threshold_b80": 0.0,
+      "threshold_b88": 0.15,
+      "threshold_b96": 0.35
+    }

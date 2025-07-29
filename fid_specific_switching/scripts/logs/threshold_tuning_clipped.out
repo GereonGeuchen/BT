@@ -1,0 +1,65 @@
+[INFO][abstract_initial_design.py:139] Using 210 initial design configurations and 1 additional configurations.
+[INFO][abstract_intensifier.py:307] Using only one seed for deterministic scenario.
+[INFO][abstract_intensifier.py:517] Added config 8ab52f as new incumbent because there are no incumbents yet.
+[INFO][abstract_intensifier.py:596] Added config 4f85c9 and rejected config 8ab52f as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 282b9f and rejected config 4f85c9 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 50 trials.
+[INFO][smbo.py:327] Finished 100 trials.
+[INFO][smbo.py:327] Finished 150 trials.
+[INFO][abstract_intensifier.py:596] Added config 47d075 and rejected config 282b9f as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 200 trials.
+[INFO][abstract_intensifier.py:596] Added config d51fa9 and rejected config 47d075 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config b9a606 and rejected config d51fa9 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config f214c5 and rejected config b9a606 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 250 trials.
+[INFO][abstract_intensifier.py:596] Added config 5de010 and rejected config f214c5 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 4b876f and rejected config 5de010 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 300 trials.
+[INFO][abstract_intensifier.py:596] Added config fb810d and rejected config 4b876f as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 075928 and rejected config fb810d as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 5f907c and rejected config 075928 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 539382 and rejected config 5f907c as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 350 trials.
+[INFO][abstract_intensifier.py:596] Added config 6f9e4e and rejected config 539382 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 400 trials.
+[INFO][abstract_intensifier.py:596] Added config 620669 and rejected config 6f9e4e as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 450 trials.
+[INFO][abstract_intensifier.py:596] Added config 0f36d0 and rejected config 620669 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 500 trials.
+[INFO][smbo.py:327] Finished 550 trials.
+[INFO][smbo.py:327] Finished 600 trials.
+[INFO][smbo.py:327] Finished 650 trials.
+[INFO][smbo.py:327] Finished 700 trials.
+[INFO][smbo.py:327] Finished 750 trials.
+[INFO][smbo.py:327] Finished 800 trials.
+[INFO][smbo.py:327] Finished 850 trials.
+[INFO][smbo.py:327] Finished 900 trials.
+[INFO][smbo.py:327] Finished 950 trials.
+[INFO][smbo.py:327] Finished 1000 trials.
+[INFO][smbo.py:335] Configuration budget is exhausted:
+[INFO][smbo.py:336] --- Remaining wallclock time: inf
+[INFO][smbo.py:337] --- Remaining cpu time: inf
+[INFO][smbo.py:338] --- Remaining trials: 0
+
+Best threshold configuration found:
+  threshold_b100: 1.0
+  threshold_b150: 0.75
+  threshold_b16: 0.35
+  threshold_b200: 0.3
+  threshold_b24: 0.35
+  threshold_b250: 1.0
+  threshold_b300: 0.8
+  threshold_b32: 0.5
+  threshold_b350: 0.65
+  threshold_b40: 0.3
+  threshold_b400: 0.3
+  threshold_b450: 0.05
+  threshold_b48: 1.0
+  threshold_b500plus: 0.5
+  threshold_b56: 1.0
+  threshold_b64: 0.05
+  threshold_b72: 0.65
+  threshold_b8: 0.45
+  threshold_b80: 0.0
+  threshold_b88: 0.15
+  threshold_b96: 0.35

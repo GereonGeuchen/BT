@@ -5,6 +5,7 @@ import os
 import joblib
 from functools import partial
 from itertools import combinations
+from multiprocessing import Pool
 
 # ========== ConfigSpace and SMAC imports ==========
 from ConfigSpace import ConfigurationSpace
@@ -21,11 +22,26 @@ FIDS = list(range(1, 25))
 IIDS = [1, 2, 3, 4, 5] 
 REPS = list(range(20))
 
+
+
 # === Paths ===
-ELA_DIR_SWITCH = "../data/ela_for_training/A1_data_all_switch_clipped"
-ELA_DIR_ALGO = "../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized_clipped"
-PRECISION_FILE = "../data/precision_files/A2_precisions_clipped.csv"
-ELA_DIR = "../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized_clipped"
+algorithm = "clipped" # or "clipped"
+normalized = True
+ELA_DIR_SWITCH = f"../data/ela_for_training/A1_data_switch_{algorithm}"
+ELA_DIR_ALGO = f"../data/ela_for_training/A1_data_ela_cma_std_precisions_{algorithm}"
+PRECISION_FILE = f"../data/precision_files/A2_precisions_{algorithm}.csv"
+CV_MODELS_DIR = f"../data/models/trained_models/algo_performance_models_cv_{algorithm}"
+UNTRAINED_PERF_MODELS_DIR = f"../data/models/algo_performance_models_{algorithm}"
+SMAC_OUTPUT_DIR = f"smac_output_{algorithm}"
+OUTPUT_PATH = f"../data/tuned_models/switching_models_{algorithm}"
+
+if normalized:
+    ELA_DIR_SWITCH += "_normalized"
+    ELA_DIR_ALGO += "_normalized"
+    CV_MODELS_DIR += "_normalized"
+    UNTRAINED_PERF_MODELS_DIR += "_normalized"
+    SMAC_OUTPUT_DIR += "_normalized"
+    OUTPUT_PATH += "_normalized"
 
 # ========== Helper classes ==========
 
@@ -44,7 +60,7 @@ class SwitchingSelectorCV:
             if switch_model is None or perf_model is None:
                 continue
 
-            ela_path = Path(ELA_DIR) / f"A1_B{budget}_5D_ela_with_state.csv"
+            ela_path = Path(ELA_DIR_ALGO) / f"A1_B{budget}_5D_ela_with_state.csv"
             if not ela_path.exists():
                 continue
 
@@ -84,121 +100,123 @@ class SwitchingSelectorCV:
         fallback_precision = fallback_row["precision"].values[0] if not fallback_row.empty else np.inf
         return fallback_precision
 
+def train_models_for_iid(test_iid, config, selector):
+    train_iids = [iid for iid in IIDS if iid != test_iid]
+    wrapper_partial = RandomForestClassifierWrapper.get_from_configuration(config)
+    switching_models = {}
+    performance_models = {}
+
+    for budget in SWITCHING_BUDGETS:
+        ela_path_switch = Path(ELA_DIR_SWITCH) / f"A1_B{budget}_5D_ela_with_state.csv"
+        if not ela_path_switch.exists():
+            continue
+        train_df = pd.read_csv(ela_path_switch)
+        train_df = train_df.drop(columns=["Same", "Non-elitist", "MLSL", "PSO", "DE", "BFGS"])
+        train_df = train_df[train_df["iid"].isin(train_iids)]
+
+        model = wrapper_partial()
+        X_train = train_df.iloc[:, 4:].drop(columns=["switch"])
+        y_train = train_df["switch"]
+        model.fit(X_train, y_train)
+        switching_models[budget] = model
+
+        ela_path_algo = Path(ELA_DIR_ALGO) / f"A1_B{budget}_5D_ela_with_state.csv"
+        if not ela_path_algo.exists():
+            continue
+        train_df = pd.read_csv(ela_path_algo)
+        train_df = train_df[train_df["iid"].isin(train_iids)]
+        X_train = train_df.iloc[:, 4:-6]
+        y_train = train_df.iloc[:, -6:]
+
+        trained_model_path = Path(CV_MODELS_DIR) / f"iid{test_iid}/selector_B{budget}_trained.pkl"
+        if trained_model_path.exists():
+            perf_model = joblib.load(trained_model_path)
+        else:
+            perf_model = joblib.load(f"{UNTRAINED_PERF_MODELS_DIR}/model_B{budget}.pkl").selector
+            perf_model.fit(X_train, y_train)
+            os.makedirs(os.path.dirname(trained_model_path), exist_ok=True)
+            joblib.dump(perf_model, trained_model_path)
+
+        performance_models[budget] = perf_model
+
+    total_precision = 0.0
+    for fid in FIDS:
+        for rep in REPS:
+            precision = selector.simulate_single_run(fid, test_iid, rep, switching_models, performance_models)
+            total_precision += precision
+    return total_precision
+
 # ========== Objective function for SMAC ==========
 
 def smac_objective(config, seed):
     np.random.seed(seed)
-
-    wrapper_partial = RandomForestClassifierWrapper.get_from_configuration(config)
-    total_precision = 0.0
-
     selector = SwitchingSelectorCV(PRECISION_FILE)
 
-    # === Leave-instance-out CV ===
-    iids = IIDS.copy()
-    for test_iid in iids:
-        print(f"Evaluating test iid {test_iid} with config {config}")
-        train_iids = [iid for iid in iids if iid != test_iid]
+    print(f"Evaluating config: {config}")
+    with Pool(processes=5) as pool:  # Adjust number of processes
+        results = pool.starmap(partial(train_models_for_iid, config=config, selector=selector), [(iid,) for iid in IIDS])
 
-        # Train models on train_iids
-        switching_models = {}
-        performance_models = {}
-
-        for budget in SWITCHING_BUDGETS:
-            print(f"Training models for budget {budget}...")
-            # === Train switching model ===
-            ela_path_switch = Path(ELA_DIR_SWITCH) / f"A1_B{budget}_5D_ela_with_state.csv"
-            if not ela_path_switch.exists():
-                print(f"Skipping budget {budget} - no switching data available.")
-                continue
-            train_df = pd.read_csv(ela_path_switch)
-            train_df = train_df.drop(columns=["Same", "Non-elitist", "MLSL", "PSO", "DE", "BFGS"])
-            train_df = train_df[train_df["iid"].isin(train_iids)]
-
-            model = wrapper_partial()
-            X_train = train_df.iloc[:, 4:].drop(columns=["switch"])
-            y_train = train_df["switch"]  # adjust target column as needed
-            model.fit(X_train, y_train)
-            switching_models[budget] = model
-
-            # === Train performance model ===
-            ela_path_algo = Path(ELA_DIR_ALGO) / f"A1_B{budget}_5D_ela_with_state.csv"
-            if not ela_path_algo.exists():
-                print(f"Skipping budget {budget} - no performance data available.")
-                continue
-            train_df = pd.read_csv(ela_path_algo)
-            train_df = train_df[train_df["iid"].isin(train_iids)]
-            X_train = train_df.iloc[:, 4:-6]
-            y_train= train_df.iloc[:, -6:]
-
-            trained_model_path = Path(f"../data/models/trained_models/algo_performance_models_iid{test_iid}/selector_B{budget}_trained.pkl")
-            if trained_model_path.exists():
-                print(f"Loading existing model for budget {budget}...")
-                perf_model = joblib.load(trained_model_path)
-            else:
-                print(f"Training new model for budget {budget}...")
-                perf_model = joblib.load(f"../data/models/algo_performance_models_clipped/model_B{budget}.pkl").selector
-                perf_model.fit(X_train, y_train)
-                os.makedirs(os.path.dirname(trained_model_path), exist_ok=True)
-                joblib.dump(perf_model, trained_model_path)
-
-            performance_models[budget] = perf_model
-
-        # === Evaluate on test_iid ===
-        for fid in FIDS:
-            for rep in REPS:
-                print(f"Simulating fid {fid}, iid {test_iid}, rep {rep}")
-                precision = selector.simulate_single_run(fid, test_iid, rep, switching_models, performance_models)
-                total_precision += precision
-
-    print(f"Config {config} → Total CV precision: {total_precision}")
-    return total_precision
+    total_cv_precision = sum(results)
+    print(f"Config {config} → Total CV precision: {total_cv_precision}")
+    return total_cv_precision
 
 # ========== Main SMAC tuning routine ==========
 
 def main():
-    # 1. Get configuration space
     cs = RandomForestClassifierWrapper.get_configuration_space()
 
-    # 2. Define SMAC scenario
     scenario = Scenario(
         configspace=cs,
         n_trials=75,
         walltime_limit=np.inf,
         deterministic=True,
-        output_directory="smac_switching_output_cv",
+        output_directory=SMAC_OUTPUT_DIR,
         seed=42
     )
 
-    # 3. Run SMAC
     smac = HyperparameterOptimizationFacade(scenario, smac_objective)
     best_config = smac.optimize()
 
     print("Best configuration found:")
-    for k,v in best_config.items():
+    for k, v in best_config.items():
         print(f"  {k}: {v}")
 
     wrapper_partial = RandomForestClassifierWrapper.get_from_configuration(best_config)
-    output_dir = Path("final_trained_binary_switching_models_all")
+    output_dir = Path(OUTPUT_PATH)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for budget in SWITCHING_BUDGETS:
-        ela_path_switch = Path(ELA_DIR_SWITCH) / f"A1_B{budget}_5D_ela_with_state.csv" 
+        ela_path_switch = Path(ELA_DIR_SWITCH) / f"A1_B{budget}_5D_ela_with_state.csv"
+        if not ela_path_switch.exists():
+            continue
         train_df = pd.read_csv(ela_path_switch)
-        # === Train switching model ===
-        model = wrapper_partial()
-        # Drop columns switch, MLSL, PSO, DE, BFGS, Same, Non-elitist
         train_df = train_df.drop(columns=["Same", "Non-elitist", "MLSL", "PSO", "DE", "BFGS"])
         X_train = train_df.iloc[:, 4:].drop(columns=["switch"])
-        y_train = train_df["switch"]  # adjust to your target column
+        y_train = train_df["switch"]
+        model = wrapper_partial()
         model.fit(X_train, y_train)
-
-        # === Save model ===
         model_path = output_dir / f"switching_model_B{budget}_trained.pkl"
         joblib.dump(model, model_path)
         print(f"Saved switching model for budget {budget} to {model_path}")
 
     print("All final switching models trained and saved successfully.")
 
+def safe_untrained_model(config=None):
+    if config is None:
+        config = {
+        "rf_classifierbootstrap": True,
+        "rf_classifiermax_features": 0.3058904424636,
+        "rf_classifiermin_samples_leaf": 2,
+        "rf_classifiermin_samples_split": 15,
+        "rf_classifiern_estimators": 119
+        }
+
+    wrapper_partial = RandomForestClassifierWrapper.get_from_configuration(config)
+    model = wrapper_partial()  
+    os.makedirs("../data/models/switching_l_BFGS_b_normalized", exist_ok=True)
+    joblib.dump(model, "../data/models/switching_l_BFGS_b_normalized/switching.pkl")
+
+
 if __name__ == "__main__":
-    main()
+    # main()
+    safe_untrained_model()

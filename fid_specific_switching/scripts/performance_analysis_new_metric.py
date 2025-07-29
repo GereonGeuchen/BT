@@ -140,7 +140,7 @@ def display_vbs_tables(csv_path, fid=None, plot_type="table"):
     """
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/precision_ratios_all_with_algos_table.pdf"
+        output_path = "../results/precision_ratios_all_with_algos_clipped_table.pdf"
         if plot_type == "table":
             save_tables(ratios, "Fraction of the gap closed", output_path)
             print("✅ VBS ratios table saved to:", output_path)
@@ -370,14 +370,32 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
 
 
 if __name__ == "__main__":
-    result_csv = "../results/selector_results_all_greater_clipped.csv"
-    # precision_training_csv = "../data/precision_files/A2_precisions.csv"  
-    # precision_test_csv = "../data/precision_files/A2_precisions_newInstances.csv"
-    # display_vbs_tables(result_csv)
-    # Print sum of precisions for each budget and the selector
-    df = pd.read_csv(result_csv)
-    # Exclude fids 10 and 12
-    df = df[~df["fid"].isin([])]
-    for col in df.columns:
-        if col.startswith("static_B") or col == "selector_precision":
-            print(f"{col}: {df[col].sum():.4f}")
+    result_csv1 = "../results/newInstances/selector_results_l_BFGS_b_normalized_tuned.csv"
+    result_csv1 = "../data/switching_optimality_files/l_BFGS_b_normalized/predicted_static_precisions_rep_fold_all_sp.csv"
+    result_csv2 = "../results/newInstances/selector_results_l_BFGS_b_normalized_dec_threshold.csv"
+    df1 = pd.read_csv(result_csv1)
+    df2 = pd.read_csv(result_csv2)
+    
+    # print(df1["selector_precision"].sum())
+
+    # permutation_test_selector_vs_static(result_csv1)
+
+    for col in df1.columns:
+        if col.startswith("static_B"):
+            static_sum = df1[col].sum()
+            # static_sum2 = df2[col].sum()
+            print(f"Sum of precision for {col} (tuned): {static_sum:.6f}")
+            # print(f"Sum of precision for {col} (dec threshold): {static_sum2:.6f}")
+        elif col == "selector_precision":
+            selector_sum = df1[col].sum()
+            # selector_sum2 = df2[col].sum()
+            print(f"Sum of precision for Selector (tuned): {selector_sum:.6f}")
+            # print(f"Sum of precision for Selector (dec threshold): {selector_sum2:.6f}")
+
+    # fids = list(range(1, 25))
+    # for fid in fids:
+    #     # Compute totals for each fid between the two result files only for selector column
+    #     totals1 = df1[df1["fid"] == fid]["selector_precision"].sum()
+    #     totals2 = df2[df2["fid"] == fid]["selector_precision"].sum()
+    #     print(f"Fid {fid} totals (tuned): {totals1}")
+    #     print(f"Fid {fid} totals (dec threshold): {totals2}")

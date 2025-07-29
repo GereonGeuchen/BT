@@ -1,0 +1,16 @@
+/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/fid_specific_switching/scripts/tune_decision_thresholds.py:59: DeprecationWarning: Please use `space.add(hyperparameter)`
+  cs.add_hyperparameter(
+/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/fid_specific_switching/scripts/tune_decision_thresholds.py:68: DeprecationWarning: Please use `space.add(hyperparameter)`
+  cs.add_hyperparameter(
+Traceback (most recent call last):
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/fid_specific_switching/scripts/tune_decision_thresholds.py", line 177, in <module>
+    main()
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/fid_specific_switching/scripts/tune_decision_thresholds.py", line 173, in main
+    json.dump(best_config, f, indent=2)
+  File "/home/pf657206/general-env/lib/python3.10/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+  File "/home/pf657206/general-env/lib/python3.10/json/encoder.py", line 438, in _iterencode
+    o = _default(o)
+  File "/home/pf657206/general-env/lib/python3.10/json/encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type Configuration is not JSON serializable

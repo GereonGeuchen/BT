@@ -374,12 +374,12 @@ def compute_late_switching_predictions(input_csv, output_csv):
     print(f"✅ Saved filtered file to {output_csv}")
 
 if __name__ == "__main__":
-    # compute_best_budgets("../data/switching_optimality_files/clipped/predicted_static_precisions_rep_fold_all_sp.csv").to_csv(
-    #     "../data/switching_optimality_files/clipped/best_static_budget_per_fid.csv", index=False
-    # )
+    compute_best_budgets("../data/switching_optimality_files/clipped/predicted_static_precisions_rep_fold_all_sp.csv").to_csv(
+        "../data/switching_optimality_files/clipped/best_static_budget_per_fid.csv", index=False
+    )
     mark_switch_budget_and_greater_budgets(
-        ela_with_state_dir="../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized_clipped",
+        ela_with_state_dir="../data/ela_for_training/A1_data_ela_cma_std_precisions_clipped",
         best_budgets_csv="../data/switching_optimality_files/clipped/best_static_budget_per_fid.csv",
-        output_dir="../data/ela_for_training/A1_data_all_switch_clipped",
+        output_dir="../data/ela_for_training/A1_data_switch_clipped",
     )
    

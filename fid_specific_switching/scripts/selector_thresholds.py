@@ -2,34 +2,49 @@ import joblib
 import pandas as pd
 from pathlib import Path
 import os
+import numpy as np
+import argparse
+import json
+
+class ThresholdWrapper:
+    def __init__(self, model, threshold):
+        self.model = model.model_class  # assumes `model_class` is the underlying sklearn estimator
+        self.threshold = threshold
+
+    def predict(self, X):
+        if len(self.model.classes_) == 1:
+            only_class = self.model.classes_[0]
+            return np.full(len(X), fill_value=only_class, dtype=bool)
+        class_index = list(self.model.classes_).index(1)
+        probs = self.model.predict_proba(X)
+        return probs[:, class_index] >= self.threshold
 
 class SwitchingSelector:
-    def __init__(self, selector_model_dir="switching_prediction_models", performance_model_dir="algo_performance_models"):
-        """
-        Initializes the selector and algorithm performance predictors.
-
-        Args:
-            selector_model_dir (str or Path): Directory with models like 'selector_B500_trained.pkl'.
-            performance_model_dir (str or Path): Directory with performance predictors like 'performance_B1000_model.pkl'.
-        """
+    def __init__(self, selector_model_dir="...", performance_model_dir="...", thresholds=None):
         self.switching_prediction_models = {}
         self.performance_models = {}
+        self.thresholds = thresholds or {}
 
         selector_model_dir = Path(selector_model_dir)
         performance_model_dir = Path(performance_model_dir)
 
-        # Load switching predictor models
         for model_path in selector_model_dir.glob("switching_model_B*_trained.pkl"):
-            budget = int(model_path.stem.split("_")[2][1:])  # e.g., selector_B500 → 500
-            self.switching_prediction_models[budget] = joblib.load(model_path)
-            print(self.switching_prediction_models[budget].model_class.get_params())
-            print(f"Loaded switching model for budget {budget}")
+            budget = int(model_path.stem.split("_")[2][1:])
+            model = joblib.load(model_path)
+            if budget >= 500:
+                threshold_key = "threshold_b500plus"
+            else:
+                threshold_key = f"threshold_b{budget}"
+            threshold = self.thresholds.get(threshold_key, 0.5)
+            self.switching_prediction_models[budget] = ThresholdWrapper(model, threshold)
+            print(self.switching_prediction_models[budget].threshold)
+            print(self.switching_prediction_models[budget].model.get_params())
 
-        # Load performance predictors
         for model_path in performance_model_dir.glob("selector_B*_trained.pkl"):
-            budget = int(model_path.stem.split("_")[1][1:])  # e.g., performance_B1000_model → 1000
+            budget = int(model_path.stem.split("_")[1][1:])
             self.performance_models[budget] = joblib.load(model_path)
-            print(f"Loaded performance model for budget {budget}")
+            print(self.performance_models[budget].regressors[0].model_class.get_params())
+
 
     def simulate_single_run(self, fid, iid, rep, ela_dir="../data/ela_with_state_test_data", precision_file="../data/A2_precisions_test.csv", budgets=range(50, 1001, 50)):
         """
@@ -228,16 +243,42 @@ class SwitchingSelector:
 
         print(f"Incremental results saved to: {save_path}")
 
+import argparse
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run Switching Selector Evaluation")
+    parser.add_argument("mode", type=str, help="'clipped' or 'l_BFGS_b'")
+    parser.add_argument("normalized", type=str, help="'normalized' or 'unnormalized'")
+    args = parser.parse_args()
+
+    mode = args.mode  # 'clipped' or 'l_BFGS_b'
+    normalized = args.normalized.lower() == "normalized"
+
+    norm_suffix = "_normalized" if normalized else ""
+    model_suffix = f"_{mode}{norm_suffix}"
+
+    selector_model_dir = f"../data/models/tuned_models/switching_models{model_suffix}"
+    performance_model_dir = f"../data/models/trained_models/algo_performance_models_trained{model_suffix}"
+    ela_dir = f"../data/ela_for_testing/A1_data_ela_cma_std_newInstances{norm_suffix}"
+    precision_file = f"../data/precision_files/A2_precisions_{mode}_newInstances.csv"
+    save_path = f"../results/newInstances/selector_results{model_suffix}_dec_threshold.csv"
+
+    json_path = f"thresholds{model_suffix}.json"
+    with open(json_path, "r") as f:
+        thresholds = json.load(f)
+
+    print(thresholds) 
     selector = SwitchingSelector(
-        selector_model_dir="../data/models/tuned_models/switching_models_clipped_normalized",
-        performance_model_dir="../data/models/trained_models/algo_performance_models_trained_clipped_normalized"
+        selector_model_dir=selector_model_dir,
+        performance_model_dir=performance_model_dir,
+        thresholds=thresholds
     )
+
     selector.evaluate_selector_to_csv(
         fids=list(range(1, 25)),
-        iids=[1, 2, 3, 4, 5],
-        reps=list(range(20, 30)),
-        save_path="../results/newReps/selector_results_clipped_normalized_tuned.csv",
-        ela_dir="../data/ela_for_testing/A1_data_ela_cma_std_newReps_normalized",
-        precision_file="../data/precision_files/A2_precisions_clipped_newReps.csv"
+        iids=[6, 7],
+        reps=list(range(20)),
+        save_path=save_path,
+        ela_dir=ela_dir,
+        precision_file=precision_file
     )

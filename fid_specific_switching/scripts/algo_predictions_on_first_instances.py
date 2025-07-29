@@ -7,7 +7,7 @@ def crossvalidated_static_predictions(
     budget,
     fold="instance",
     selector_dir="../data/models/algo_performance_models_clipped",
-    ela_template="../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized_clipped/A1_B{budget}_5D_ela_with_state.csv",
+    ela_template="../data/ela_for_training/A1_data_ela_cma_std_precisions_clipped/A1_B{budget}_5D_ela_with_state.csv",
     precision_df=None
 ):
     selector_path = os.path.join(selector_dir, f"model_B{budget}.pkl")
@@ -143,7 +143,7 @@ if __name__ == "__main__":
         "../data/precision_files/A2_precisions_clipped.csv",
         output_dir="../data/switching_optimality_files/clipped"
     )
-    # df = pd.read_csv("../data/switching_optimality_files/instance_fold_all_sp/predicted_static_precisions_rep_fold_all_sp.csv")
+    # df = pd.read_csv("../data/switching_optimality_files/l_BFGS_b/predicted_static_precisions_rep_fold_all_sp.csv")
     # for col in df.columns:
     #     if col.startswith("static_B"):
     #         print(f"{col}: {df[col].sum()/5}")
