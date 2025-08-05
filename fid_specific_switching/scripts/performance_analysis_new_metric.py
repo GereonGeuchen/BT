@@ -140,7 +140,7 @@ def display_vbs_tables(csv_path, fid=None, plot_type="table"):
     """
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/precision_ratios_all_with_algos_clipped_table.pdf"
+        output_path = "../results/newInstances/precision_ratios_l_BFGS_b_normalized_tuned.pdf"
         if plot_type == "table":
             save_tables(ratios, "Fraction of the gap closed", output_path)
             print("✅ VBS ratios table saved to:", output_path)
@@ -291,9 +291,6 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
     """
     Generates boxplots of SBS, VBS, Non-elitist/BFGS/Same at budget 0, all static selectors (excluding budgets 650, 700, 750), and selector.
     """
-    import pandas as pd
-    import numpy as np
-    import matplotlib.pyplot as plt
 
     # Load result file
     df = pd.read_csv(result_csv_path)
@@ -368,28 +365,84 @@ def plot_precision_boxplots(result_csv_path, precision_csv_path, output_png="pre
     plt.close()
     print(f"✅ Precision boxplots saved to {output_png}")
 
+def permutation_test_selector_vs_static_table(csv_path, output_pdf="permutation_test_pvalues_table.pdf"):
+    df = pd.read_csv(csv_path)
+    selector = df['selector_precision'].values
+    budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)]
+
+    results = []
+
+    for budget in budgets:
+        print(f"Processing budget: {budget}")
+        static_col = f'static_B{budget}'
+        if static_col not in df.columns:
+            print(f"⚠ {static_col} not found in dataframe, skipping.")
+            continue
+
+        static = df[static_col].values
+
+        res = permutation_test(
+            (selector, static),
+            statistic=lambda x, y: np.mean(x - y),
+            permutation_type='samples',
+            vectorized=False,
+            n_resamples=10000,
+            alternative='less',
+            random_state=42
+        )
+
+        results.append((f"B{budget}", res.pvalue))
+
+    # Convert to DataFrame
+    pval_df = pd.DataFrame(results, columns=["Static Selector", "p-value"])
+    pval_df = pval_df.sort_values("p-value", ascending=False)
+
+    # Plot as table
+    fig, ax = plt.subplots(figsize=(8, 0.35 * len(pval_df) + 1))
+    ax.axis('off')
+    table = ax.table(cellText=pval_df.values, colLabels=pval_df.columns, cellLoc='center', loc='center')
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1, 1.5)
+
+    plt.tight_layout()
+    plt.savefig(output_pdf, bbox_inches="tight")
+    plt.close()
+    print(f"✅ Permutation test p-value table saved to: {output_pdf}")
 
 if __name__ == "__main__":
-    result_csv1 = "../results/newInstances/selector_results_l_BFGS_b_normalized_tuned.csv"
-    result_csv1 = "../data/switching_optimality_files/l_BFGS_b_normalized/predicted_static_precisions_rep_fold_all_sp.csv"
-    result_csv2 = "../results/newInstances/selector_results_l_BFGS_b_normalized_dec_threshold.csv"
+    # result_csv1 = "../results/newInstances/selector_results_l_BFGS_b_normalized_tuned.csv"
+    # result_csv1 = "../data/switching_optimality_files/l_BFGS_b_normalized/predicted_static_precisions_rep_fold_all_sp.csv"
+    # result_csv2 = "../results/newInstances/selector_results_l_BFGS_b_normalized_dec_threshold.csv"
+    result_csv1 = "../results/newInstances/selector_results_clipped_normalized_tuned.csv"
     df1 = pd.read_csv(result_csv1)
-    df2 = pd.read_csv(result_csv2)
+    # df2 = pd.read_csv(result_csv2)
+    # display_vbs_tables(result_csv1)
+    permutation_test_selector_vs_static_table(result_csv1,
+                                              output_pdf="../results/newInstances/clipped_normalized_tuned_pvalues_table.pdf")
     
+    # res = find_sbs("../data/precision_files/A2_precisions_clipped.csv")
+    # for index, row in res.iterrows():
+    #     print(f"Budget {row['budget']}, Algorithm {row['algorithm']}, Precision {row['precision']:.6f}")
+
+    # df = pd.read_csv("../data/precision_files/A2_precisions_clipped_newInstances.csv")
+    # print(df[(df["algorithm"] == "Non-elitist") & (df["budget"] == 16)]["precision"].sum())
+
+
     # print(df1["selector_precision"].sum())
 
     # permutation_test_selector_vs_static(result_csv1)
 
-    for col in df1.columns:
-        if col.startswith("static_B"):
-            static_sum = df1[col].sum()
-            # static_sum2 = df2[col].sum()
-            print(f"Sum of precision for {col} (tuned): {static_sum:.6f}")
-            # print(f"Sum of precision for {col} (dec threshold): {static_sum2:.6f}")
-        elif col == "selector_precision":
-            selector_sum = df1[col].sum()
-            # selector_sum2 = df2[col].sum()
-            print(f"Sum of precision for Selector (tuned): {selector_sum:.6f}")
+    # for col in df1.columns:
+    #     if col.startswith("static_B"):
+    #         static_sum = df1[col].sum()
+    #         # static_sum2 = df2[col].sum()
+    #         print(f"Sum of precision for {col} (tuned): {static_sum:.6f}")
+    #         # print(f"Sum of precision for {col} (dec threshold): {static_sum2:.6f}")
+    #     elif col == "selector_precision":
+    #         selector_sum = df1[col].sum()
+    #         # selector_sum2 = df2[col].sum()
+    #         print(f"Sum of precision for Selector (tuned): {selector_sum:.6f}")
             # print(f"Sum of precision for Selector (dec threshold): {selector_sum2:.6f}")
 
     # fids = list(range(1, 25))
