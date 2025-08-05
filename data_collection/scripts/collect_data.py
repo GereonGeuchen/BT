@@ -13,7 +13,7 @@ from ioh import ProblemClass, problem
 from modcma import ModularCMAES, Parameters
 import numpy as np
 
-from bfgs import BFGS # type: ignore
+from bfgs_alphaMax import BFGS # type: ignore
 from pso import PSO # type: ignore
 from mlsl import MLSL # type: ignore
 from de import DE # type: ignore
@@ -288,17 +288,17 @@ def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_
         run_A2_from_scratch = True
     trigger = ioh.logger.trigger.OnImprovement()
     
-    logger = ioh.logger.Analyzer(
-        triggers=[trigger],
-        folder_name=f'../data/run_data/A2_clipped_newReps/A2_{algname}_B{budget_factor}_{dim}D',
-        algorithm_name=algname,
-        store_positions=True,
-    )
+    # logger = ioh.logger.Analyzer(
+    #     triggers=[trigger],
+    #     folder_name=f'../data/run_data/A2_alphaMax/A2_{algname}_B{budget_factor}_{dim}D',
+    #     algorithm_name=algname,
+    #     store_positions=True,
+    # )
     tracked_parameters = TrackedParameters()
-    logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
-    
-    for fid in range(1,25):
-        for iid in range(1, 6):
+    # logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
+
+    for fid in range(5, 6):
+        for iid in range(1, 2):
 
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
             
@@ -307,9 +307,9 @@ def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_
                 problem = TimedProblemWrapper(problem, start_eval=0, stop_eval=1000)
 
             # Attach the logger to the problem
-            problem.attach_logger(logger)
+            # problem.attach_logger(logger)
 
-            for rep in range(20, 30):
+            for rep in range(14,15):
                 tracked_parameters.rep = rep
                 tracked_parameters.iid = iid
                 print(f"Running function {fid} instance {iid} repetition {rep} with A2 {algname}, budget {budget_factor}, run_from_scratch={run_A2_from_scratch}")
@@ -347,6 +347,7 @@ def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_
                     alg = Switched_From_CMA(budget_factor, dim, A2, total_budget_factor=200)
                     alg(problem, A2)
                 print("Evaluations:", problem.state.evaluations)
+                print(problem.optimum.x)
                 problem.reset()
             problem.detach_logger()
             
@@ -356,10 +357,10 @@ def collect_all(x = None):
     # collect_A1_data(budget_factor, dim, time_run=False)
     
     # Then collect A2 data
-    for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
-        collect_A2(budget_factor, dim, A2, algname, time_run=False)
+    # for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
+    #     collect_A2(budget_factor, dim, A2, algname, time_run=False)
     # Only run BFGS
-    # collect_A2(budget_factor, dim, BFGS, "BFGS", run_A2_from_scratch=False, time_run=False)
+    collect_A2(budget_factor, dim, BFGS, "BFGS", run_A2_from_scratch=False, time_run=False)
 
     # for A2, algname in zip([MLSL], ["MLSL"]):
     #     collect_A2(budget_factor, dim, A2, algname)
@@ -392,9 +393,9 @@ if __name__ == '__main__':
     warnings.filterwarnings("ignore", category=RuntimeWarning) 
     warnings.filterwarnings("ignore", category=FutureWarning)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--budget', type=int, required=True, help='Budget factor (e.g., 100, 200, ...)')
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--budget', type=int, required=True, help='Budget factor (e.g., 100, 200, ...)')
+    # args = parser.parse_args()
     dim = 5  # Fixed dimensionality
-    budget_factor = args.budget
+    budget_factor = 8
     collect_all((budget_factor, dim))

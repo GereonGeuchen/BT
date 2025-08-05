@@ -142,6 +142,26 @@ class BFGS(Algorithm):
         
         return parameters
 
+    def f_clipped(self, x):
+        """Clips the input x to the bounds of the function and evaluates it."""
+        x_clipped = np.clip(x, self.func.bounds.lb, self.func.bounds.ub)
+        res = self.func(x_clipped)
+        print(f"Eval {self.func.state.evaluations}: {x_clipped} -> {res}")
+        return res
+
+    def f_mirrored(self, x):
+        """Mirrors all coordinates of x into the bounds by repeated reflection, then evaluates the function."""
+        lb = self.func.bounds.lb
+        ub = self.func.bounds.ub
+        width = ub - lb
+
+        # Normalize to [0, ∞), then apply mirrored modulus reflection
+        y = (x - lb) / width
+        mirrored_y = np.abs(y - np.floor(y) - np.mod(np.floor(y), 2))
+        x_mirrored = lb + width * mirrored_y
+
+        return self.func(x_mirrored)
+
     def run(self):
         """ Runs the BFGS algorithm.
 
@@ -178,7 +198,7 @@ class BFGS(Algorithm):
         # Prepare scalar function object and derive function and gradient function
 #         def internal_func(x): #Needed since new functions return list by default
 #             return self.func(x)[0]
-        sf = _prepare_scalar_function(self.func, self.x0, self.jac, epsilon=self.eps,
+        sf = _prepare_scalar_function(self.f_clipped, self.x0, self.jac, epsilon=self.eps,
                               finite_diff_rel_step=self.finite_diff_rel_step)
         f = sf.fun    # function object to evaluate function
         gradient = sf.grad    # function object to evaluate gradient
@@ -216,7 +236,7 @@ class BFGS(Algorithm):
             if gnorm == 0:
                 self.alpha_k = 0.0
                 old_old_fval = old_fval
-                old_fval = self.func(xk)
+                old_fval = self.f_clipped(xk)
                 gfkp1 = gfk
             else:
                 try:
@@ -229,7 +249,7 @@ class BFGS(Algorithm):
                         print('break because of line search error')
                     self.alpha_k = 0.0
                     old_old_fval = old_fval
-                    old_fval = self.func(xk)
+                    old_fval = self.f_clipped(xk)
                     gfkp1 = gfk
 
 
@@ -241,6 +261,9 @@ class BFGS(Algorithm):
 
             # calculate xk+1 with alpha_k and pk
             xkp1 = xk + self.alpha_k * pk
+            xkp1 = np.clip(xkp1, self.func.bounds.lb, self.func.bounds.ub)
+            # print(f"xkp1: {xkp1}")
+
             if self.return_all:
                 allvecs.append(xkp1)
             sk = xkp1 - xk    # step sk is difference between xk+1 and xk

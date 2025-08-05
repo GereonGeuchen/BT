@@ -5,89 +5,15 @@ import datetime
 from shutil import make_archive
 import copy
 
-# My imports
-from scipy.optimize import line_search
-from scipy.optimize._numdiff import approx_derivative
-from scipy.optimize import line_search
-from scipy.optimize._linesearch import line_search_wolfe1
-from scipy.optimize import line_search
-from scipy.optimize import minimize
+from scipy.optimize._optimize import _prepare_scalar_function
+from scipy.optimize._optimize import vecnorm
+from scipy.optimize._optimize import _line_search_wolfe12
+from scipy.optimize._optimize import _LineSearchError
+from scipy.optimize._optimize import OptimizeResult
 
 from algorithm import Algorithm
 
-# My own functions
 
-def line_search_wolfe12(f, grad, xk, pk, gfk=None, old_fval=None, old_old_fval=None,
-                        c1=1e-4, c2=0.9, amin=1e-100, amax=1e100, bounds=None):
-    """
-    Tries More–Thuente Wolfe line search (line_search), then Wolfe1, then Armijo (BFGS-style).
-    If bounds are provided, clamps evaluations to within those bounds.
-    """
-    print(vecnorm(gfk, ord=np.inf) )
-    #Check if pk is descent direction
-    print(np.dot(gfk, pk))
-    if gfk is not None and vecnorm(gfk, ord=np.inf) <= 1e-5:
-        return 0.0, 0, 0, f(xk), old_fval, gfk
-
-    if bounds is not None:
-        lb, ub = bounds
-
-        def f_clipped(x):
-            return f(np.clip(x, lb, ub))
-
-        def grad_clipped(x):
-            return grad(np.clip(x, lb, ub))
-    else:
-        f_clipped = f
-        grad_clipped = grad
-
-    # Try Wolfe2 (More–Thuente)
-    try:
-        res = line_search(
-            f_clipped, grad_clipped, xk, pk, gfk, old_fval, old_old_fval,
-            c1=c1, c2=c2, amax=amax
-        )
-        alpha_k, fc, gc, new_fval, new_old_fval, new_gfk = res
-        if alpha_k is not None:
-            return alpha_k, fc, gc, new_fval, new_old_fval, new_gfk
-    except Exception:
-        pass
-
-    # Try Wolfe1 fallback
-    try:
-        res = line_search_wolfe1(
-            f_clipped, grad_clipped, xk, pk, gfk, old_fval, old_old_fval,
-            c1=c1, c2=c2, amin=amin, amax=amax
-        )
-        if res[0] is not None:
-            return res
-    except Exception:
-        pass
-
-    # Final fallback: Armijo-only (BFGS-style)
-    try:
-        res = line_search_BFGS(
-            f_clipped, xk, pk, gfk, old_fval, c1=c1, alpha0=1.0
-        )
-        alpha_k, fc, gc, new_fval = res
-        if alpha_k is not None:
-            return alpha_k, fc, gc, new_fval, old_fval, None
-    except Exception:
-        pass
-    print("Line search failed to find a suitable step size.")
-
-def vecnorm(x, ord=None):
-    """Calculate the vector norm of x."""
-    if ord is None:
-        return np.linalg.norm(x)
-    elif ord == 1:
-        return np.linalg.norm(x, ord=1)
-    elif ord == 2:
-        return np.linalg.norm(x, ord=2)
-    elif ord == np.inf:
-        return np.linalg.norm(x, ord=np.inf)
-    else:
-        raise ValueError(f"Unsupported norm order: {ord}")
 
 class BFGS(Algorithm):
 
@@ -192,7 +118,11 @@ class BFGS(Algorithm):
             
 #         if 'stepsizes' in parameters.internal_dict:
 #             self.stepsizes = parameters.internal_dict['stepsizes']
-        
+    
+    # def f_clipped(self, x):
+    #     res = self.func(x)
+    #     # res = self.func(np.clip(x, self.func.bounds.lb, self.func.bounds.ub))
+    #     return res
 
     def get_params(self, parameters):
         parameters = super(BFGS, self).get_params(parameters)
@@ -212,12 +142,40 @@ class BFGS(Algorithm):
         
         return parameters
 
-    def gradient(self, x):
-        """Calculate the gradient at point x using finite differences."""
-        return approx_derivative(self.func, x, 
-                                 rel_step=1e-8,
-                                 bounds=(self.func.bounds.lb, self.func.bounds.ub))
-    
+    # def f_clipped(self, x):
+    #     """Clips the input x to the bounds of the function and evaluates it."""
+    #     # res = self.func(np.clip(x, self.func.bounds.lb, self.func.bounds.ub))
+    #     res = self.func(x)
+    #     return res
+
+    def f_mirrored(self, x):
+        """Mirrors all coordinates of x into the bounds by repeated reflection, then evaluates the function."""
+        lb = self.func.bounds.lb
+        ub = self.func.bounds.ub
+        width = ub - lb
+
+        # Normalize to [0, ∞), then apply mirrored modulus reflection
+        y = (x - lb) / width
+        mirrored_y = np.abs(y - np.floor(y) - np.mod(np.floor(y), 2))
+        x_mirrored = lb + width * mirrored_y
+
+        return self.func(x_mirrored)
+
+    def find_alpha_max(self, xk, pk, lb, ub):
+        """Finds the maximum step size alpha_k such that xk + alpha_k * pk is within bounds."""
+        if np.all(pk == 0):
+            return 1.0
+        # Calculate the maximum step size for each dimension
+        alpha_max = np.inf
+        for i in range(self.dim):
+            if pk[i] > 0:
+                alpha_max = min(alpha_max, (ub[i] - xk[i]) / pk[i])
+            elif pk[i] < 0:
+                alpha_max = min(alpha_max, (lb[i] - xk[i]) / pk[i])
+        # Ensure alpha_max is non-negative
+        print(f"maximum point: {xk + alpha_max * pk}, alpha_max: {alpha_max}")
+        return max(alpha_max, 0.0)
+
     def run(self):
         """ Runs the BFGS algorithm.
 
@@ -236,26 +194,6 @@ class BFGS(Algorithm):
         """
         if self.verbose:
             print(f' BFGS started')
-        
-        print(self.Hk)
-
-        return minimize(
-            fun=self.func,
-            x0=self.x0,
-            method='BFGS',
-            jac='3-point',
-            hess='3-point',
-            options={
-                'maxiter': self.budget,
-                'gtol': self.gtol,
-                'norm': self.norm,
-                'eps': self.eps,
-                'return_all': self.return_all,
-                'finite_diff_rel_step': self.finite_diff_rel_step,
-                'hess_inv0': self.Hk
-            },
-            bounds=list(zip(self.func.bounds.lb, self.func.bounds.ub))
-        )
 
         # Initialization 
         I = np.eye(self.dim, dtype=int)    # identity matrix
@@ -274,15 +212,14 @@ class BFGS(Algorithm):
         # Prepare scalar function object and derive function and gradient function
 #         def internal_func(x): #Needed since new functions return list by default
 #             return self.func(x)[0]
-        # sf = _prepare_scalar_function(self.func, self.x0, self.jac, epsilon=self.eps,
-        #                       finite_diff_rel_step=self.finite_diff_rel_step)
-        # f = sf.fun    # function object to evaluate function
-        # gradient = sf.grad    # function object to evaluate gradient
+        sf = _prepare_scalar_function(self.func, self.x0, self.jac, epsilon=self.eps,
+                              finite_diff_rel_step=self.finite_diff_rel_step)
+        f = sf.fun    # function object to evaluate function
+        gradient = sf.grad    # function object to evaluate gradient
 
 
-        old_fval = self.func(self.x0)    # evaluate x0
-
-        gfk = self.gradient(self.x0)   # gradient at x0
+        old_fval = f(self.x0)    # evaluate x0
+        gfk = gradient(self.x0)   # gradient at x0
         
         self.x_hist.append(self.x0)
         self.f_hist.append(old_fval)
@@ -298,10 +235,10 @@ class BFGS(Algorithm):
         # Calculate initial gradient norm
         gnorm = vecnorm(gfk, ord = self.norm)
         
+
         # Algorithm loop
         while not self.stop():
             pk = -np.dot(self.Hk, gfk)    # derive direction pk from HK and gradient at x0 (gfk)
-            print("Is Hk SPD? ", self.is_spd(self.Hk))
             """Derive alpha_k with Wolfe conditions.
             
             alpha_k : step size
@@ -310,28 +247,26 @@ class BFGS(Algorithm):
             old_old_fval: function value of start point xk
             gfkp1 : gradient at new point xkp1
             """
-            try:
-                # self.alpha_k, fc, gc, old_fval, old_old_fval, gfkp1 = \
-                #      _line_search_wolfe12(self.func, self.gradient, xk, pk, gfk,
-                #                           old_fval, old_old_fval, amin=1e-100, amax=1e100)
-                self.alpha_k, fc, gc, old_fval, old_old_fval, gfkp1 = \
-                    line_search_wolfe12(
-                        self.func, self.gradient, xk, pk, gfk,
-                        old_fval, old_old_fval, c1=1e-4, c2=0.9,
-                        amin=1e-100, amax=1e100,
-                        bounds=(self.func.bounds.lb, self.func.bounds.ub)  
-                    )
-            except Exception as e:
-                print(f"Line search failed with error: {e}")
-                if self.verbose:
-                    print(f"Line search failed with error: {e}")
-                break
+            if gnorm == 0:
+                self.alpha_k = 0.0
+                old_old_fval = old_fval
+                old_fval = self.func(xk)
+                gfkp1 = gfk
+            else:
+                alpha_max = self.find_alpha_max(xk, pk, self.func.bounds.lb, self.func.bounds.ub)
+                try:
+                    self.alpha_k, fc, gc, old_fval, old_old_fval, gfkp1 = \
+                        _line_search_wolfe12(f, gradient, xk, pk, gfk,
+                                            old_fval, old_old_fval, amin=1e-100, amax=alpha_max)
+                    
+                except _LineSearchError:
+                    if self.verbose:
+                        print('break because of line search error')
+                    self.alpha_k = 0.0
+                    old_old_fval = old_fval
+                    old_fval = self.func(xk)
+                    gfkp1 = gfk
 
-            
-            # except _LineSearchError:
-            #     if self.verbose:
-            #         print('break because of line search error')
-            #     break
 
             # Save parameters for plot and analysis
             self.stepsizes.append(self.alpha_k)
@@ -341,9 +276,6 @@ class BFGS(Algorithm):
 
             # calculate xk+1 with alpha_k and pk
             xkp1 = xk + self.alpha_k * pk
-
-            # Make sure we sty within bounds
-            xkp1 = np.clip(xkp1, self.func.bounds.lb, self.func.bounds.ub)
             if self.return_all:
                 allvecs.append(xkp1)
             sk = xkp1 - xk    # step sk is difference between xk+1 and xk
@@ -354,7 +286,7 @@ class BFGS(Algorithm):
 
             # Calculate gradient of xk+1 if not already found by Wolfe search
             if gfkp1 is None:
-                gfkp1 = self.gradient(xkp1)
+                gfkp1 = gradient(xkp1)
             yk = gfkp1 - gfk    # gradient difference
             gfk = gfkp1    # copy gradient to gfk for new iteration
             k += 1
@@ -365,14 +297,13 @@ class BFGS(Algorithm):
                 break
 
             # Check if gnorm is already smaller than tolerance
-            # gnorm = vecnorm(gfk, ord=self.norm)
-            # if (gnorm <= self.gtol):
-            #     if self.verbose:
-            #         print('break because of gnorm')
-            #     break
+            gnorm = vecnorm(gfk, ord=self.norm)
+            if (gnorm <= self.gtol):
+                if self.verbose:
+                    print('break because of gnorm')
+                # break
 
             # Calculate rhok factor for inverse Hessian approximation matrix update
-            print("Cross product: ", np.dot(yk, sk))
             try:
                 rhok = 1.0 / (np.dot(yk, sk))
             except ZeroDivisionError:
@@ -390,12 +321,12 @@ class BFGS(Algorithm):
         fval = old_fval
 
         # Create OptimizeResult object based on found point and value
-        # result = OptimizeResult(fun=fval, jac=gfk, hess_inv=self.Hk, nfev=sf.nfev,
-        #                 njev=sf.ngev, x=xk,
-        #                 nit=k)
+        result = OptimizeResult(fun=fval, jac=gfk, hess_inv=self.Hk, nfev=sf.nfev,
+                        njev=sf.ngev, x=xk,
+                        nit=k)
 
-        # if self.return_all:
-        #     result['allvecs'] = allvecs
+        if self.return_all:
+            result['allvecs'] = allvecs
             
         if self.verbose:
             print(f'BFGS complete (stopping returned: {self.stop()})')
