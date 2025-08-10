@@ -15,9 +15,9 @@ mkdir -p "$WORKDIR/logs"
 sbatch <<EOF
 #!/bin/bash
 #SBATCH -A thes2015
-#SBATCH --job-name=performance_prediction_clipped
-#SBATCH --output=${WORKDIR}/logs/performance_prediction_clipped.out
-#SBATCH --error=${WORKDIR}/logs/performance_prediction_clipped.err
+#SBATCH --job-name=performance_prediction_normalized
+#SBATCH --output=${WORKDIR}/logs/performance_prediction_normalized.out
+#SBATCH --error=${WORKDIR}/logs/performance_prediction_normalized.err
 #SBATCH --time=24:00:00
 #SBATCH --mem=16G
 #SBATCH --cpus-per-task=1

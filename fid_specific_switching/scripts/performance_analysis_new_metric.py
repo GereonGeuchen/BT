@@ -414,41 +414,11 @@ if __name__ == "__main__":
     # result_csv1 = "../results/newInstances/selector_results_l_BFGS_b_normalized_tuned.csv"
     # result_csv1 = "../data/switching_optimality_files/l_BFGS_b_normalized/predicted_static_precisions_rep_fold_all_sp.csv"
     # result_csv2 = "../results/newInstances/selector_results_l_BFGS_b_normalized_dec_threshold.csv"
-    result_csv1 = "../results/newInstances/selector_results_clipped_normalized_tuned.csv"
+    result_csv1 = "../results/newInstances_normalized/selector_results.csv"
     df1 = pd.read_csv(result_csv1)
-    # df2 = pd.read_csv(result_csv2)
-    # display_vbs_tables(result_csv1)
-    permutation_test_selector_vs_static_table(result_csv1,
-                                              output_pdf="../results/newInstances/clipped_normalized_tuned_pvalues_table.pdf")
-    
-    # res = find_sbs("../data/precision_files/A2_precisions_clipped.csv")
-    # for index, row in res.iterrows():
-    #     print(f"Budget {row['budget']}, Algorithm {row['algorithm']}, Precision {row['precision']:.6f}")
-
-    # df = pd.read_csv("../data/precision_files/A2_precisions_clipped_newInstances.csv")
-    # print(df[(df["algorithm"] == "Non-elitist") & (df["budget"] == 16)]["precision"].sum())
-
-
-    # print(df1["selector_precision"].sum())
-
-    # permutation_test_selector_vs_static(result_csv1)
-
-    # for col in df1.columns:
-    #     if col.startswith("static_B"):
-    #         static_sum = df1[col].sum()
-    #         # static_sum2 = df2[col].sum()
-    #         print(f"Sum of precision for {col} (tuned): {static_sum:.6f}")
-    #         # print(f"Sum of precision for {col} (dec threshold): {static_sum2:.6f}")
-    #     elif col == "selector_precision":
-    #         selector_sum = df1[col].sum()
-    #         # selector_sum2 = df2[col].sum()
-    #         print(f"Sum of precision for Selector (tuned): {selector_sum:.6f}")
-            # print(f"Sum of precision for Selector (dec threshold): {selector_sum2:.6f}")
-
-    # fids = list(range(1, 25))
-    # for fid in fids:
-    #     # Compute totals for each fid between the two result files only for selector column
-    #     totals1 = df1[df1["fid"] == fid]["selector_precision"].sum()
-    #     totals2 = df2[df2["fid"] == fid]["selector_precision"].sum()
-    #     print(f"Fid {fid} totals (tuned): {totals1}")
-    #     print(f"Fid {fid} totals (dec threshold): {totals2}")
+    for col in df1.columns:
+        if col.startswith("static_B"):
+            print(f"Column {col}: {df1[col].sum()}")
+        if col == "selector_precision":
+            print(f"Column {col}: {df1[col].sum()}")
+    permutation_test_selector_vs_static(result_csv1)

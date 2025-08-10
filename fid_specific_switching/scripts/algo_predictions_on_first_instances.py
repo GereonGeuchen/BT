@@ -6,8 +6,8 @@ from functools import reduce
 def crossvalidated_static_predictions(
     budget,
     fold="instance",
-    selector_dir="../data/models/algo_performance_models_clipped",
-    ela_template="../data/ela_for_training/A1_data_ela_cma_std_precisions_clipped/A1_B{budget}_5D_ela_with_state.csv",
+    selector_dir="../data/models/algo_performance_models_normalized",
+    ela_template="../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized/A1_B{budget}_5D_ela_with_state.csv",
     precision_df=None
 ):
     selector_path = os.path.join(selector_dir, f"model_B{budget}.pkl")
@@ -139,11 +139,11 @@ def build_full_crossvalidated_table(precision_path, output_dir = None):
 
 
 if __name__ == "__main__":
-    build_full_crossvalidated_table(
-        "../data/precision_files/A2_precisions_clipped.csv",
-        output_dir="../data/switching_optimality_files/clipped"
-    )
-    # df = pd.read_csv("../data/switching_optimality_files/l_BFGS_b/predicted_static_precisions_rep_fold_all_sp.csv")
-    # for col in df.columns:
-    #     if col.startswith("static_B"):
-    #         print(f"{col}: {df[col].sum()/5}")
+    # build_full_crossvalidated_table(
+    #     "../data/precision_files/A2_precisions.csv",
+    #     output_dir="../data/switching_optimality_files/normalized"
+    # )
+    df = pd.read_csv("../data/switching_optimality_files/normalized/predicted_static_precisions_rep_fold_all_sp.csv")
+    for col in df.columns:
+        if col.startswith("static_B"):
+            print(f"{col}: {df[col].sum()/5}")

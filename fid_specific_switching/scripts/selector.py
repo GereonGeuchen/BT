@@ -20,7 +20,7 @@ class SwitchingSelector:
 
         # Load switching predictor models
         for model_path in selector_model_dir.glob("switching_model_B*_trained.pkl"):
-            budget = int(model_path.stem.split("_")[2][1:])  # e.g., selector_B500 → 500
+            budget = int(model_path.stem.split("_")[2][1:])  # e.g., switching_B500 → 500
             self.switching_prediction_models[budget] = joblib.load(model_path)
             print(self.switching_prediction_models[budget].model_class.get_params())
             print(f"Loaded switching model for budget {budget}")
@@ -29,7 +29,8 @@ class SwitchingSelector:
         for model_path in performance_model_dir.glob("selector_B*_trained.pkl"):
             budget = int(model_path.stem.split("_")[1][1:])  # e.g., performance_B1000_model → 1000
             self.performance_models[budget] = joblib.load(model_path)
-            print(f"Loaded performance model for budget {budget}")
+            print(f"Loaded performance model for budget {budget}: ")
+            print(self.performance_models[budget].regressors[0].model_class.get_params())
 
     def simulate_single_run(self, fid, iid, rep, ela_dir="../data/ela_with_state_test_data", precision_file="../data/A2_precisions_test.csv", budgets=range(50, 1001, 50)):
         """
@@ -230,14 +231,14 @@ class SwitchingSelector:
 
 if __name__ == "__main__":
     selector = SwitchingSelector(
-        selector_model_dir="../data/models/tuned_models/switching_models_clipped_normalized",
-        performance_model_dir="../data/models/trained_models/algo_performance_models_trained_clipped_normalized"
+        selector_model_dir="../data/models/tuned_models/switching_models_normalized",
+        performance_model_dir="../data/models/trained_models/algo_performance_models_trained_normalized"
     )
     selector.evaluate_selector_to_csv(
         fids=list(range(1, 25)),
-        iids=[1, 2, 3, 4, 5],
-        reps=list(range(20, 30)),
-        save_path="../results/newReps/selector_results_clipped_normalized_tuned.csv",
-        ela_dir="../data/ela_for_testing/A1_data_ela_cma_std_newReps_normalized",
-        precision_file="../data/precision_files/A2_precisions_clipped_newReps.csv"
+        iids=[6, 7],
+        reps=list(range(20)),
+        save_path="../results/newInstances_normalized/selector_results_tuned.csv",
+        ela_dir="../data/ela_for_testing/A1_data_ela_cma_std_newInstances_normalized",
+        precision_file="../data/precision_files/A2_precisions_newInstances.csv"
     )

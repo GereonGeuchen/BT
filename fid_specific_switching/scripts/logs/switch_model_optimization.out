@@ -1,0 +1,1101 @@
+[INFO][abstract_initial_design.py:87] Reducing the number of initial configurations from 50 to 18 (max_ratio == 0.25).
+[INFO][abstract_initial_design.py:139] Using 18 initial design configurations and 0 additional configurations.
+[INFO][abstract_intensifier.py:307] Using only one seed for deterministic scenario.
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.1527131210081,
+  'rf_classifiermin_samples_leaf': 20,
+  'rf_classifiermin_samples_split': 11,
+  'rf_classifiern_estimators': 24,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.1527131210081,
+  'rf_classifiermin_samples_leaf': 20,
+  'rf_classifiermin_samples_split': 11,
+  'rf_classifiern_estimators': 24,
+}) → Total CV precision: 5286.935149412598
+[INFO][abstract_intensifier.py:517] Added config 6a05d8 as new incumbent because there are no incumbents yet.
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8396634325385,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 14,
+  'rf_classifiern_estimators': 53,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8396634325385,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 14,
+  'rf_classifiern_estimators': 53,
+}) → Total CV precision: 5242.339343789398
+[INFO][abstract_intensifier.py:596] Added config 1fd642 and rejected config 6a05d8 as incumbent because it is not better than the incumbents on 1 instances: 
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.4820481372997,
+  'rf_classifiermin_samples_leaf': 11,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 116,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.4820481372997,
+  'rf_classifiermin_samples_leaf': 11,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 116,
+}) → Total CV precision: 5344.132563442699
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.7194256727584,
+  'rf_classifiermin_samples_leaf': 8,
+  'rf_classifiermin_samples_split': 18,
+  'rf_classifiern_estimators': 29,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.7194256727584,
+  'rf_classifiermin_samples_leaf': 8,
+  'rf_classifiermin_samples_split': 18,
+  'rf_classifiern_estimators': 29,
+}) → Total CV precision: 5318.801369029099
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.3265367062762,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 17,
+  'rf_classifiern_estimators': 45,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.3265367062762,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 17,
+  'rf_classifiern_estimators': 45,
+}) → Total CV precision: 5269.9005888028
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.6518046521582,
+  'rf_classifiermin_samples_leaf': 16,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 78,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.6518046521582,
+  'rf_classifiermin_samples_leaf': 16,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 78,
+}) → Total CV precision: 5340.480780190299
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.2203338197432,
+  'rf_classifiermin_samples_leaf': 8,
+  'rf_classifiermin_samples_split': 13,
+  'rf_classifiern_estimators': 61,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.2203338197432,
+  'rf_classifiermin_samples_leaf': 8,
+  'rf_classifiermin_samples_split': 13,
+  'rf_classifiern_estimators': 61,
+}) → Total CV precision: 5402.020532038298
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9951749708503,
+  'rf_classifiermin_samples_leaf': 15,
+  'rf_classifiermin_samples_split': 8,
+  'rf_classifiern_estimators': 20,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9951749708503,
+  'rf_classifiermin_samples_leaf': 15,
+  'rf_classifiermin_samples_split': 8,
+  'rf_classifiern_estimators': 20,
+}) → Total CV precision: 5351.2826720421
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5066244599409,
+  'rf_classifiermin_samples_leaf': 10,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 48,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5066244599409,
+  'rf_classifiermin_samples_leaf': 10,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 48,
+}) → Total CV precision: 5246.863375496499
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.715943945013,
+  'rf_classifiermin_samples_leaf': 13,
+  'rf_classifiermin_samples_split': 16,
+  'rf_classifiern_estimators': 26,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.715943945013,
+  'rf_classifiermin_samples_leaf': 13,
+  'rf_classifiermin_samples_split': 16,
+  'rf_classifiern_estimators': 26,
+}) → Total CV precision: 5316.503237989299
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.1632389716804,
+  'rf_classifiermin_samples_leaf': 1,
+  'rf_classifiermin_samples_split': 8,
+  'rf_classifiern_estimators': 34,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.1632389716804,
+  'rf_classifiermin_samples_leaf': 1,
+  'rf_classifiermin_samples_split': 8,
+  'rf_classifiern_estimators': 34,
+}) → Total CV precision: 5303.142931530199
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.8221072035842,
+  'rf_classifiermin_samples_leaf': 17,
+  'rf_classifiermin_samples_split': 12,
+  'rf_classifiern_estimators': 100,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.8221072035842,
+  'rf_classifiermin_samples_leaf': 17,
+  'rf_classifiermin_samples_split': 12,
+  'rf_classifiern_estimators': 100,
+}) → Total CV precision: 5360.9894711670995
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.3152346570045,
+  'rf_classifiermin_samples_leaf': 13,
+  'rf_classifiermin_samples_split': 15,
+  'rf_classifiern_estimators': 91,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.3152346570045,
+  'rf_classifiermin_samples_leaf': 13,
+  'rf_classifiermin_samples_split': 15,
+  'rf_classifiern_estimators': 91,
+}) → Total CV precision: 5401.396468890498
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.893243728485,
+  'rf_classifiermin_samples_leaf': 6,
+  'rf_classifiermin_samples_split': 9,
+  'rf_classifiern_estimators': 38,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.893243728485,
+  'rf_classifiermin_samples_leaf': 6,
+  'rf_classifiermin_samples_split': 9,
+  'rf_classifiern_estimators': 38,
+}) → Total CV precision: 5367.0083703619
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.4354880423285,
+  'rf_classifiermin_samples_leaf': 18,
+  'rf_classifiermin_samples_split': 19,
+  'rf_classifiern_estimators': 18,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.4354880423285,
+  'rf_classifiermin_samples_leaf': 18,
+  'rf_classifiermin_samples_split': 19,
+  'rf_classifiern_estimators': 18,
+}) → Total CV precision: 5277.332254434399
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5639479378238,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 68,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5639479378238,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 68,
+}) → Total CV precision: 5166.2188938484
+[INFO][abstract_intensifier.py:596] Added config 416c99 and rejected config 1fd642 as incumbent because it is not better than the incumbents on 1 instances: 
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.3912563025951,
+  'rf_classifiermin_samples_leaf': 14,
+  'rf_classifiermin_samples_split': 13,
+  'rf_classifiern_estimators': 27,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.3912563025951,
+  'rf_classifiermin_samples_leaf': 14,
+  'rf_classifiermin_samples_split': 13,
+  'rf_classifiern_estimators': 27,
+}) → Total CV precision: 5188.473421654998
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.600131400954,
+  'rf_classifiermin_samples_leaf': 10,
+  'rf_classifiermin_samples_split': 7,
+  'rf_classifiern_estimators': 124,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.600131400954,
+  'rf_classifiermin_samples_leaf': 10,
+  'rf_classifiermin_samples_split': 7,
+  'rf_classifiern_estimators': 124,
+}) → Total CV precision: 5453.287576649199
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.8080965677859,
+  'rf_classifiermin_samples_leaf': 1,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 46,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.8080965677859,
+  'rf_classifiermin_samples_leaf': 1,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 46,
+}) → Total CV precision: 5298.997734131301
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8601178089108,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 50,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8601178089108,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 50,
+}) → Total CV precision: 5224.966382900298
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8170646102743,
+  'rf_classifiermin_samples_leaf': 1,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 45,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8170646102743,
+  'rf_classifiermin_samples_leaf': 1,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 45,
+}) → Total CV precision: 5258.0690342215985
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.8599457212219,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 6,
+  'rf_classifiern_estimators': 46,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.8599457212219,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 6,
+  'rf_classifiern_estimators': 46,
+}) → Total CV precision: 5279.2837426384995
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.9176273794574,
+  'rf_classifiermin_samples_leaf': 1,
+  'rf_classifiermin_samples_split': 11,
+  'rf_classifiern_estimators': 63,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.9176273794574,
+  'rf_classifiermin_samples_leaf': 1,
+  'rf_classifiermin_samples_split': 11,
+  'rf_classifiern_estimators': 63,
+}) → Total CV precision: 5187.782699091499
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.874588764986,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 18,
+  'rf_classifiern_estimators': 46,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.874588764986,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 18,
+  'rf_classifiern_estimators': 46,
+}) → Total CV precision: 5308.3904463506
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5683567298652,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 12,
+  'rf_classifiern_estimators': 17,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5683567298652,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 12,
+  'rf_classifiern_estimators': 17,
+}) → Total CV precision: 5300.5430376711
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8116008357016,
+  'rf_classifiermin_samples_leaf': 2,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 47,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8116008357016,
+  'rf_classifiermin_samples_leaf': 2,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 47,
+}) → Total CV precision: 5241.1995526089995
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9285493012255,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 4,
+  'rf_classifiern_estimators': 75,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9285493012255,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 4,
+  'rf_classifiern_estimators': 75,
+}) → Total CV precision: 5366.5609127907
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9492592792351,
+  'rf_classifiermin_samples_leaf': 2,
+  'rf_classifiermin_samples_split': 4,
+  'rf_classifiern_estimators': 76,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9492592792351,
+  'rf_classifiermin_samples_leaf': 2,
+  'rf_classifiermin_samples_split': 4,
+  'rf_classifiern_estimators': 76,
+}) → Total CV precision: 5429.2988989463
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.3703574070618,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 38,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.3703574070618,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 38,
+}) → Total CV precision: 5243.397437931299
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9357775392471,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 68,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9357775392471,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 68,
+}) → Total CV precision: 5418.502429931699
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9745052052149,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 67,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9745052052149,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 67,
+}) → Total CV precision: 5422.595433783999
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9488101266398,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 73,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9488101266398,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 73,
+}) → Total CV precision: 5385.0869514899
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.9406972851668,
+  'rf_classifiermin_samples_leaf': 12,
+  'rf_classifiermin_samples_split': 14,
+  'rf_classifiern_estimators': 22,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.9406972851668,
+  'rf_classifiermin_samples_leaf': 12,
+  'rf_classifiermin_samples_split': 14,
+  'rf_classifiern_estimators': 22,
+}) → Total CV precision: 5344.347068843999
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.3428810479916,
+  'rf_classifiermin_samples_leaf': 13,
+  'rf_classifiermin_samples_split': 18,
+  'rf_classifiern_estimators': 42,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.3428810479916,
+  'rf_classifiermin_samples_leaf': 13,
+  'rf_classifiermin_samples_split': 18,
+  'rf_classifiern_estimators': 42,
+}) → Total CV precision: 5346.2830879025005
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5647642569238,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 10,
+  'rf_classifiern_estimators': 68,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5647642569238,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 10,
+  'rf_classifiern_estimators': 68,
+}) → Total CV precision: 5292.700378557698
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5557731278855,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 6,
+  'rf_classifiern_estimators': 68,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5557731278855,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 6,
+  'rf_classifiern_estimators': 68,
+}) → Total CV precision: 5245.763535295599
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5605311595545,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 68,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5605311595545,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 68,
+}) → Total CV precision: 5267.3769116185995
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5618706141881,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 6,
+  'rf_classifiern_estimators': 68,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5618706141881,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 6,
+  'rf_classifiern_estimators': 68,
+}) → Total CV precision: 5298.952009481598
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5575438798059,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 12,
+  'rf_classifiern_estimators': 68,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5575438798059,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 12,
+  'rf_classifiern_estimators': 68,
+}) → Total CV precision: 5339.288775761298
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5687800713687,
+  'rf_classifiermin_samples_leaf': 16,
+  'rf_classifiermin_samples_split': 13,
+  'rf_classifiern_estimators': 61,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5687800713687,
+  'rf_classifiermin_samples_leaf': 16,
+  'rf_classifiermin_samples_split': 13,
+  'rf_classifiern_estimators': 61,
+}) → Total CV precision: 5376.465302451599
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.563791127322,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 6,
+  'rf_classifiern_estimators': 68,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.563791127322,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 6,
+  'rf_classifiern_estimators': 68,
+}) → Total CV precision: 5293.493492569299
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8848140285046,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 9,
+  'rf_classifiern_estimators': 68,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8848140285046,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 9,
+  'rf_classifiern_estimators': 68,
+}) → Total CV precision: 5259.147462299598
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5645583747428,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 66,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5645583747428,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 5,
+  'rf_classifiern_estimators': 66,
+}) → Total CV precision: 5156.832883248099
+[INFO][abstract_intensifier.py:596] Added config da3dd3 and rejected config 416c99 as incumbent because it is not better than the incumbents on 1 instances: 
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5640601789713,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5640601789713,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+}) → Total CV precision: 5124.820393009199
+[INFO][abstract_intensifier.py:596] Added config 38d3d7 and rejected config da3dd3 as incumbent because it is not better than the incumbents on 1 instances: 
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5448250873589,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 12,
+  'rf_classifiern_estimators': 68,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5448250873589,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 12,
+  'rf_classifiern_estimators': 68,
+}) → Total CV precision: 5319.447294315198
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5639479378238,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 67,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.5639479378238,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 67,
+}) → Total CV precision: 5328.699949009999
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8566071527872,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 69,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8566071527872,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 69,
+}) → Total CV precision: 5214.387661108199
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9540667306134,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 6,
+  'rf_classifiern_estimators': 26,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.9540667306134,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 6,
+  'rf_classifiern_estimators': 26,
+}) → Total CV precision: 5355.9008079268
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8689593729635,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 67,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8689593729635,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 67,
+}) → Total CV precision: 5343.9021811194
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.1640568443185,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 15,
+  'rf_classifiern_estimators': 43,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.1640568443185,
+  'rf_classifiermin_samples_leaf': 4,
+  'rf_classifiermin_samples_split': 15,
+  'rf_classifiern_estimators': 43,
+}) → Total CV precision: 5422.819987359198
+[INFO][smbo.py:327] Finished 50 trials.
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.8590277358679,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 11,
+  'rf_classifiern_estimators': 30,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.8590277358679,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 11,
+  'rf_classifiern_estimators': 30,
+}) → Total CV precision: 5265.9532880933
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5642692815223,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 67,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5642692815223,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 2,
+  'rf_classifiern_estimators': 67,
+}) → Total CV precision: 5124.820393009199
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.6066532725274,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.6066532725274,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+}) → Total CV precision: 5129.710162146099
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5704478532828,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5704478532828,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+}) → Total CV precision: 5117.239330092699
+[INFO][abstract_intensifier.py:596] Added config 5dcab5 and rejected config 38d3d7 as incumbent because it is not better than the incumbents on 1 instances: 
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.609545970111,
+  'rf_classifiermin_samples_leaf': 13,
+  'rf_classifiermin_samples_split': 7,
+  'rf_classifiern_estimators': 29,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.609545970111,
+  'rf_classifiermin_samples_leaf': 13,
+  'rf_classifiermin_samples_split': 7,
+  'rf_classifiern_estimators': 29,
+}) → Total CV precision: 5444.7674163523
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.6022016078617,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.6022016078617,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+}) → Total CV precision: 5192.415704850899
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5882979424953,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5882979424953,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+}) → Total CV precision: 5145.542517568098
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.2602937968797,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 14,
+  'rf_classifiern_estimators': 48,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.2602937968797,
+  'rf_classifiermin_samples_leaf': 3,
+  'rf_classifiermin_samples_split': 14,
+  'rf_classifiern_estimators': 48,
+}) → Total CV precision: 5244.049880747998
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5746453709682,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 46,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5746453709682,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 46,
+}) → Total CV precision: 5225.7324190533
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.7628130236318,
+  'rf_classifiermin_samples_leaf': 12,
+  'rf_classifiermin_samples_split': 4,
+  'rf_classifiern_estimators': 21,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.7628130236318,
+  'rf_classifiermin_samples_leaf': 12,
+  'rf_classifiermin_samples_split': 4,
+  'rf_classifiern_estimators': 21,
+}) → Total CV precision: 5328.590123056099
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5721090730375,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 46,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5721090730375,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 46,
+}) → Total CV precision: 5252.990723906399
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5723962965814,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 46,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5723962965814,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 46,
+}) → Total CV precision: 5252.990723906399
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5750508676577,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 47,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5750508676577,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 47,
+}) → Total CV precision: 5262.994851398099
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.576857403049,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 46,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.576857403049,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 46,
+}) → Total CV precision: 5225.7324190533
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5770676878711,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 46,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5770676878711,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 46,
+}) → Total CV precision: 5225.7324190533
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5759680703302,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 47,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5759680703302,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 47,
+}) → Total CV precision: 5262.994851398099
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8849098722335,
+  'rf_classifiermin_samples_leaf': 17,
+  'rf_classifiermin_samples_split': 11,
+  'rf_classifiern_estimators': 26,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8849098722335,
+  'rf_classifiermin_samples_leaf': 17,
+  'rf_classifiermin_samples_split': 11,
+  'rf_classifiern_estimators': 26,
+}) → Total CV precision: 5417.012044697998
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5707086614091,
+  'rf_classifiermin_samples_leaf': 10,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5707086614091,
+  'rf_classifiermin_samples_leaf': 10,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+}) → Total CV precision: 5259.831235829598
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5707027873034,
+  'rf_classifiermin_samples_leaf': 6,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 68,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5707027873034,
+  'rf_classifiermin_samples_leaf': 6,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 68,
+}) → Total CV precision: 5149.530849767399
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.57084107629,
+  'rf_classifiermin_samples_leaf': 13,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 69,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.57084107629,
+  'rf_classifiermin_samples_leaf': 13,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 69,
+}) → Total CV precision: 5304.245001809499
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5709281849296,
+  'rf_classifiermin_samples_leaf': 8,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 69,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5709281849296,
+  'rf_classifiermin_samples_leaf': 8,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 69,
+}) → Total CV precision: 5227.8885152756975
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5713520375202,
+  'rf_classifiermin_samples_leaf': 12,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.5713520375202,
+  'rf_classifiermin_samples_leaf': 12,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 67,
+}) → Total CV precision: 5296.550920979198
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.568646207175,
+  'rf_classifiermin_samples_leaf': 2,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 73,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.False_,
+  'rf_classifiermax_features': 0.568646207175,
+  'rf_classifiermin_samples_leaf': 2,
+  'rf_classifiermin_samples_split': 3,
+  'rf_classifiern_estimators': 73,
+}) → Total CV precision: 5243.3542578255
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.1976457054728,
+  'rf_classifiermin_samples_leaf': 15,
+  'rf_classifiermin_samples_split': 14,
+  'rf_classifiern_estimators': 44,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.1976457054728,
+  'rf_classifiermin_samples_leaf': 15,
+  'rf_classifiermin_samples_split': 14,
+  'rf_classifiern_estimators': 44,
+}) → Total CV precision: 5183.905461364399
+Evaluating config: Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8857473494148,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 9,
+  'rf_classifiern_estimators': 55,
+})
+Config Configuration(values={
+  'rf_classifierbootstrap': np.True_,
+  'rf_classifiermax_features': 0.8857473494148,
+  'rf_classifiermin_samples_leaf': 5,
+  'rf_classifiermin_samples_split': 9,
+  'rf_classifiern_estimators': 55,
+}) → Total CV precision: 5269.9828745059995
+[INFO][smbo.py:335] Configuration budget is exhausted:
+[INFO][smbo.py:336] --- Remaining wallclock time: inf
+[INFO][smbo.py:337] --- Remaining cpu time: inf
+[INFO][smbo.py:338] --- Remaining trials: 0
+Best configuration found:
+  rf_classifierbootstrap: False
+  rf_classifiermax_features: 0.5704478532828
+  rf_classifiermin_samples_leaf: 5
+  rf_classifiermin_samples_split: 3
+  rf_classifiern_estimators: 67
+Saved switching model for budget 8 to ../data/models/tuned_models/switching_models/switching_model_B8_trained.pkl
+Saved switching model for budget 16 to ../data/models/tuned_models/switching_models/switching_model_B16_trained.pkl
+Saved switching model for budget 24 to ../data/models/tuned_models/switching_models/switching_model_B24_trained.pkl
+Saved switching model for budget 32 to ../data/models/tuned_models/switching_models/switching_model_B32_trained.pkl
+Saved switching model for budget 40 to ../data/models/tuned_models/switching_models/switching_model_B40_trained.pkl
+Saved switching model for budget 48 to ../data/models/tuned_models/switching_models/switching_model_B48_trained.pkl
+Saved switching model for budget 56 to ../data/models/tuned_models/switching_models/switching_model_B56_trained.pkl
+Saved switching model for budget 64 to ../data/models/tuned_models/switching_models/switching_model_B64_trained.pkl
+Saved switching model for budget 72 to ../data/models/tuned_models/switching_models/switching_model_B72_trained.pkl
+Saved switching model for budget 80 to ../data/models/tuned_models/switching_models/switching_model_B80_trained.pkl
+Saved switching model for budget 88 to ../data/models/tuned_models/switching_models/switching_model_B88_trained.pkl
+Saved switching model for budget 96 to ../data/models/tuned_models/switching_models/switching_model_B96_trained.pkl
+Saved switching model for budget 100 to ../data/models/tuned_models/switching_models/switching_model_B100_trained.pkl
+Saved switching model for budget 150 to ../data/models/tuned_models/switching_models/switching_model_B150_trained.pkl
+Saved switching model for budget 200 to ../data/models/tuned_models/switching_models/switching_model_B200_trained.pkl
+Saved switching model for budget 250 to ../data/models/tuned_models/switching_models/switching_model_B250_trained.pkl
+Saved switching model for budget 300 to ../data/models/tuned_models/switching_models/switching_model_B300_trained.pkl
+Saved switching model for budget 350 to ../data/models/tuned_models/switching_models/switching_model_B350_trained.pkl
+Saved switching model for budget 400 to ../data/models/tuned_models/switching_models/switching_model_B400_trained.pkl
+Saved switching model for budget 450 to ../data/models/tuned_models/switching_models/switching_model_B450_trained.pkl
+Saved switching model for budget 500 to ../data/models/tuned_models/switching_models/switching_model_B500_trained.pkl
+Saved switching model for budget 550 to ../data/models/tuned_models/switching_models/switching_model_B550_trained.pkl
+Saved switching model for budget 600 to ../data/models/tuned_models/switching_models/switching_model_B600_trained.pkl
+Saved switching model for budget 650 to ../data/models/tuned_models/switching_models/switching_model_B650_trained.pkl
+Saved switching model for budget 700 to ../data/models/tuned_models/switching_models/switching_model_B700_trained.pkl
+Saved switching model for budget 750 to ../data/models/tuned_models/switching_models/switching_model_B750_trained.pkl
+Saved switching model for budget 800 to ../data/models/tuned_models/switching_models/switching_model_B800_trained.pkl
+Saved switching model for budget 850 to ../data/models/tuned_models/switching_models/switching_model_B850_trained.pkl
+Saved switching model for budget 900 to ../data/models/tuned_models/switching_models/switching_model_B900_trained.pkl
+Saved switching model for budget 950 to ../data/models/tuned_models/switching_models/switching_model_B950_trained.pkl
+All final switching models trained and saved successfully.
