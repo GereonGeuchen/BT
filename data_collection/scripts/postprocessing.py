@@ -15,7 +15,6 @@ from ioh import ProblemClass
 from modcma import ModularCMAES, Parameters
 import numpy as np
 
-from bfgs_new_scipy import BFGS # type: ignore
 from pso import PSO # type: ignore
 from mlsl import MLSL # type: ignore
 from de import DE # type: ignore
@@ -122,6 +121,12 @@ def extract_a2_precisions(base_dir, output_file="A2_precisions.csv", algorithms=
 
     results = []
 
+    # Check if values are out of bounds
+    out_of_bounds_cases = []
+    dim = 5
+    lower_bound = -5
+    upper_bound = 5
+
     for algo in algorithms:
         for budget in budgets:
             folder_name = os.path.join(base_dir, f"A2_{algo}_B{budget}_5D")
@@ -141,26 +146,81 @@ def extract_a2_precisions(base_dir, output_file="A2_precisions.csv", algorithms=
                         df['rep'] = pd.to_numeric(df['rep'], errors='coerce', downcast='integer')
                         df['iid'] = pd.to_numeric(df['iid'], errors='coerce', downcast='integer')
                         df = df.dropna(subset=['evaluations', 'raw_y', 'rep', 'iid'])
+
+                        # Convert x_0 to x_4 to numeric
+                        for i in range(5):
+                            col = f'x{i}'
+                            if col in df.columns:
+                                df[col] = pd.to_numeric(df[col], errors='coerce')
                     except Exception as e:
                         print(f"Failed to read {file_path}: {e}")
                         continue
 
                     for (rep, iid), group in df.groupby(['rep', 'iid']):
                         subset = group[group['evaluations'] <= max_evals]
-                        if not subset.empty:
-                            min_y = subset['raw_y'].min()
+                        if subset.empty:
+                            continue
+
+                        group_key = (fid, int(iid), int(rep))
+
+                        # Step 1: Find unfiltered minimum (regardless of x bounds)
+                        min_row_unfiltered = subset.loc[subset['raw_y'].idxmin()]
+                        unfiltered_precision = min_row_unfiltered['raw_y']
+
+                        # Step 2: Filter to in-bound rows only
+                        x_cols = [f'x{i}' for i in range(dim)]
+                        in_bounds = subset[
+                            subset[x_cols].apply(
+                                lambda row: all(lower_bound <= row[x] <= upper_bound for x in x_cols),
+                                axis=1
+                            )
+                        ]
+
+                        if not in_bounds.empty:
+                            # Step 3: Find filtered minimum within bounds
+                            min_row_filtered = in_bounds.loc[in_bounds['raw_y'].idxmin()]
+                            filtered_precision = min_row_filtered['raw_y']
+
+                            # Store result
                             results.append({
                                 "fid": fid,
                                 "iid": int(iid),
                                 "rep": int(rep),
                                 "budget": budget,
                                 "algorithm": algo,
-                                "precision": min_y
+                                "precision": filtered_precision,
                             })
+
+                            # Log if result differs due to bounds
+                            if filtered_precision != unfiltered_precision:
+                                print(f"⚠️ Changed: (fid={fid}, iid={iid}, rep={rep}) "
+                                    f"from {unfiltered_precision:.4e} to {filtered_precision:.4e} due to bounds")
+                                out_of_bounds_cases.append({
+                                    "fid": fid,
+                                    "iid": int(iid),
+                                    "rep": int(rep),
+                                    "budget": budget,
+                                    "algorithm": algo,
+                                    "unfiltered_precision": unfiltered_precision,
+                                    "filtered_precision": filtered_precision,
+                                    "x_unfiltered": {x: min_row_unfiltered[x] for x in x_cols},
+                                    "x_filtered": {x: min_row_filtered[x] for x in x_cols},
+                                    "raw_y_unfiltered": unfiltered_precision,
+                                    "raw_y_filtered": filtered_precision,
+                                })
+                        else:
+                            print(f"❌ No in-bounds minimum for (fid={fid}, iid={iid}, rep={rep})")
 
     result_df = pd.DataFrame(results)
     result_df.sort_values(by=["fid", "iid", "rep", "budget"], inplace=True)
     result_df.to_csv(output_file, index=False)
+    # Print out-of-bounds info
+    if out_of_bounds_cases:
+        print("\nOut-of-bounds minima detected:")
+        for case in out_of_bounds_cases:
+            print(case)
+    else:
+        print("\nNo out-of-bounds minima found.")
     return result_df
 
 def compute_late_precisions(input_csv, output_csv):
@@ -480,14 +540,112 @@ def split_precision_by_budget(
 
     return result
 
+def create_large_precision_file(input_folder):
+
+    # Match all CSVs for different budgets
+    csv_files = glob.glob(os.path.join(input_folder, "BFGS_precisions_*.csv"))
+
+    # Load and concatenate all of them
+    dfs = [pd.read_csv(f) for f in csv_files]
+    combined_df = pd.concat(dfs, ignore_index=True)
+
+    # Sort by fid, iid, rep, budget, algorithm
+    combined_df.sort_values(by=["fid", "iid", "rep", "budget", "algorithm"], inplace=True)
+
+    # Save the result
+    output_path = os.path.join(input_folder, "BFGS_precisions_merged.csv")
+    combined_df.to_csv(output_path, index=False)
+
+    print(f"Merged and sorted file saved to: {output_path}")
+
+def extract_a2_out_of_bounds_cases(base_dir, output_file="A2_out_of_bounds_DE.csv", algorithms=None, budgets=None, fids=range(1, 25), max_evals=1000):
+    """
+    Checks all evaluations for out-of-bounds x-values (not just minima).
+    Outputs a CSV of (fid, iid, rep, budget, algorithm) combinations where any evaluation exceeds bounds.
+
+    Parameters:
+        base_dir (str): Directory containing A2_* folders.
+        output_file (str): Output CSV file path.
+        algorithms (list): List of algorithm names.
+        budgets (list): List of budget values.
+        fids (iterable): Function IDs to process.
+        max_evals (int): Evaluation budget to consider.
+    """
+    print(f"Checking for out-of-bounds x-values in {base_dir} (max_evals={max_evals})...")
+    if algorithms is None:
+        algorithms = ["BFGS", "DE", "MLSL", "Non-elitist", "PSO", "Same"]
+    if budgets is None:
+        budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)]
+
+    dim = 5
+    lower_bound = -5
+    upper_bound = 5
+
+    offending_combinations = []
+
+    for algo in algorithms:
+        for budget in budgets:
+            folder_name = os.path.join(base_dir, f"A2_{algo}_B{budget}_5D")
+            if not os.path.isdir(folder_name):
+                continue
+            for fid in fids:
+                print(f"Processing fid={fid}, algo={algo}, budget={budget} in {folder_name}")
+                func_folders = [f for f in os.listdir(folder_name) if f.startswith(f"data_f{fid}_")]
+                for func_folder in func_folders:
+                    file_path = os.path.join(folder_name, func_folder, f"IOHprofiler_f{fid}_DIM5.dat")
+                    if not os.path.isfile(file_path):
+                        continue
+
+                    try:
+                        df = pd.read_csv(file_path, delim_whitespace=True, comment='%')
+                        df['evaluations'] = pd.to_numeric(df['evaluations'], errors='coerce')
+                        df['raw_y'] = pd.to_numeric(df['raw_y'], errors='coerce')
+                        df['rep'] = pd.to_numeric(df['rep'], errors='coerce', downcast='integer')
+                        df['iid'] = pd.to_numeric(df['iid'], errors='coerce', downcast='integer')
+                        df = df.dropna(subset=['evaluations', 'raw_y', 'rep', 'iid'])
+
+                        for i in range(dim):
+                            col = f'x{i}'
+                            if col in df.columns:
+                                df[col] = pd.to_numeric(df[col], errors='coerce')
+                    except Exception as e:
+                        print(f"Failed to read {file_path}: {e}")
+                        continue
+
+                    for (rep, iid), group in df.groupby(['rep', 'iid']):
+                        subset = group[group['evaluations'] <= max_evals]
+                        if subset.empty:
+                            continue
+
+                        x_cols = [f'x{i}' for i in range(dim)]
+                        out_of_bounds_mask = subset[x_cols].apply(
+                            lambda row: any(row[x] < lower_bound or row[x] > upper_bound for x in x_cols),
+                            axis=1
+                        )
+
+                        if out_of_bounds_mask.any():
+                            offending_combinations.append({
+                                "fid": fid,
+                                "iid": int(iid),
+                                "rep": int(rep),
+                                "budget": budget,
+                                "algorithm": algo,
+                            })
+                            print(f"⚠️ Out-of-bounds: fid={fid}, iid={iid}, rep={rep}, budget={budget}, algo={algo}")
+
+    result_df = pd.DataFrame(offending_combinations)
+    result_df.sort_values(by=["fid", "iid", "rep", "budget", "algorithm"], inplace=True)
+    result_df.drop_duplicates(inplace=True)
+    result_df.to_csv(output_file, index=False)
+    print(f"\nSaved {len(result_df)} offending combinations to: {output_file}")
+    return result_df
+    
 if __name__ == "__main__":
-    extract_a2_precisions(
-        base_dir="../data/run_data/A2_alphaMax",
-        output_file="../data/precision_files/A2_precisions_alphaMax.csv")
-    df1 = pd.read_csv("../data/precision_files/A2_precisions_alphaMax.csv")
-    # df2 = pd.read_csv("../data/precision_files/A2_precisions_restart.csv")
-    for fid in range(1, 25):
-        bfgs_sum1 = df1[(df1['algorithm'] == 'BFGS') & (df1['fid'] == fid)]['precision'].sum()
-        # bfgs_sum2 = df2[(df2['algorithm'] == 'BFGS') & (df2['fid'] == fid)]['precision'].sum()
-        print(f"Sum of BFGS precisions (restart) for fid {fid}: {bfgs_sum1}")
-        # print(f"Sum of BFGS precisions (clipped) for fid {fid}: {bfgs_sum2}")
+    warnings.filterwarnings("ignore", category=FutureWarning)
+    budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)]
+    for budget in budgets:
+        normalize_test_ela(
+            f"../data/ela_with_cma_std/A1_data_ela_cma_std/A1_B{budget}_5D_ela_with_state.csv",
+            f"../data/ela_with_cma_std/A1_data_ela_cma_std_newInstances/A1_B{budget}_5D_ela_with_state.csv",
+            f"../data/ela_normalized/A1_data_ela_cma_std_normalized_newInstances/A1_B{budget}_5D_ela_with_state.csv",
+        )

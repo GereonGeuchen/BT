@@ -32,7 +32,7 @@ for BUDGET in "${BUDGETS[@]}"; do
 #SBATCH --job-name=ela_B${BUDGET}
 #SBATCH --output=${WORKDIR}/logs/ela_B${BUDGET}.out
 #SBATCH --error=${WORKDIR}/logs/ela_B${BUDGET}.err
-#SBATCH --time=02:00:00
+#SBATCH --time=01:00:00
 #SBATCH --mem=4G
 #SBATCH --cpus-per-task=1
 

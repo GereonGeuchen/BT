@@ -119,11 +119,6 @@ class BFGS(Algorithm):
 #         if 'stepsizes' in parameters.internal_dict:
 #             self.stepsizes = parameters.internal_dict['stepsizes']
     
-    # def f_clipped(self, x):
-    #     res = self.func(x)
-    #     # res = self.func(np.clip(x, self.func.bounds.lb, self.func.bounds.ub))
-    #     return res
-
     def get_params(self, parameters):
         parameters = super(BFGS, self).get_params(parameters)
         parameters['Hessian'] = self.Hk

@@ -50,12 +50,16 @@ class DE(Algorithm):
             for i in range(0, self.de_wrapper.num_population_members):
                 for j in range(0, self.dim):
                     self.de_wrapper.population[i][j] = (x_opt[j] + np.random.uniform(low=-eta, high=eta)) / scale_arg + 0.5
+                    # Clip value to bounds
+                    self.de_wrapper.population[i][j] = np.clip(self.de_wrapper.population[i][j], 0, 1)
+         
 
             # reset population energies
             self.de_wrapper.population_energies = np.full(self.de_wrapper.num_population_members,
                                            np.inf)
             
             #print(f'init pop: {self.de_wrapper.population}')
+
 
     @classmethod
     def get_hyperparams(cls):

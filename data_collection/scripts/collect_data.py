@@ -13,7 +13,7 @@ from ioh import ProblemClass, problem
 from modcma import ModularCMAES, Parameters
 import numpy as np
 
-from bfgs_alphaMax import BFGS # type: ignore
+from bfgs import BFGS # type: ignore
 from pso import PSO # type: ignore
 from mlsl import MLSL # type: ignore
 from de import DE # type: ignore
@@ -86,6 +86,53 @@ class TimedProblemWrapper:
 
     def __getattr__(self, attr):
         return getattr(self.problem, attr)
+
+
+class LoggingProblemWrapper:
+    def __init__(self, problem):
+        self.problem = problem
+        self.logged_evals = []
+
+    def __call__(self, x):
+        y = self.problem(x)
+        self.logged_evals.append((np.copy(x), y))
+        return y
+
+    def reset_log(self):
+        self.logged_evals = []
+
+    def get_log(self):
+        return self.logged_evals
+
+    def get_array(self):
+        if not self.logged_evals:
+            return np.array([]), np.array([])
+        xs = np.array([x for x, y in self.logged_evals])
+        ys = np.array([y for x, y in self.logged_evals])
+        return xs, ys
+
+    def attach_logger(self, logger):
+        """Pass IOH logger through to the underlying problem"""
+        if hasattr(self.problem, "attach_logger"):
+            self.problem.attach_logger(logger)
+        else:
+            raise AttributeError("Underlying problem does not support logger attachment")
+
+    def detach_logger(self):
+        """Detach IOH logger from the underlying problem"""
+        if hasattr(self.problem, "detach_logger"):
+            self.problem.detach_logger()
+    
+    def reset_log(self):
+        """Reset the logged evaluations"""
+        self.logged_evals = []
+
+    def __getattr__(self, attr):
+        return getattr(self.problem, attr)
+
+
+
+
 
 @dataclass
 class TrackedParameters:
@@ -244,7 +291,7 @@ def collect_A1_data(budget_factor, dim = 5, time_run=False):
 
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/new_data/run_data/A1_data_newReps/A1_B{budget_factor}_{dim}D',
+        folder_name=f'../data/run_data/A1_data_newInstances/A1_B{budget_factor}_{dim}D',
         algorithm_name='ModCMA_A1',
         store_positions=True
     )
@@ -252,7 +299,7 @@ def collect_A1_data(budget_factor, dim = 5, time_run=False):
     logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
     
     for fid in range(1,25):
-        for iid in range(1, 6):
+        for iid in range(6, 8):
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
 
             # If we want to time the run, wrap the problem in a TimedProblemWrapper
@@ -263,7 +310,7 @@ def collect_A1_data(budget_factor, dim = 5, time_run=False):
             # Attach the logger to the problem
             problem.attach_logger(logger)
             
-            for rep in range(20, 30):
+            for rep in range(20):
                 tracked_parameters.rep = rep
                 tracked_parameters.iid = iid
                 print(f"Running fundction {fid} instance {iid} repetition {rep} with A1, budget {budget_factor}")
@@ -283,22 +330,24 @@ def collect_A1_data(budget_factor, dim = 5, time_run=False):
             problem.detach_logger()
             
             
-def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_run=False):
+def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_run=False, find_best=False):
     if budget_factor == 0:
         run_A2_from_scratch = True
     trigger = ioh.logger.trigger.OnImprovement()
-    
-    # logger = ioh.logger.Analyzer(
-    #     triggers=[trigger],
-    #     folder_name=f'../data/run_data/A2_alphaMax/A2_{algname}_B{budget_factor}_{dim}D',
-    #     algorithm_name=algname,
-    #     store_positions=True,
-    # )
-    tracked_parameters = TrackedParameters()
-    # logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
+    if algname == "BFGS":
+        trigger = ioh.logger.trigger.Always()
 
-    for fid in range(5, 6):
-        for iid in range(1, 2):
+    logger = ioh.logger.Analyzer(
+        triggers=[trigger],
+        folder_name=f'../data/run_data/A2_data/A2_{algname}_B{budget_factor}_{dim}D',
+        algorithm_name=algname,
+        store_positions=True,
+    )
+    tracked_parameters = TrackedParameters()
+    logger.watch(tracked_parameters, [x.name for x in fields(tracked_parameters)])
+
+    for fid in range(1, 25):
+        for iid in range(1, 6):
 
             problem = ioh.get_problem(fid, iid, dim, ProblemClass.BBOB)
             
@@ -306,10 +355,12 @@ def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_
             if time_run:
                 problem = TimedProblemWrapper(problem, start_eval=0, stop_eval=1000)
 
+            if find_best:
+                problem = LoggingProblemWrapper(problem)
             # Attach the logger to the problem
-            # problem.attach_logger(logger)
+            problem.attach_logger(logger)
 
-            for rep in range(14,15):
+            for rep in range(20):
                 tracked_parameters.rep = rep
                 tracked_parameters.iid = iid
                 print(f"Running function {fid} instance {iid} repetition {rep} with A2 {algname}, budget {budget_factor}, run_from_scratch={run_A2_from_scratch}")
@@ -347,24 +398,63 @@ def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_
                     alg = Switched_From_CMA(budget_factor, dim, A2, total_budget_factor=200)
                     alg(problem, A2)
                 print("Evaluations:", problem.state.evaluations)
-                print(problem.optimum.x)
+                
+                if find_best:
+                    xs, ys = problem.get_array()
+
+                    dim = xs.shape[1]
+                    lower_bound = -5
+                    upper_bound = 5
+                    in_bounds_mask = np.all((xs >= lower_bound) & (xs <= upper_bound), axis=1)
+
+                    xs_in = xs[in_bounds_mask]
+                    ys_in = ys[in_bounds_mask]
+
+                    if len(ys_in) > 0:
+                        best_precision = np.min(ys_in - problem.optimum.y)
+                        print(f"[Best precision] {best_precision:.6e}")
+                    else:
+                        best_precision = float("nan")
+                        print("[Best precision] No in-bound evaluations found.")
+                    print(best_precision)
+                    # Prepare the output file path
+                    output_file = f"../data/precision_files/{algname}_precisions_{budget_factor}.csv"
+
+                    # Check if file exists to determine if we should write the header
+                    write_header = not os.path.exists(output_file)
+
+                    # Create one-row DataFrame and append to file
+                    df = pd.DataFrame([{
+                        "fid": fid,
+                        "iid": iid,
+                        "rep": rep,
+                        "budget": budget_factor,
+                        "algorithm": algname,
+                        "precision": best_precision,
+                    }])
+                    df.to_csv(output_file, mode='a', header=write_header, index=False)
+
                 problem.reset()
+                if find_best:
+                    problem.reset_log()
             problem.detach_logger()
             
 def collect_all(x = None):
     budget_factor, dim = x
     # First, collect A1 data
-    # collect_A1_data(budget_factor, dim, time_run=False)
+    collect_A1_data(budget_factor, dim, time_run=False)
     
     # Then collect A2 data
     # for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
     #     collect_A2(budget_factor, dim, A2, algname, time_run=False)
     # Only run BFGS
-    collect_A2(budget_factor, dim, BFGS, "BFGS", run_A2_from_scratch=False, time_run=False)
+    # collect_A2(budget_factor, dim, BFGS, "BFGS", run_A2_from_scratch=False, time_run=False, find_best=False)
 
     # for A2, algname in zip([MLSL], ["MLSL"]):
     #     collect_A2(budget_factor, dim, A2, algname)
     
+    # Only run DE
+    # collect_A2(budget_factor, dim, DE, "DE", run_A2_from_scratch=False, time_run=False, find_best=False)
                 
                 
 def get_combinations():
@@ -393,9 +483,9 @@ if __name__ == '__main__':
     warnings.filterwarnings("ignore", category=RuntimeWarning) 
     warnings.filterwarnings("ignore", category=FutureWarning)
 
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--budget', type=int, required=True, help='Budget factor (e.g., 100, 200, ...)')
-    # args = parser.parse_args()
-    dim = 5  # Fixed dimensionality
-    budget_factor = 8
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--budget', type=int, required=True, help='Budget factor (e.g., 100, 200, ...)')
+    args = parser.parse_args()
+    dim = 5  # Fixed dimensionality!
+    budget_factor = args.budget
     collect_all((budget_factor, dim))

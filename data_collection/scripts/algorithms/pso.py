@@ -174,6 +174,14 @@ class PSO(Algorithm):
                     self.swarm[i].position[j] = x_opt[j] + np.random.uniform(low = -eta, high = eta)
                     #self.swarm[i].velocity[j] = generator.uniform(low = vmin_slow, high = vmax_slow)
                 
+                # Clip particle position to bounds
+                # Clip to bounds after warmstarting
+                self.swarm[i].position = np.clip(
+                    self.swarm[i].position,
+                    self.func.bounds.lb,
+                    self.func.bounds.ub
+                )
+                
                 # update fitness and best positions / fitness
                 if self.uses_old_ioh:
                     self.swarm[i].fitness = self.func(self.swarm[i].position)   # evaluate fitness for each particle
