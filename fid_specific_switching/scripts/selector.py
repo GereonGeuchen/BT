@@ -20,7 +20,7 @@ class SwitchingSelector:
 
         # Load switching predictor models
         for model_path in selector_model_dir.glob("switching_model_B*_trained.pkl"):
-            budget = int(model_path.stem.split("_")[2][1:])  # e.g., switching_B500 → 500
+            budget = int(model_path.stem.split("_")[2][1:])  # e.g., selector_model_B500 → 500
             self.switching_prediction_models[budget] = joblib.load(model_path)
             print(self.switching_prediction_models[budget].model_class.get_params())
             print(f"Loaded switching model for budget {budget}")
@@ -230,15 +230,19 @@ class SwitchingSelector:
         print(f"Incremental results saved to: {save_path}")
 
 if __name__ == "__main__":
-    selector = SwitchingSelector(
-        selector_model_dir="../data/models/tuned_models/switching_models_normalized",
-        performance_model_dir="../data/models/trained_models/algo_performance_models_trained_normalized"
-    )
-    selector.evaluate_selector_to_csv(
-        fids=list(range(1, 25)),
-        iids=[6, 7],
-        reps=list(range(20)),
-        save_path="../results/newInstances_normalized/selector_results_tuned.csv",
-        ela_dir="../data/ela_for_testing/A1_data_ela_cma_std_newInstances_normalized",
-        precision_file="../data/precision_files/A2_precisions_newInstances.csv"
-    )
+    # selector = SwitchingSelector(
+    #     selector_model_dir="../data/models/tuned_models/switching_models_normalized",
+    #     performance_model_dir="../data/models/trained_models/algo_performance_models_trained_normalized"
+    # )
+    # selector.evaluate_selector_to_csv(
+    #     fids=list(range(1, 25)),
+    #     iids=[6, 7],
+    #     reps=list(range(20)),
+    #     save_path="../results/newInstances_normalized/selector_results_tuned_75.csv",
+    #     ela_dir="../data/ela_for_testing/A1_data_ela_cma_std_newInstances_normalized",
+    #     precision_file="../data/precision_files/A2_precisions_newInstances.csv"
+    # )
+    tuned_model = joblib.load("../data/models/tuned_models/switching_models_normalized/switching_model_B500_trained.pkl")
+    untuned_model = joblib.load("../data/models/trained_models/switching_normalized/selector_B500_trained.pkl")
+    print(tuned_model.model_class.get_params())
+    print(untuned_model.get_params())

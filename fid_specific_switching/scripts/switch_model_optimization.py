@@ -176,7 +176,7 @@ def main():
 
     scenario = Scenario(
         configspace=cs,
-        n_trials=150,
+        n_trials=75,
         walltime_limit=np.inf,
         deterministic=True,
         output_directory=SMAC_OUTPUT_DIR,
