@@ -1,7 +1,7 @@
 import pandas as pd
 
-df1 = pd.read_csv("A2_late_precisions_newReps.csv")
-df2 = pd.read_csv("A2_newReps_late_precisions.csv")
+df1 = pd.read_csv("A2_precisions_newInstances.csv")
+df2 = pd.read_csv("A2_precisions_newInstances copy.csv")
 
 # Check if the two DataFrames are equal
 if df1.equals(df2):

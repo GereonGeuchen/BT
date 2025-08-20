@@ -6,13 +6,14 @@ from scipy.stats import permutation_test
 
 eps = np.finfo(float).eps
 sbs_sum = 3386.367767 # Non-elitist budget 16, all switching points, iid 6,7
+# sbs_sum = 3233.1408135142 # Non-elitist budget 16, iid 8 and 9
 # === Algorithm Sums for new Instances === 
-bfgs_sum = 92946.0950559139
-mlsl_sum = 128667.58299961702
-de_sum = 46440.1419644884
-pso_sum = 29118.065420629897
-same_sum = 18366.622388112395
-non_elitist_sum = 2928.8498329463
+# bfgs_sum = 92946.0950559139
+# mlsl_sum = 128667.58299961702
+# de_sum = 46440.1419644884
+# pso_sum = 29118.065420629897
+# same_sum = 18366.622388112395
+# non_elitist_sum = 2928.8498329463
 
 # sbs_sum = 3306.1779694383 # For new reps, all switching points, Non-elitist budget 16
 # sbs_sum = 3511.967 # For new reps, late switching points, 50 Non-elitist
@@ -140,7 +141,8 @@ def display_vbs_tables(csv_path, fid=None, plot_type="table"):
     """
     if fid is None:
         ratios = compute_vbs_ratios(csv_path)
-        output_path = "../results/newInstances/precision_ratios_l_BFGS_b_normalized_tuned.pdf"
+        output_path = "../results/newInstances_normalized_log10/precision_ratios.pdf"
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
         if plot_type == "table":
             save_tables(ratios, "Fraction of the gap closed", output_path)
             print("✅ VBS ratios table saved to:", output_path)
@@ -191,9 +193,9 @@ def plot_selector_budget_counts(csv_path, output_png="selector_budget_counts.png
     plt.savefig(output_png)
     plt.close()
 
-def permutation_test_selector_vs_static(csv_path):
+def permutation_test_selector_vs_static(df):
 
-    df = pd.read_csv(csv_path)
+    
     selector = df['selector_precision'].values
     budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21) ]
     # budgets = [80]
@@ -410,45 +412,85 @@ def permutation_test_selector_vs_static_table(csv_path, output_pdf="permutation_
     plt.close()
     print(f"✅ Permutation test p-value table saved to: {output_pdf}")
 
+# Function that displays a table consisting of the budget-specific precision ratios, i.e. with budget-specific SBS and VBS
+def budget_specific_prec_ratios(training_precision_path, test_precision_path, result_csv_path):
+    df_train = pd.read_csv(training_precision_path)
+    df_test = pd.read_csv(test_precision_path)
+    df_result = pd.read_csv(result_csv_path)
+
+    budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)]
+    for budget in budgets:
+        print(f"Processing budget: {budget}")
+        budget_specific_df_train = df_train[df_train['budget'] == budget]
+        budget_specific_df_test = df_test[df_test['budget'] == budget]
+
+        # Algorithm best in the training data
+        best_algo = ""
+        best_sum = np.inf
+        for algo in budget_specific_df_train['algorithm'].unique():
+            algo_sum = budget_specific_df_train[budget_specific_df_train['algorithm'] == algo]['precision'].sum()
+            if algo_sum < best_sum:
+                best_sum = algo_sum
+                best_algo = algo
+
+        budget_specific_sbs_sum = budget_specific_df_test[budget_specific_df_test['algorithm'] == best_algo]['precision'].sum()
+
+        # Find the precision of the VBS
+        # For each rep, we use the lowest precision across all algos and then add these sums
+        # First loop: store min precision per group
+        min_precisions = {}
+        budget_specific_vbs_sum = 0
+        for key, df_group in budget_specific_df_test.groupby(['fid', 'iid', 'rep']):
+            min_val = df_group['precision'].min()
+            min_precisions[key] = min_val
+            budget_specific_vbs_sum += min_val
+
+        budget_specific_selector_sum = df_result[f"static_B{budget}"].sum()
+        print(
+            f"Budget {budget}: SBS = {budget_specific_sbs_sum}, "
+            f"VBS = {budget_specific_vbs_sum}, "
+            f"Selector = {budget_specific_selector_sum}, "
+            f"Ratio = {(budget_specific_sbs_sum - budget_specific_selector_sum) / (budget_specific_sbs_sum - budget_specific_vbs_sum)}"
+        )
+
+        # Second loop: use stored min precision
+        prec_ratio = 0
+        for key, group in df_result.groupby(['fid', 'iid', 'rep']):
+            prec_ratio += min_precisions[key] / (group[f"static_B{budget}"].sum() + np.finfo(float).eps)
+
+        print(f"Budget {budget}: Precision Ratio = {prec_ratio / len(df_result)}")
+
 if __name__ == "__main__":
-    # result_csv1 = "../results/newInstances/selector_results_l_BFGS_b_normalized_tuned.csv"
-    # result_csv1 = "../data/switching_optimality_files/l_BFGS_b_normalized/predicted_static_precisions_rep_fold_all_sp.csv"
-    # result_csv2 = "../results/newInstances/selector_results_l_BFGS_b_normalized_dec_threshold.csv"
-    result_csv1 = "../results/newInstances/selector_results_clipped_normalized_tuned.csv"
-    df1 = pd.read_csv(result_csv1)
-    # df2 = pd.read_csv(result_csv2)
-    # display_vbs_tables(result_csv1)
-    permutation_test_selector_vs_static_table(result_csv1,
-                                              output_pdf="../results/newInstances/clipped_normalized_tuned_pvalues_table.pdf")
-    
-    # res = find_sbs("../data/precision_files/A2_precisions_clipped.csv")
-    # for index, row in res.iterrows():
-    #     print(f"Budget {row['budget']}, Algorithm {row['algorithm']}, Precision {row['precision']:.6f}")
+    # for k, v in res.items():
+    #     print(f"{k}: {v}")
+    result1_csv = "../results/testSet/selector_results_tuned_log10_200_200.csv"
+    results2_csv = "../results/newInstances_normalized_log10/selector_old_tuning_200_200.csv"
+    df1 = pd.read_csv(result1_csv)
+    df2 = pd.read_csv(results2_csv)
+    df = pd.concat([df1, df2], ignore_index=True)
+  
 
-    # df = pd.read_csv("../data/precision_files/A2_precisions_clipped_newInstances.csv")
-    # print(df[(df["algorithm"] == "Non-elitist") & (df["budget"] == 16)]["precision"].sum())
-
-
-    # print(df1["selector_precision"].sum())
-
-    # permutation_test_selector_vs_static(result_csv1)
-
-    # for col in df1.columns:
-    #     if col.startswith("static_B"):
-    #         static_sum = df1[col].sum()
-    #         # static_sum2 = df2[col].sum()
-    #         print(f"Sum of precision for {col} (tuned): {static_sum:.6f}")
-    #         # print(f"Sum of precision for {col} (dec threshold): {static_sum2:.6f}")
-    #     elif col == "selector_precision":
-    #         selector_sum = df1[col].sum()
-    #         # selector_sum2 = df2[col].sum()
-    #         print(f"Sum of precision for Selector (tuned): {selector_sum:.6f}")
-            # print(f"Sum of precision for Selector (dec threshold): {selector_sum2:.6f}")
-
-    # fids = list(range(1, 25))
-    # for fid in fids:
-    #     # Compute totals for each fid between the two result files only for selector column
-    #     totals1 = df1[df1["fid"] == fid]["selector_precision"].sum()
-    #     totals2 = df2[df2["fid"] == fid]["selector_precision"].sum()
-    #     print(f"Fid {fid} totals (tuned): {totals1}")
-    #     print(f"Fid {fid} totals (dec threshold): {totals2}")
+    # display_vbs_tables(result1_csv)
+  
+    for col in df.columns:
+        if col.startswith("static_B"):
+            print(f"Column {col}: {df[col].sum()}")
+        if col == "selector_precision":
+            print(f"Column {col}: {df[col].sum()}")
+    # permutation_test_selector_vs_static(df)
+    # training_precision_path = "../data/precision_files/A2_precisions.csv"
+    # test_precision_path = "../data/precision_files/A2_precisions_newInstances.csv"
+    # result_csv_path = "../results/newInstances_normalized/selector_results_tuned_75.csv"
+    # # budget_specific_prec_ratios(training_precision_path, test_precision_path, result_csv_path)
+    # # display_vbs_tables(result_csv_path)
+    #permutation_test_selector_vs_static_table(result_csv_path)
+    # prec = pd.read_csv("../data/precision_files/A2_precisions_testSet.csv")
+    # # Only use rows where algo=Non-elitist and budget=16
+    # prec = prec[(prec['algorithm'] == 'Non-elitist') & (prec['budget'] == 16)]
+    # print(prec["precision"].sum())
+    #display_vbs_tables("../results/testSet/selector_results_tuned_75.csv")
+    # budget_specific_prec_ratios(
+    #     training_precision_path="../data/precision_files/A2_precisions.csv",
+    #     test_precision_path="../data/precision_files/A2_precisions_testSet.csv",
+    #     result_csv_path="../results/testSet/selector_results_tuned_75.csv"
+    # )

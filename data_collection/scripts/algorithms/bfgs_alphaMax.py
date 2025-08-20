@@ -173,7 +173,7 @@ class BFGS(Algorithm):
             elif pk[i] < 0:
                 alpha_max = min(alpha_max, (lb[i] - xk[i]) / pk[i])
         # Ensure alpha_max is non-negative
-        print(f"maximum point: {xk + alpha_max * pk}, alpha_max: {alpha_max}")
+        # print(f"maximum point: {xk + alpha_max * pk}, alpha_max: {alpha_max}")
         return max(alpha_max, 0.0)
 
     def run(self):
@@ -276,6 +276,48 @@ class BFGS(Algorithm):
 
             # calculate xk+1 with alpha_k and pk
             xkp1 = xk + self.alpha_k * pk
+            print(xkp1)
+            should_restart = np.any(
+                (xkp1 <= self.func.bounds.lb) |
+                np.isclose(xkp1, self.func.bounds.lb)
+            ) or np.any(
+                (xkp1 >= self.func.bounds.ub) |
+                np.isclose(xkp1, self.func.bounds.ub)
+            )   
+            if should_restart:
+                print(f'BFGS hit boundary at iteration {k}. Restarting.')
+                if self.verbose or True:
+                    print(f'[Restart #{k}] BFGS hit boundary at iteration {k}. Restarting.')
+
+                # Restart in the inner 80% of the search domain
+                lb = self.func.bounds.lb
+                ub = self.func.bounds.ub
+                inner_lb = lb + 0.1 * (ub - lb)
+                inner_ub = ub - 0.1 * (ub - lb)
+                xkp1 = np.random.uniform(inner_lb, inner_ub)
+
+                # Reset function state
+                old_fval = self.f_clipped(xkp1)
+                gfk = gradient(xkp1)
+                old_old_fval = old_fval + np.linalg.norm(gfk) / 2
+
+                # Update search state
+                xk = xkp1
+                self.Hk = np.eye(self.dim)
+                gnorm = vecnorm(gfk, ord=self.norm)
+
+                # Bookkeeping
+                # self.stepsizes.append(0.0)
+                # self.matrix_norm.append(np.linalg.norm(self.Hk))
+                # self.Hk_overtime.append(self.Hk)
+                # self.x_hist.append(xkp1)
+                # self.f_hist.append(old_fval)
+                k += 1
+                continue
+
+
+
+
             if self.return_all:
                 allvecs.append(xkp1)
             sk = xkp1 - xk    # step sk is difference between xk+1 and xk

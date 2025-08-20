@@ -20,8 +20,8 @@ from classical_ela_features import ( # type: ignore
 )
 
 def calculate_ela_features(budget):
-    base_folder = "../data/run_data_csvs/A1_data_newReps"   # FIXED
-    output_folder = "../data/ela_data_new/A1_data_ela_newReps"              # FIXED
+    base_folder = "../data/run_data_csvs/A1_data_testSet"   # FIXED
+    output_folder = "../data/ela_data_new/A1_data_ela_testSet_test"              # FIXED
 
     os.makedirs(output_folder, exist_ok=True)
     filename = f"A1_B{budget}_5D.csv"
@@ -161,11 +161,11 @@ if __name__ == "__main__":
     parser.add_argument("--budget", type=int, required=True, help="Budget to process")
     args = parser.parse_args()
     budget = args.budget
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=RuntimeWarning)
-        warnings.filterwarnings("ignore", category=UserWarning)
-        append_standard_deviation_stats(budget=budget,
-                                        ela_path=f"../data/ela_with_cma/A1_data_with_cma_newReps/A1_B{budget}_5D_ela_with_state.csv",
-                                        raw_data_path=f"../data/run_data_csvs/A1_data_newReps/A1_B{budget}_5D.csv",
-                                        output_path=f"../data/ela_with_cma_std/A1_data_ela_cma_std_newReps/A1_B{budget}_5D_ela_with_state.csv")
-    # calculate_ela_features(args.budget)
+    # with warnings.catch_warnings():
+    #     warnings.filterwarnings("ignore", category=RuntimeWarning)
+    #     warnings.filterwarnings("ignore", category=UserWarning)
+    #     append_standard_deviation_stats(budget=budget,
+    #                                     ela_path=f"../data/ela_with_cma/A1_data_with_cma_testSet/A1_B{budget}_5D_ela_with_state.csv",
+    #                                     raw_data_path=f"../data/run_data_csvs/A1_data_testSet/A1_B{budget}_5D.csv",
+    #                                     output_path=f"../data/ela_with_cma_std/A1_data_ela_cma_std_testSet/A1_B{budget}_5D_ela_with_state.csv")
+    calculate_ela_features(args.budget)

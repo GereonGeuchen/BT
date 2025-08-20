@@ -25,23 +25,32 @@ REPS = list(range(20))
 
 
 # === Paths ===
-algorithm = "clipped" # or "clipped"
+algorithm = None # or "clipped"
 normalized = True
-ELA_DIR_SWITCH = f"../data/ela_for_training/A1_data_switch_{algorithm}"
-ELA_DIR_ALGO = f"../data/ela_for_training/A1_data_ela_cma_std_precisions_{algorithm}"
-PRECISION_FILE = f"../data/precision_files/A2_precisions_{algorithm}.csv"
-CV_MODELS_DIR = f"../data/models/trained_models/algo_performance_models_cv_{algorithm}"
-UNTRAINED_PERF_MODELS_DIR = f"../data/models/algo_performance_models_{algorithm}"
-SMAC_OUTPUT_DIR = f"smac_output_{algorithm}"
-OUTPUT_PATH = f"../data/tuned_models/switching_models_{algorithm}"
+if algorithm is None:
+    ELA_DIR_SWITCH = "../data/ela_for_training/A1_data_switch"
+    ELA_DIR_ALGO = "../data/ela_for_training/A1_data_ela_cma_std_precisions"
+    PRECISION_FILE = "../data/precision_files/A2_precisions_normalized_log10.csv"
+    CV_MODELS_DIR = "../data/models/trained_models/algo_performance_models_cv"
+    UNTRAINED_PERF_MODELS_DIR = "../data/models/algo_performance_models"
+    SMAC_OUTPUT_DIR = "smac_output"
+    OUTPUT_PATH = "../data/models/tuned_models/switching_models"
+else:
+    ELA_DIR_SWITCH = f"../data/ela_for_training/A1_data_switch_{algorithm}"
+    ELA_DIR_ALGO = f"../data/ela_for_training/A1_data_ela_cma_std_precisions_{algorithm}"
+    PRECISION_FILE = f"../data/precision_files/A2_precisions_{algorithm}.csv"
+    CV_MODELS_DIR = f"../data/models/trained_models/algo_performance_models_cv_{algorithm}"
+    UNTRAINED_PERF_MODELS_DIR = f"../data/models/algo_performance_models_{algorithm}"
+    SMAC_OUTPUT_DIR = f"smac_output_{algorithm}"
+    OUTPUT_PATH = f"../data/models/tuned_models/switching_models_{algorithm}"
 
 if normalized:
-    ELA_DIR_SWITCH += "_normalized"
+    ELA_DIR_SWITCH += "_normalized_log10_200"
     ELA_DIR_ALGO += "_normalized"
-    CV_MODELS_DIR += "_normalized"
-    UNTRAINED_PERF_MODELS_DIR += "_normalized"
-    SMAC_OUTPUT_DIR += "_normalized"
-    OUTPUT_PATH += "_normalized"
+    CV_MODELS_DIR += "_normalized_log10_200"
+    UNTRAINED_PERF_MODELS_DIR += "_normalized_log10_200"
+    SMAC_OUTPUT_DIR += "_normalized_log10_200_200"
+    OUTPUT_PATH += "_normalized_log10_200_200"
 
 # ========== Helper classes ==========
 
@@ -102,7 +111,7 @@ class SwitchingSelectorCV:
 
 def train_models_for_iid(test_iid, config, selector):
     train_iids = [iid for iid in IIDS if iid != test_iid]
-    wrapper_partial = RandomForestClassifierWrapper.get_from_configuration(config)
+    wrapper_partial = RandomForestClassifierWrapper.get_from_configuration(config, random_state=42)
     switching_models = {}
     performance_models = {}
 
@@ -167,7 +176,7 @@ def main():
 
     scenario = Scenario(
         configspace=cs,
-        n_trials=75,
+        n_trials=200,
         walltime_limit=np.inf,
         deterministic=True,
         output_directory=SMAC_OUTPUT_DIR,
@@ -181,7 +190,7 @@ def main():
     for k, v in best_config.items():
         print(f"  {k}: {v}")
 
-    wrapper_partial = RandomForestClassifierWrapper.get_from_configuration(best_config)
+    wrapper_partial = RandomForestClassifierWrapper.get_from_configuration(best_config, random_state=42)
     output_dir = Path(OUTPUT_PATH)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -201,22 +210,5 @@ def main():
 
     print("All final switching models trained and saved successfully.")
 
-def safe_untrained_model(config=None):
-    if config is None:
-        config = {
-        "rf_classifierbootstrap": True,
-        "rf_classifiermax_features": 0.3058904424636,
-        "rf_classifiermin_samples_leaf": 2,
-        "rf_classifiermin_samples_split": 15,
-        "rf_classifiern_estimators": 119
-        }
-
-    wrapper_partial = RandomForestClassifierWrapper.get_from_configuration(config)
-    model = wrapper_partial()  
-    os.makedirs("../data/models/switching_l_BFGS_b_normalized", exist_ok=True)
-    joblib.dump(model, "../data/models/switching_l_BFGS_b_normalized/switching.pkl")
-
-
 if __name__ == "__main__":
-    # main()
-    safe_untrained_model()
+    main()

@@ -5,9 +5,9 @@ import joblib
 from asf.selectors import PerformanceModel, tune_selector
 
 def tune_performance_model(budget: int):
-    data = pd.read_csv(f"../data/A1_data_ela_cma_std_precisions_l_BFGS_b_normalized/A1_B{budget}_5D_ela_with_state.csv")
-    precision_data = pd.read_csv(f"../data/split_precision_csvs_l_BFGS_b/precision_budget_{budget}.csv")
-    print(f"Using file: ../data/A1_data_ela_cma_std_precisions_l_BFGS_b_normalized/A1_B{budget}_5D_ela_with_state.csv")
+    data = pd.read_csv(f"../data/A1_data_ela_cma_std_precisions_normalized/A1_B{budget}_5D_ela_with_state.csv")
+    precision_data = pd.read_csv(f"../data/split_precision_csvs/precision_budget_{budget}.csv")
+    print(f"Using file: ../data/A1_data_ela_cma_std_precisions_normalized/A1_B{budget}_5D_ela_with_state.csv")
     features = data.iloc[:, 4:-6]
     targets = data.iloc[:, -6:]
     groups = data["iid"]
@@ -21,13 +21,13 @@ def tune_performance_model(budget: int):
         maximize=False,
         groups=groups.values,
         cv=5,
-        runcount_limit=75,
+        runcount_limit=200,
         seed=42,
-        output_dir=f"./smac_output_performance_clipped/B{budget}_performance",
-        precision_data=precision_data
+        output_dir=f"./smac_output_performance_normalized_log10_200_test/B{budget}_performance",
+        predict_log=True
     )
-    os.makedirs("algo_performance_models_l_BFGS_b_normalized", exist_ok=True)
-    joblib.dump(pipeline, f"algo_performance_models_l_BFGS_b_normalized/model_B{budget}.pkl")
+    # os.makedirs("algo_performance_models_normalized_log10_200", exist_ok=True)
+    # joblib.dump(pipeline, f"algo_performance_models_normalized_log10_200/model_B{budget}.pkl")
 
 
 def tune_switching_model(budget: int):

@@ -6,8 +6,8 @@ for budget in budgets:
     # Paths to your two CSV files
     # csv1_path = f'ela_data/A1_data_ela_newInstances/A1_B{budget}_5D_ela.csv'
     # csv2_path = f'ela_data/A1_data_ela_newInstances_test/A1_B{budget}_5D_ela.csv'
-    csv1_path = f'A1_data_ela_cma_std_newInstances_normalized/A1_B{budget}_5D_ela_with_state.csv'
-    csv2_path = f'A1_data_ela_normalized_newInstances/A1_B{budget}_5D_ela_with_std.csv'
+    csv1_path = f'A1_data_ela_cma_std_newInstances/A1_B{budget}_5D_ela_with_state.csv'
+    csv2_path = f'old/A1_data_ela_cma_std_newInstances/A1_B{budget}_5D_ela_with_state.csv'
 
     # Read the CSV files into pandas DataFrames
     df1 = pd.read_csv(csv1_path)

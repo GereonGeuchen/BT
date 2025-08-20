@@ -1,5 +1,0 @@
-/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/fid_specific_switching/scripts/tune_decision_thresholds.py:56: DeprecationWarning: Please use `space.add(hyperparameter)`
-  cs.add_hyperparameter(Float(f"threshold_b{budget}", (0.0, 1.0), default=0.5))
-/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/fid_specific_switching/scripts/tune_decision_thresholds.py:57: DeprecationWarning: Please use `space.add(hyperparameter)`
-  cs.add_hyperparameter(Float("threshold_b500plus", (0.0, 1.0), default=0.5))
-slurmstepd: error: *** JOB 59835537 ON n23m0293 CANCELLED AT 2025-07-27T14:57:03 ***
