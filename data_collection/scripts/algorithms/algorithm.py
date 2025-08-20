@@ -60,8 +60,11 @@ class Algorithm:
             np.random.seed(seed)
         # self.uses_old_ioh = (type(func) == IOH_function or type(func) == auc_func)
         self.uses_old_ioh = False
+        self.uses_lasso = False
 
-        if self.uses_old_ioh:
+        if self.uses_lasso:
+            self.dim = func.n_features
+        elif self.uses_old_ioh:
             self.dim = func.number_of_variables
         else:
             self.dim = func.meta_data.n_variables

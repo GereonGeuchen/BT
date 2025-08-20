@@ -16,9 +16,9 @@ mkdir -p "$WORKDIR/logs"
 sbatch <<EOF
 #!/bin/bash
 #SBATCH -A thes2015
-#SBATCH --job-name=selector_normalized_tuned
-#SBATCH --output=${WORKDIR}/logs/selector_normalized_tuned.out
-#SBATCH --error=${WORKDIR}/logs/selector_normalized_tuned.err
+#SBATCH --job-name=selector_normalized_log10_200_200_newInstances_old_tuning
+#SBATCH --output=${WORKDIR}/logs/selector_normalized_log10_200_200_newInstances_old_tuning.out
+#SBATCH --error=${WORKDIR}/logs/selector_normalized_log10_200_200_newInstances_old_tuning.err
 #SBATCH --time=02:00:00
 #SBATCH --mem=4G
 #SBATCH --cpus-per-task=1

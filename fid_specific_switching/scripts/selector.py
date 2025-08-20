@@ -230,19 +230,19 @@ class SwitchingSelector:
         print(f"Incremental results saved to: {save_path}")
 
 if __name__ == "__main__":
-    # selector = SwitchingSelector(
-    #     selector_model_dir="../data/models/tuned_models/switching_models_normalized",
-    #     performance_model_dir="../data/models/trained_models/algo_performance_models_trained_normalized"
-    # )
-    # selector.evaluate_selector_to_csv(
-    #     fids=list(range(1, 25)),
-    #     iids=[6, 7],
-    #     reps=list(range(20)),
-    #     save_path="../results/newInstances_normalized/selector_results_tuned_75.csv",
-    #     ela_dir="../data/ela_for_testing/A1_data_ela_cma_std_newInstances_normalized",
-    #     precision_file="../data/precision_files/A2_precisions_newInstances.csv"
-    # )
-    tuned_model = joblib.load("../data/models/tuned_models/switching_models_normalized/switching_model_B500_trained.pkl")
-    untuned_model = joblib.load("../data/models/trained_models/switching_normalized/selector_B500_trained.pkl")
-    print(tuned_model.model_class.get_params())
-    print(untuned_model.get_params())
+    selector = SwitchingSelector(
+        selector_model_dir="../data/models/tuned_models/switching_models_normalized_log10_200_200",
+        performance_model_dir="../data/models/trained_models/algo_performance_models_trained_normalized_log10_200"
+    )
+    selector.evaluate_selector_to_csv(
+        fids=list(range(1, 25)),
+        iids=[6, 7],
+        reps=list(range(20)),
+        save_path="../results/newInstances_normalized_log10/selector_old_tuning_200_200_test_test.csv",
+        ela_dir="../data/ela_for_testing/A1_data_ela_cma_std_newInstances_normalized",
+        precision_file="../data/precision_files/A2_precisions_newInstances.csv"
+    )
+    # tuned_model = joblib.load("../data/models/tuned_models/switching_models_normalized/switching_model_B500_trained.pkl")
+    # untuned_model = joblib.load("../data/models/trained_models/switching_normalized/selector_B500_trained.pkl")
+    # print(tuned_model.model_class.get_params())
+    # print(untuned_model.get_params())

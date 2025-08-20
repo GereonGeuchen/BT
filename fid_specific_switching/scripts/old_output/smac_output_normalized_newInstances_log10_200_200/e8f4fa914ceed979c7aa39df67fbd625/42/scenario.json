@@ -1,0 +1,147 @@
+{
+    "name": "e8f4fa914ceed979c7aa39df67fbd625",
+    "deterministic": true,
+    "objectives": "cost",
+    "crash_cost": Infinity,
+    "termination_cost_threshold": Infinity,
+    "walltime_limit": Infinity,
+    "cputime_limit": Infinity,
+    "trial_walltime_limit": null,
+    "trial_memory_limit": null,
+    "n_trials": 200,
+    "use_default_config": false,
+    "instances": null,
+    "instance_features": null,
+    "min_budget": null,
+    "max_budget": null,
+    "seed": 42,
+    "n_workers": 1,
+    "_meta": {
+        "facade": {
+            "name": "HyperparameterOptimizationFacade"
+        },
+        "runner": {
+            "name": "TargetFunctionRunner",
+            "code": "b't\\x00j\\x01\\xa0\\x02|\\x01\\xa1\\x01\\x01\\x00t\\x03t\\x04\\x83\\x01}\\x02t\\x05j\\x06|\\x00d\\x01d\\x02\\x8d\\x02}\\x03i\\x00}\\x04i\\x00}\\x05t\\x07D\\x00]G}\\x06t\\x08\\xa0\\tt\\n\\x9b\\x00d\\x03|\\x06\\x9b\\x00d\\x04\\x9d\\x04\\xa1\\x01|\\x04|\\x06<\\x00t\\x0bt\\x0c\\x83\\x01d\\x05|\\x06\\x9b\\x00d\\x06\\x9d\\x03\\x1b\\x00}\\x07t\\r\\xa0\\x0e|\\x07\\xa1\\x01}\\x08|\\x08j\\x0fg\\x00d\\x07\\xa2\\x01d\\x08\\x8d\\x01}\\x08|\\x03\\x83\\x00}\\t|\\x08j\\x10d\\x00d\\x00\\x85\\x02d\\td\\x00\\x85\\x02f\\x02\\x19\\x00j\\x0fd\\ng\\x01d\\x08\\x8d\\x01}\\n|\\x08d\\n\\x19\\x00}\\x0b|\\t\\xa0\\x11|\\n|\\x0b\\xa1\\x02\\x01\\x00|\\t|\\x05|\\x06<\\x00q\\x17t\\x12d\\x0b|\\x00\\x9b\\x00\\x9d\\x02\\x83\\x01\\x01\\x00d\\x0cd\\r\\x84\\x00t\\x13d\\x0et\\x14t\\x15\\x83\\x01d\\t\\x83\\x03D\\x00\\x83\\x01}\\x0ct\\x16d\\x0fd\\x10\\x8d\\x01\\x8f\\x1b}\\rt\\x17t\\x18|\\x02|\\x04|\\x05d\\x11\\x8d\\x04}\\x0e|\\r\\xa0\\x19|\\x0ed\\x12d\\r\\x84\\x00|\\x0cD\\x00\\x83\\x01\\xa1\\x02}\\x0fW\\x00d\\x00\\x04\\x00\\x04\\x00\\x83\\x03\\x01\\x00n\\x081\\x00s\\x96w\\x01\\x01\\x00\\x01\\x00\\x01\\x00Y\\x00\\x01\\x00t\\x1a|\\x0f\\x83\\x01}\\x10t\\x12d\\x13|\\x00\\x9b\\x00d\\x14|\\x10\\x9b\\x00\\x9d\\x04\\x83\\x01\\x01\\x00|\\x10S\\x00'"
+        },
+        "model": {
+            "name": "RandomForest",
+            "types": [
+                2,
+                0,
+                0,
+                0,
+                0
+            ],
+            "bounds": [
+                [
+                    2,
+                    NaN
+                ],
+                [
+                    0,
+                    1.0
+                ],
+                [
+                    0,
+                    1.0
+                ],
+                [
+                    0,
+                    1.0
+                ],
+                [
+                    0,
+                    1.0
+                ]
+            ],
+            "pca_components": 7,
+            "n_trees": 10,
+            "n_points_per_tree": -1,
+            "ratio_features": 1.0,
+            "min_samples_split": 2,
+            "min_samples_leaf": 1,
+            "max_depth": 1048576,
+            "eps_purity": 1e-08,
+            "max_nodes": 1048576,
+            "bootstrapping": true
+        },
+        "acquisition_maximizer": {
+            "name": "LocalAndSortedRandomSearch",
+            "acquisition_function": {
+                "name": "EI",
+                "xi": 0.0,
+                "log": true
+            },
+            "challengers": 10000,
+            "seed": 42,
+            "random_search": {
+                "name": "RandomSearch",
+                "acquisition_function": {
+                    "name": "EI",
+                    "xi": 0.0,
+                    "log": true
+                },
+                "challengers": 5000,
+                "seed": 42
+            },
+            "local_search": {
+                "name": "LocalSearch",
+                "acquisition_function": {
+                    "name": "EI",
+                    "xi": 0.0,
+                    "log": true
+                },
+                "challengers": 5000,
+                "seed": 42,
+                "max_steps": null,
+                "n_steps_plateau_walk": 10,
+                "vectorization_min_obtain": 2,
+                "vectorization_max_obtain": 64
+            }
+        },
+        "acquisition_function": {
+            "name": "EI",
+            "xi": 0.0,
+            "log": true
+        },
+        "intensifier": {
+            "name": "Intensifier",
+            "max_incumbents": 10,
+            "max_config_calls": 3,
+            "seed": 42
+        },
+        "initial_design": {
+            "name": "SobolInitialDesign",
+            "n_configs": 50,
+            "n_configs_per_hyperparameter": 10,
+            "additional_configs": [],
+            "seed": 42
+        },
+        "random_design": {
+            "name": "ProbabilityRandomDesign",
+            "seed": 42,
+            "probability": 0.2
+        },
+        "runhistory_encoder": {
+            "name": "RunHistoryLogScaledEncoder",
+            "considered_states": [
+                1,
+                2,
+                4
+            ],
+            "lower_budget_states": [],
+            "scale_percentage": 5,
+            "seed": 42
+        },
+        "multi_objective_algorithm": null,
+        "config_selector": {
+            "name": "ConfigSelector",
+            "retrain_after": 8,
+            "retries": 16,
+            "min_trials": 1
+        },
+        "version": "2.3.1"
+    },
+    "output_directory": "smac_output_normalized_newInstances_log10_200_200/e8f4fa914ceed979c7aa39df67fbd625/42"
+}

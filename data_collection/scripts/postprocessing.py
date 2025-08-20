@@ -639,13 +639,36 @@ def extract_a2_out_of_bounds_cases(base_dir, output_file="A2_out_of_bounds_DE.cs
     result_df.to_csv(output_file, index=False)
     print(f"\nSaved {len(result_df)} offending combinations to: {output_file}")
     return result_df
-    
+
+def normalize_and_log_precision_files(precision_path, output_path):
+    df = pd.read_csv(precision_path)
+
+    scaler = MinMaxScaler(feature_range=(1e-12, 1))
+
+    def scale_and_log(group):
+        group = group.copy()
+        # scale in place
+        group["precision"] = scaler.fit_transform(group[["precision"]])
+        # take log (natural log here)
+        group["precision"] = np.log10(group["precision"])
+        return group
+
+    df = df.groupby("fid", group_keys=False).apply(scale_and_log)
+
+    df.to_csv(output_path, index=False)
+
 if __name__ == "__main__":
     warnings.filterwarnings("ignore", category=FutureWarning)
-    budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)]
-    for budget in budgets:
-        normalize_test_ela(
-            f"../data/ela_with_cma_std/A1_data_ela_cma_std/A1_B{budget}_5D_ela_with_state.csv",
-            f"../data/ela_with_cma_std/A1_data_ela_cma_std_newInstances/A1_B{budget}_5D_ela_with_state.csv",
-            f"../data/ela_normalized/A1_data_ela_cma_std_normalized_newInstances/A1_B{budget}_5D_ela_with_state.csv",
-        )
+    # precision_path = "../data/precision_files/A2_precisions_newInstances.csv"
+    # output_path = "../data/precision_files/A2_precisions_newInstances_normalized_log.csv"
+    # normalize_and_log_precision_files(precision_path, output_path)
+    # budgets = [8*i for i in range(1, 13)] + [50*i for i in range(2, 21)]
+    # for budget in budgets:
+    #     normalize_test_ela(
+    #         f"../data/ela_with_cma_std/A1_data_ela_cma_std/A1_B{budget}_5D_ela_with_state.csv",
+    #         f"../data/ela_with_cma_std/A1_data_ela_cma_std_testSet/A1_B{budget}_5D_ela_with_state.csv",
+    #         f"../data/ela_normalized/A1_data_ela_cma_std_normalized_testSet/A1_B{budget}_5D_ela_with_state.csv",
+    #     )
+    # process_ioh_data("../data/run_data/A1_data_testSet")
+    # extract_a2_precisions("../data/run_data/A2_data_testSet", "../data/precision_files/A2_precisions_testSet.csv")
+    normalize_and_log_precision_files("../data/precision_files/A2_precisions_newInstances.csv", "../data/precision_files/A2_precisions_newInstances_log10.csv")

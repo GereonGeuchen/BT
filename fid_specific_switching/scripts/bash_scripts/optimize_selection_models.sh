@@ -15,9 +15,9 @@ mkdir -p "$WORKDIR/logs"
 sbatch <<EOF
 #!/bin/bash
 #SBATCH -A thes2015
-#SBATCH --job-name=switch_model_optimization_normalized
-#SBATCH --output=${WORKDIR}/logs/switch_model_optimization_normalized.out
-#SBATCH --error=${WORKDIR}/logs/switch_model_optimization_normalized.err
+#SBATCH --job-name=switch_model_optimization_normalized_log10_200_200
+#SBATCH --output=${WORKDIR}/logs/switch_model_optimization_normalized_log10_200_200.out
+#SBATCH --error=${WORKDIR}/logs/switch_model_optimization_normalized_log10_200_200.err
 #SBATCH --time=48:00:00
 #SBATCH --mem=16G
 #SBATCH --cpus-per-task=5

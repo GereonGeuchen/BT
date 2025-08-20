@@ -2,11 +2,12 @@ import joblib
 import pandas as pd
 import os
 from functools import reduce
+import numpy as np
 
 def crossvalidated_static_predictions(
     budget,
     fold="instance",
-    selector_dir="../data/models/algo_performance_models_normalized",
+    selector_dir="../data/models/algo_performance_models_normalized_log10_200",
     ela_template="../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized/A1_B{budget}_5D_ela_with_state.csv",
     precision_df=None
 ):
@@ -139,11 +140,12 @@ def build_full_crossvalidated_table(precision_path, output_dir = None):
 
 
 if __name__ == "__main__":
-    # build_full_crossvalidated_table(
-    #     "../data/precision_files/A2_precisions.csv",
-    #     output_dir="../data/switching_optimality_files/normalized"
-    # )
-    df = pd.read_csv("../data/switching_optimality_files/normalized/predicted_static_precisions_rep_fold_all_sp.csv")
-    for col in df.columns:
-        if col.startswith("static_B"):
-            print(f"{col}: {df[col].sum()/5}")
+    build_full_crossvalidated_table(
+        "../data/precision_files/A2_precisions.csv",
+        output_dir="../data/switching_optimality_files/normalized_log10_200"
+    )
+    # df = pd.read_csv("../data/switching_optimality_files/normalized_log/predicted_static_precisions_rep_fold_all_sp.csv")
+   
+    # for col in df.columns:
+    #     if col.startswith("static_B"):
+    #         print(f"{col}: {np.log(df[col]).sum()}")

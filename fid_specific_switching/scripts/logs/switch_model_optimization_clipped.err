@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/fid_specific_switching/scripts/tune_decision_thresholds.py", line 162, in <module>
-    main()
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/fid_specific_switching/scripts/tune_decision_thresholds.py", line 134, in main
-    cs = get_threshold_configspace()
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/fid_specific_switching/scripts/tune_decision_thresholds.py", line 61, in get_threshold_configspace
-    Categorical(f"threshold_b{budget}", choices=threshold_values, default=0.5)
-TypeError: Categorical() got an unexpected keyword argument 'choices'
