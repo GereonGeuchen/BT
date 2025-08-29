@@ -1,6 +1,1 @@
-Traceback (most recent call last):
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/collect_data.py", line 15, in <module>
-    from lasso import LassoBenchWrapper
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/lasso.py", line 2, in <module>
-    import LassoBench
-ModuleNotFoundError: No module named 'LassoBench'
+slurmstepd: error: *** JOB 60692257 ON r23m0088 CANCELLED AT 2025-08-29T23:01:18 ***

@@ -15,16 +15,15 @@ mkdir -p "$WORKDIR/logs"
 # === Budgets: [8*i for i in 1..12] and [50*i for i in 1..20] ===
 
 # First sequence: 8 * [1..12]
-for i in $(seq 1 12); do
-  BUDGETS+=($((8 * i)))
+for i in $(seq 1 9); do
+  BUDGETS+=($((10 * i)))
 done
 
 # Second sequence: 50 * [1..20]
-for i in $(seq 1 20); do
+for i in $(seq 2 20); do
   BUDGETS+=($((50 * i)))
 done
 
-BUDGETS=(100)
 # # === Loop over budgets and submit jobs ===
 for BUDGET in "${BUDGETS[@]}"; do
 

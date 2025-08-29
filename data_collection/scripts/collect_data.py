@@ -292,7 +292,7 @@ def collect_A1_data(budget_factor, dim = 5, time_run=False):
 
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/run_data/A1_data_test/A1_B{budget_factor}_{dim}D',
+        folder_name=f'../data/run_data_10D/A1_data_10D/A1_B{budget_factor}_{dim}D',
         algorithm_name='ModCMA_A1',
         store_positions=True
     )
@@ -335,12 +335,12 @@ def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_
     if budget_factor == 0:
         run_A2_from_scratch = True
     trigger = ioh.logger.trigger.OnImprovement()
-    # if algname == "BFGS":
-    #     trigger = ioh.logger.trigger.Always()
+    if algname == "BFGS":
+        trigger = ioh.logger.trigger.Always()
 
     logger = ioh.logger.Analyzer(
         triggers=[trigger],
-        folder_name=f'../data/run_data/A2_data_test/A2_{algname}_B{budget_factor}_{dim}D',
+        folder_name=f'../data/run_data_10D/A2_data_10D/A2_{algname}_B{budget_factor}_{dim}D',
         algorithm_name=algname,
         store_positions=True,
     )
@@ -441,7 +441,7 @@ def collect_A2(budget_factor, dim, A2, algname, run_A2_from_scratch=False, time_
 def collect_all(x = None):
     budget_factor, dim = x
     # First, collect A1 data
-    # collect_A1_data(budget_factor, dim, time_run=False)
+    collect_A1_data(budget_factor, dim, time_run=False)
     
     # Then collect A2 data
     for A2, algname in zip([MLSL, DE, PSO, BFGS, None, None], ["MLSL", "DE", "PSO", "BFGS", "Same", "Non-elitist"]):
@@ -459,7 +459,7 @@ def collect_all(x = None):
 def get_combinations():
     budget_factors = [8*i for i in range (1,13)] + [50*i for i in range(1, 21)] # 10, 20, ..., 1000
     # budget_factors = [300]
-    dim = 5
+    dim = 10
     return [(bf, dim) for bf in budget_factors]
 
 # if __name__=='__main__':
@@ -479,12 +479,12 @@ def get_combinations():
 #     # print(type(problem))
 
 if __name__ == '__main__':
-    # warnings.filterwarnings("ignore", category=RuntimeWarning) 
-    # warnings.filterwarnings("ignore", category=FutureWarning)
+    warnings.filterwarnings("ignore", category=RuntimeWarning) 
+    warnings.filterwarnings("ignore", category=FutureWarning)
 
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--budget', type=int, required=True, help='Budget factor (e.g., 100, 200, ...)')
-    # args = parser.parse_args()
-    dim = 5  # Fixed dimensionality!
-    budget_factor = 100
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--budget', type=int, required=True, help='Budget factor (e.g., 100, 200, ...)')
+    args = parser.parse_args()
+    dim = 10  # Fixed dimensionality!
+    budget_factor = args.budget
     collect_all((budget_factor, dim))

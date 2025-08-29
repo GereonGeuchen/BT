@@ -1,6 +1,10 @@
 Traceback (most recent call last):
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/collect_data.py", line 15, in <module>
-    from lasso import LassoBenchWrapper
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/lasso.py", line 2, in <module>
-    import LassoBench
-ModuleNotFoundError: No module named 'LassoBench'
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/collect_data.py", line 490, in <module>
+    collect_all((budget_factor, dim))
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/collect_data.py", line 448, in collect_all
+    collect_A2(budget_factor, dim, A2, algname, time_run=False)
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/collect_data.py", line 360, in collect_A2
+    problem.attach_logger(logger)
+RuntimeError: filesystem error: cannot create directories: Disk quota exceeded [/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/../data/run_data_10D/A2_data_10D/A2_BFGS_B88_10D/data_f2_Ellipsoid]
+Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>
+OSError: [Errno 122] Disk quota exceeded

@@ -657,6 +657,65 @@ def normalize_and_log_precision_files(precision_path, output_path):
 
     df.to_csv(output_path, index=False)
 
+
+def normalize_across_budgets(ela_dir, output_dir, template="A1_B{budget}_5D_ela.csv", budgets=None):
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Collect files
+    if budgets is None:
+        files = sorted(glob(os.path.join(ela_dir, "A1_B*_5D_*.csv")))
+    else:
+        files = [
+            os.path.join(ela_dir, template.format(budget=b))
+            for b in budgets
+            if os.path.isfile(os.path.join(ela_dir, template.format(budget=b)))
+        ]
+
+    if not files:
+        print("No files found.")
+        return
+
+    # --- Step 1: compute global min and max for every numeric column (skip first 4) ---
+    global_min = {}
+    global_max = {}
+
+    for f in files:
+        df = pd.read_csv(f)
+        for col in df.columns[4:]:
+            if pd.api.types.is_numeric_dtype(df[col]):
+                col_min = df[col].min(skipna=True)
+                col_max = df[col].max(skipna=True)
+                if col in global_min:
+                    global_min[col] = min(global_min[col], col_min)
+                    global_max[col] = max(global_max[col], col_max)
+                else:
+                    global_min[col] = col_min
+                    global_max[col] = col_max
+
+    # --- Step 2: create a MinMaxScaler for each column ---
+    scalers = {}
+    for col in global_min:
+        rng = global_max[col] - global_min[col]
+        if pd.isna(rng) or rng == 0:
+            scalers[col] = None   # constant column
+        else:
+            scaler = MinMaxScaler()
+            scaler.fit(np.array([[global_min[col]], [global_max[col]]]))  # fit with 2 points
+            scalers[col] = scaler
+
+    # --- Step 3: apply scaling file by file ---
+    for f in files:
+        df = pd.read_csv(f)
+        for col in df.columns[4:]:
+            if col in scalers and pd.api.types.is_numeric_dtype(df[col]):
+                if scalers[col] is None:
+                    df[col] = df[col].where(df[col].isna(), 0.0)
+                else:
+                    df[col] = scalers[col].transform(df[[col]])
+        out_path = os.path.join(output_dir, os.path.basename(f))
+        df.to_csv(out_path, index=False)
+        print(f"Saved normalized: {out_path}")
+
 if __name__ == "__main__":
     warnings.filterwarnings("ignore", category=FutureWarning)
     # precision_path = "../data/precision_files/A2_precisions_newInstances.csv"
@@ -671,4 +730,10 @@ if __name__ == "__main__":
     #     )
     # process_ioh_data("../data/run_data/A1_data_testSet")
     # extract_a2_precisions("../data/run_data/A2_data_testSet", "../data/precision_files/A2_precisions_testSet.csv")
-    normalize_and_log_precision_files("../data/precision_files/A2_precisions_newInstances.csv", "../data/precision_files/A2_precisions_newInstances_log10.csv")
+    # normalize_and_log_precision_files("../data/precision_files/A2_precisions_newInstances.csv", "../data/precision_files/A2_precisions_newInstances_log10.csv")
+
+    normalize_across_budgets(
+        ela_dir="../data/ela_data_new/A1_data_ela",
+        output_dir="../data/ela_data_new_normalized_across_budgets/A1_data_ela",
+        budgets = [50*i for i in range(1, 21)]
+    )

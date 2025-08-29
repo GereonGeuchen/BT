@@ -1,14 +1,1 @@
-Traceback (most recent call last):
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/collect_data.py", line 490, in <module>
-    collect_all((budget_factor, dim))
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/collect_data.py", line 448, in collect_all
-    collect_A2(budget_factor, dim, A2, algname, time_run=False)
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/collect_data.py", line 398, in collect_A2
-    alg(problem, A2)
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/collect_data.py", line 278, in __call__
-    algorithm = A2(problem, verbose = False, seed = np.random.get_state())
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/algorithms/mlsl.py", line 70, in __init__
-    super(MLSL, self).__init__(func, **kwargs)
-  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/data_collection/scripts/algorithms/algorithm.py", line 66, in __init__
-    self.dim = func.n_features
-AttributeError: 'ioh.iohcpp.problem.Sphere' object has no attribute 'n_features'
+slurmstepd: error: *** JOB 60692273 ON n23m0351 CANCELLED AT 2025-08-29T23:01:18 ***
