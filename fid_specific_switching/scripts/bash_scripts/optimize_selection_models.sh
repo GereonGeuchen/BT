@@ -7,7 +7,7 @@ ENV_PATH="$HOME/general-env"
 WORKDIR="$HOME/Dokumente/BT/fid_specific_switching/scripts"
 
 # === Python script name ===
-PY_SCRIPT="switch_model_optimization.py"
+PY_SCRIPT="switch_model_optimization_new.py"
 
 # === Ensure logs directory exists ===
 mkdir -p "$WORKDIR/logs"
@@ -15,12 +15,12 @@ mkdir -p "$WORKDIR/logs"
 sbatch <<EOF
 #!/bin/bash
 #SBATCH -A thes2015
-#SBATCH --job-name=switch_model_optimization_normalized_log10_200_200
-#SBATCH --output=${WORKDIR}/logs/switch_model_optimization_normalized_log10_200_200.out
-#SBATCH --error=${WORKDIR}/logs/switch_model_optimization_normalized_log10_200_200.err
+#SBATCH --job-name=switch_model_optimization_normalized_log10_200_200_no_ps_ratio_fast
+#SBATCH --output=${WORKDIR}/logs/switch_model_optimization_normalized_log10_200_200_no_ps_ratio_fast.out
+#SBATCH --error=${WORKDIR}/logs/switch_model_optimization_normalized_log10_200_200_no_ps_ratio_fast.err
 #SBATCH --time=48:00:00
 #SBATCH --mem=16G
-#SBATCH --cpus-per-task=5
+#SBATCH --cpus-per-task=6
 
 # Go to the working directory
 cd $WORKDIR

@@ -7,8 +7,8 @@ import numpy as np
 def crossvalidated_static_predictions(
     budget,
     fold="instance",
-    selector_dir="../data/models/algo_performance_models_normalized_log10_200",
-    ela_template="../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized/A1_B{budget}_5D_ela_with_state.csv",
+    selector_dir="../data/models/algo_performance_models_normalized_log10_200_no_ps_ratio",
+    ela_template="../data/ela_for_training/A1_data_ela_cma_std_precisions_normalized_no_ps_ratio/A1_B{budget}_5D_ela_with_state.csv",
     precision_df=None
 ):
     selector_path = os.path.join(selector_dir, f"model_B{budget}.pkl")
@@ -142,7 +142,7 @@ def build_full_crossvalidated_table(precision_path, output_dir = None):
 if __name__ == "__main__":
     build_full_crossvalidated_table(
         "../data/precision_files/A2_precisions.csv",
-        output_dir="../data/switching_optimality_files/normalized_log10_200"
+        output_dir="../data/switching_optimality_files/normalized_log10_200_no_ps_ratio"
     )
     # df = pd.read_csv("../data/switching_optimality_files/normalized_log/predicted_static_precisions_rep_fold_all_sp.csv")
    

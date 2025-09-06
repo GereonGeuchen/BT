@@ -45,12 +45,12 @@ else:
     OUTPUT_PATH = f"../data/models/tuned_models/switching_models_{algorithm}"
 
 if normalized:
-    ELA_DIR_SWITCH += "_normalized_log10_200"
-    ELA_DIR_ALGO += "_normalized"
-    CV_MODELS_DIR += "_normalized_log10_200"
-    UNTRAINED_PERF_MODELS_DIR += "_normalized_log10_200"
-    SMAC_OUTPUT_DIR += "_normalized_log10_200_200"
-    OUTPUT_PATH += "_normalized_log10_200_200"
+    ELA_DIR_SWITCH += "_normalized_log10_200_no_ps_ratio"
+    ELA_DIR_ALGO += "_normalized_no_ps_ratio"
+    CV_MODELS_DIR += "_normalized_log10_200_no_ps_ratio"
+    UNTRAINED_PERF_MODELS_DIR += "_normalized_log10_200_no_ps_ratio"
+    SMAC_OUTPUT_DIR += "_normalized_log10_200_200_no_ps_ratio"
+    OUTPUT_PATH += "_normalized_log10_200_200_no_ps_ratio"
 
 # ========== Helper classes ==========
 

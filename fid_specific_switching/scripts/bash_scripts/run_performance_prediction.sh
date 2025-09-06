@@ -15,9 +15,9 @@ mkdir -p "$WORKDIR/logs"
 sbatch <<EOF
 #!/bin/bash
 #SBATCH -A thes2015
-#SBATCH --job-name=performance_prediction_normalized_log10_200
-#SBATCH --output=${WORKDIR}/logs/performance_prediction_normalized_log10_200.out
-#SBATCH --error=${WORKDIR}/logs/performance_prediction_normalized_log10_200.err
+#SBATCH --job-name=performance_prediction_normalized_log10_200_no_ps_ratio
+#SBATCH --output=${WORKDIR}/logs/performance_prediction_normalized_log10_200_no_ps_ratio.out
+#SBATCH --error=${WORKDIR}/logs/performance_prediction_normalized_log10_200_no_ps_ratio.err
 #SBATCH --time=24:00:00
 #SBATCH --mem=16G
 #SBATCH --cpus-per-task=1

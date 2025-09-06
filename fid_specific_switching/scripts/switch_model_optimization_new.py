@@ -43,11 +43,11 @@ else:
     OUTPUT_PATH = f"../data/models/tuned_models/switching_models_{algorithm}"
 
 if normalized:
-    ELA_DIR_SWITCH_TRAINING += "_normalized_log10_200"
-    ELA_DIR_TEST += "_normalized"
-    TRAINED_ALGO_MODELS_DIR += "_normalized_log10_200"
-    SMAC_OUTPUT_DIR += "_normalized_newInstances_log10_200_200_test"
-    OUTPUT_PATH += "_normalized_newInstances_log10_200_200_test"
+    ELA_DIR_SWITCH_TRAINING += "_normalized_log10_200_no_ps_ratio"
+    ELA_DIR_TEST += "_normalized_no_ps_ratio"
+    TRAINED_ALGO_MODELS_DIR += "_normalized_log10_200_no_ps_ratio"
+    SMAC_OUTPUT_DIR += "_normalized_newInstances_log10_200_200_no_ps_ratio_fast"
+    OUTPUT_PATH += "_normalized_newInstances_log10_200_200_no_ps_ratio_fast"
 
 # ========== Helper classes ==========
 
@@ -146,7 +146,7 @@ def smac_objective(config, seed):
 
     fid_chunks = [FIDS[i:i+4] for i in range(0, len(FIDS), 4)]
 
-    # with Pool(processes=1) as pool:  # six jobs, each handles 4 FIDs
+    # with Pool(processes=6) as pool:  # six jobs, each handles 4 FIDs
     #     # partial fixes the shared args; each job receives a list of 4 FIDs
     #     worker = partial(
     #         evaluate_selector,
@@ -163,8 +163,10 @@ def smac_objective(config, seed):
         switching_models=switching_models,
     )
 
-    # run strictly sequentially in the main process
-    results = [worker(chunk) for chunk in fid_chunks]
+    # USE the parallel results and do not overwrite them
+    with Pool(processes=6) as pool:
+        results = pool.map(worker, fid_chunks)
+
 
 
     total_precision = sum(results)
