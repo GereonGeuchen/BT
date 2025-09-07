@@ -1,0 +1,3 @@
+/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/selector/scripts/switch_model_optimization.py:169: DeprecationWarning: Please use `space.add(hyperparameter)`
+  cs.add_hyperparameter(parent_hp)
+slurmstepd: error: *** JOB 60837436 ON n23m0021 CANCELLED AT 2025-09-05T19:49:13 ***

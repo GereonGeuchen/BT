@@ -264,14 +264,14 @@ class SwitchingSelector:
 
 if __name__ == "__main__":
     selector = SwitchingSelector(
-        selector_model_dir="../models/trained_models/switching_prediction_models_trained",
-        performance_model_dir="../models/trained_models/algo_performance_models_trained"
+        selector_model_dir="../models/switching_prediction_models_trained",
+        performance_model_dir="../models/algo_performance_models_trained_normalized_log10_200_no_ps_ratio"
     )
     selector.evaluate_selector_to_csv(
-        fids=list(range(23, 25)),
+        fids=list(range(1, 25)),
         iids=[6, 7],
         reps=list(range(20)),
-        save_path="../results/new_Instances/all_sp/selector_results_newInstances_all_test.csv",
-        ela_dir="../data/ela_for_testing/A1_data_with_cma_newInstances",
-        precision_file="../data/precision_files/A2_newInstances_precisions.csv"
+        save_path="../results/new_Instances/selector_results_newInstances_200_200.csv",
+        ela_dir="../data/A1_data_ela_cma_std_newInstances_normalized_no_ps_ratio",
+        precision_file="../data/precision_files/A2_precisions_newInstances.csv"
     )
