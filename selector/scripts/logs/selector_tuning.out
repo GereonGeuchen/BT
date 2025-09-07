@@ -1,0 +1,106 @@
+[INFO][abstract_initial_design.py:87] Reducing the number of initial configurations from 60 to 50 (max_ratio == 0.25).
+[INFO][abstract_initial_design.py:139] Using 50 initial design configurations and 0 additional configurations.
+[INFO][abstract_intensifier.py:307] Using only one seed for deterministic scenario.
+Evaluating config: Configuration(values={
+  'selector': np.str_('PerformanceModel'),
+  'PerformanceModel:rf_regressor:bootstrap': np.True_,
+  'PerformanceModel:rf_regressor:max_features': 0.9945911126211,
+  'PerformanceModel:rf_regressor:min_samples_leaf': 10,
+  'PerformanceModel:rf_regressor:min_samples_split': 5,
+  'PerformanceModel:rf_regressor:n_estimators': 97,
+})
+[WARNING][abstract_runner.py:135] Target function returned infinity or nothing at all. Result is treated as CRASHED and cost is set to inf.
+[WARNING][abstract_runner.py:141] Traceback: multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 51, in starmapstar
+    return list(itertools.starmap(args[0], args[1]))
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/selector/scripts/switch_model_optimization.py", line 143, in train_models_for_iid
+    precision = selector.simulate_single_run(fid, test_iid, rep, switching_models, performance_models)
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/selector/scripts/switch_model_optimization.py", line 67, in simulate_single_run
+    predicted_switch_budget = int(list(prediction.values())[0][0][0])
+ValueError: invalid literal for int() with base 10: 'sigma'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/pf657206/general-env/lib/python3.10/site-packages/smac/runner/target_function_runner.py", line 190, in run
+    rval = self(config_copy, target_function, kwargs)
+  File "/home/pf657206/general-env/lib/python3.10/site-packages/smac/runner/target_function_runner.py", line 264, in __call__
+    return algorithm(config, **algorithm_kwargs)
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/selector/scripts/switch_model_optimization.py", line 154, in smac_objective
+    results = pool.starmap(partial(train_models_for_iid, config=config, selector=selector), [(iid,) for iid in IIDS])
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 375, in starmap
+    return self._map_async(func, iterable, starmapstar, chunksize).get()
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 774, in get
+    raise self._value
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 51, in starmapstar
+    return list(itertools.starmap(args[0], args[1]))
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/selector/scripts/switch_model_optimization.py", line 143, in train_models_for_iid
+    precision = selector.simulate_single_run(fid, test_iid, rep, switching_models, performance_models)
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/selector/scripts/switch_model_optimization.py", line 67, in simulate_single_run
+    predicted_switch_budget = int(list(prediction.values())[0][0][0])
+ValueError: invalid literal for int() with base 10: 'sigma'
+
+
+[INFO][abstract_intensifier.py:517] Added config 26fdc2 as new incumbent because there are no incumbents yet.
+Evaluating config: Configuration(values={
+  'selector': np.str_('PerformanceModel'),
+  'PerformanceModel:rf_regressor:bootstrap': np.False_,
+  'PerformanceModel:rf_regressor:max_features': 0.3263675066642,
+  'PerformanceModel:rf_regressor:min_samples_leaf': 17,
+  'PerformanceModel:rf_regressor:min_samples_split': 17,
+  'PerformanceModel:rf_regressor:n_estimators': 37,
+})
+[WARNING][abstract_runner.py:135] Target function returned infinity or nothing at all. Result is treated as CRASHED and cost is set to inf.
+[WARNING][abstract_runner.py:141] Traceback: multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 51, in starmapstar
+    return list(itertools.starmap(args[0], args[1]))
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/selector/scripts/switch_model_optimization.py", line 143, in train_models_for_iid
+    precision = selector.simulate_single_run(fid, test_iid, rep, switching_models, performance_models)
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/selector/scripts/switch_model_optimization.py", line 67, in simulate_single_run
+    predicted_switch_budget = int(list(prediction.values())[0][0][0])
+ValueError: invalid literal for int() with base 10: 'sigma'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/pf657206/general-env/lib/python3.10/site-packages/smac/runner/target_function_runner.py", line 190, in run
+    rval = self(config_copy, target_function, kwargs)
+  File "/home/pf657206/general-env/lib/python3.10/site-packages/smac/runner/target_function_runner.py", line 264, in __call__
+    return algorithm(config, **algorithm_kwargs)
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/selector/scripts/switch_model_optimization.py", line 154, in smac_objective
+    results = pool.starmap(partial(train_models_for_iid, config=config, selector=selector), [(iid,) for iid in IIDS])
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 375, in starmap
+    return self._map_async(func, iterable, starmapstar, chunksize).get()
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 774, in get
+    raise self._value
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+  File "/home/pf657206/general-env/lib/python3.10/multiprocessing/pool.py", line 51, in starmapstar
+    return list(itertools.starmap(args[0], args[1]))
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/selector/scripts/switch_model_optimization.py", line 143, in train_models_for_iid
+    precision = selector.simulate_single_run(fid, test_iid, rep, switching_models, performance_models)
+  File "/rwthfs/rz/cluster/home/pf657206/Dokumente/BT/selector/scripts/switch_model_optimization.py", line 67, in simulate_single_run
+    predicted_switch_budget = int(list(prediction.values())[0][0][0])
+ValueError: invalid literal for int() with base 10: 'sigma'
+
+
+Evaluating config: Configuration(values={
+  'selector': np.str_('PerformanceModel'),
+  'PerformanceModel:rf_regressor:bootstrap': np.True_,
+  'PerformanceModel:rf_regressor:max_features': 0.5885004340671,
+  'PerformanceModel:rf_regressor:min_samples_leaf': 4,
+  'PerformanceModel:rf_regressor:min_samples_split': 13,
+  'PerformanceModel:rf_regressor:n_estimators': 22,
+})

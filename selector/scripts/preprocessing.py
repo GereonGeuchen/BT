@@ -9,6 +9,8 @@ import pandas as pd
 from glob import glob
 import warnings
 from pathlib import Path
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
 
 def extract_final_internal_state(dat_path, target_iid, target_rep):
     try:
@@ -228,33 +230,57 @@ def clean_ela_folder(folder_path, inplace=False):
 
     if not inplace:
         return cleaned_data
-    
+
+def normalize_and_log_precision_files(precision_path, output_path):
+    df = pd.read_csv(precision_path)
+
+    scaler = MinMaxScaler(feature_range=(1e-12, 1))
+
+    def scale_and_log(group):
+        group = group.copy()
+        # scale in place
+        group["precision"] = scaler.fit_transform(group[["precision"]])
+        # take log (natural log here)
+        #group["precision"] = np.log10(group["precision"])
+        return group
+
+    df = df.groupby("fid", group_keys=False).apply(scale_and_log)
+
+    df.to_csv(output_path, index=False)
+
+# Function to remove the last 6 columns from all ELA files in a folder
+def remove_last_six_columns_from_ela(folder_path, output_folder=None, inplace=False):
+    folder = Path(folder_path)
+    if output_folder:
+        output_folder = Path(output_folder)
+        output_folder.mkdir(parents=True, exist_ok=True)
+
+    for file in folder.glob("*.csv"):
+        df = pd.read_csv(file)
+        if df.shape[1] <= 6:
+            warnings.warn(f"File {file.name} has 6 or fewer columns; skipping.")
+            continue
+
+        df_cleaned = df.iloc[:, :-6]  # Remove last 6 columns
+
+        if inplace:
+            df_cleaned.to_csv(file, index=False)
+            print(f"Overwritten {file.name} after removing last 6 columns.")
+        elif output_folder:
+            out_path = output_folder / file.name
+            df_cleaned.to_csv(out_path, index=False)
+            print(f"Saved cleaned file to {out_path}.")
+        else:
+            print(f"Cleaned DataFrame for {file.name} (not saved):")
+            print(df_cleaned.head())
+
 if __name__ == "__main__":
-    # ela_dir = "../data/A1_data_ela"  
-    # run_dir = "../../data_collection/data/run_data/A1_data"        
-    # output_dir = "../data/ela_with_state"
-    # extend_ela_with_optimal_precisions(
-    #     ela_input_dir="../data/ela_with_state",
-    #     optimal_precisions_file="../data/A2_optimal_precisions.csv",
-    #     output_dir="../data/ela_with_optimal_precisions_ahead")
-    # add_algorithm_precisions(
-    #     ela_dir="../data/ela_with_state",
-    #     precision_csv="../data/A2_precisions.csv",
-    #     output_dir="../data/ela_with_algorithm_precisions"
-    # )
-    # clean_ela_folder("../data/ela_with_state_test_data", inplace=True)
-    # add_algorithm_precisions(
-    #     ela_dir="../data/ela_for_training/ela_with_state_early_switching",
-    #     precision_csv="../data/A2_early_and_late_precisions.csv",
-    #     output_dir="../data/ela_for_training/ela_with_algorithm_precisions_early_switching"
-    # )
-    add_algorithm_precisions(
-        ela_dir="../data/ela_for_training/ela_with_state",
-        precision_csv="../data/precision_files/A2_precisions.csv",
-        output_dir="../data/ela_for_training/ela_with_algorithm_precisions_early_switching"
-    )
     extend_ela_with_optimal_precisions(
-        ela_input_dir="../data/ela_for_training/ela_with_state",
-        optimal_precisions_file="../data/precision_files/A2_optimal_precisions.csv",
-        output_dir="../data/ela_for_training/ela_with_optimal_precisions_ahead"
+        ela_input_dir="../data/A1_data_ela_cma_std_normalized_no_ps_ratio",
+        optimal_precisions_file="../data/precision_files/A2_optimal_precisions_normalized.csv",
+        output_dir="../data/A1_data_ela_cma_std_normalized_no_ps_ratio_optimal"
     )
+    # normalize_and_log_precision_files(
+    #     "../data/precision_files/A2_optimal_precisions.csv",
+    #     "../data/precision_files/A2_optimal_precisions_normalized.csv"
+    # )
