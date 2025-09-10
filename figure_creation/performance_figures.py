@@ -910,4 +910,5 @@ if __name__ == "__main__":
     # print(p_values)
     # _,_ = plot_gap_closed_bars(df, budgets = [80, 150, 8, 800], save_pdf="selector_bars.pdf",
     #                            standalone_sums={"Non-elitist, B0": nonelit_sum})
-    plot_switch_budget_with_algo_bg(df, save_pdf="switch_budget_by_fid.pdf")
+    # plot_switch_budget_with_algo_bg(df, save_pdf="switch_budget_by_fid.pdf")
+    plot_log10_boxplots(df, save_pdf="log10_boxplots.pdf")
