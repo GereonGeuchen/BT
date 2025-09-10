@@ -178,7 +178,7 @@ def plot_gap_closed_by_fid(
     """
 
     # --- config: which methods to show
-    methods = ["selector_precision", "static_B80", "Non-elitist"]
+    methods = ["selector_precision", "static_B80"]
     pio.kaleido.scope.mathjax = None
 
     # --- helpers
@@ -286,7 +286,7 @@ def plot_gap_closed_by_fid(
     fig.add_hline(y=1, line_dash="dot", line_width=1, line_color="black")
 
     # --- y-axis ticks
-    original_tick_vals = [-6, -5, -4, -3, -2, -1, 0, 0.5, 1.0]
+    original_tick_vals = [-5, -4, -3, -2, -1, 0, 0.5, 1.0]
     scaled_tick_vals = [_scale_y(v) for v in original_tick_vals]
     tick_text = [str(v).rstrip("0").rstrip(".") if isinstance(v, float) else str(v) for v in original_tick_vals]
 
@@ -304,10 +304,11 @@ def plot_gap_closed_by_fid(
         margin=dict(l=60, r=30, t=60, b=50),
         legend=dict(
             orientation="h",
-            yanchor="bottom",
-            y=0.02,
-            xanchor="right",
-            x=0.98,
+            x=0.02, xanchor="left",    # left side of plot
+            y=0.02, yanchor="bottom",  # bottom side of plot
+            bgcolor="rgba(255,255,255,0.6)",  # opaque white background
+            bordercolor="black",
+            borderwidth=1,
             font=dict(size=16, color="black"),
         ),
     )
@@ -338,7 +339,7 @@ def plot_gap_closed_by_fid(
         )
 
     # --- y-axis
-    y_scaled_min = _scale_y(-0.5)
+    y_scaled_min = _scale_y(-5)
     y_scaled_max = 1.1
     fig.update_yaxes(
         title=dict(text="Fraction of the gap closed", standoff=16),
@@ -689,17 +690,6 @@ def permutation_test_selector_vs_static(df):
 
     return p_values
 
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import os
-
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import os
 
 def plot_switch_budget_with_algo_bg(
     df: pd.DataFrame,
@@ -898,11 +888,493 @@ def plot_switch_budget_with_algo_bg(
 
     return fig, budget_stats, prop_wide
 
+def plot_algo_distribution_by_fid(
+    df: pd.DataFrame,
+    save_pdf: str | None = None,
+    width: int = 880,
+    height: int = 480,
+    font_family: str = "Latin Modern Roman",
+    # algorithm -> color
+    algo_colors: dict[str, str] | None = None,
+    bar_opacity: float = 0.8,
+    bar_width: float = 0.86,
+    title: str = "Algorithm Distribution by fid",
+    legend_position: str = "top",          # "top" or "bottom"
+):
+    """
+    Stacked bar chart of algorithm proportions per fid.
+
+    Expects columns: fid, chosen_algorithm
+
+    Legend labels are renamed for CMA-ES variants:
+      - "Same"         -> "CMA-ES, elitist"
+      - "Non-elitist"  -> "CMA-ES, non-elitist"
+    Legend is horizontal and can be placed above or below the plot.
+    """
+    pio.kaleido.scope.mathjax = None
+    # default palette
+    if algo_colors is None:
+        algo_colors = {
+            "BFGS": "#1f77b4",
+            "Non-elitist": "#ff7f0e",  # CMA-ES non-elitist
+            "DE": "#2ca02c",
+            "PSO": "#d62728",
+            "MLSL": "#9467bd",
+            "Same": "#8c564b",        # CMA-ES elitist
+        }
+
+    # mapping for display names in legend (data keys stay as-is)
+    display_name = {
+        "Same": "CMA-ES, elitist",
+        "Non-elitist": "CMA-ES, non-elitist",
+    }
+
+    # prep
+    df = df.copy()
+    df["fid"] = pd.to_numeric(df["fid"], errors="coerce").astype(int)
+
+    # proportions per fid
+    counts = df.groupby(["fid", "chosen_algorithm"]).size().rename("n").reset_index()
+    totals = counts.groupby("fid")["n"].transform("sum")
+    counts["prop"] = counts["n"] / totals
+
+    # order: use color dict order but only keep present algos
+    present = set(df["chosen_algorithm"].unique())
+    algos_in_data = [a for a in algo_colors.keys() if a in present]
+
+    fids = sorted(counts["fid"].unique().tolist())
+    wide = (
+        counts.pivot(index="fid", columns="chosen_algorithm", values="prop")
+        .reindex(index=fids, columns=algos_in_data)
+        .fillna(0.0)
+    )
+
+    # build stacked bars
+    fig = go.Figure()
+    for algo in algos_in_data:
+        fig.add_trace(
+            go.Bar(
+                x=fids,
+                y=wide[algo].to_list(),
+                name=display_name.get(algo, algo),  # legend label
+                width=bar_width,
+                marker=dict(color=algo_colors[algo]),
+                opacity=bar_opacity,
+                hovertemplate=f"fid=%{{x}}<br>{display_name.get(algo, algo)} share=%{{y:.2f}}<extra></extra>",
+            )
+        )
+
+    # legend placement
+    if legend_position.lower() == "bottom":
+        legend_y = -0.1
+        margins = dict(l=60, r=40, t=60, b=100)
+    else:  # "top"
+        legend_y = 1.04
+        margins = dict(l=60, r=40, t=100, b=60)
+
+    # layout / style
+    fig.update_layout(
+        title=dict(text=title, x=0.5, xanchor="center", y=0.95, yanchor="top"),
+        width=width, height=height,
+        font=dict(family=font_family, size=16, color="black"),
+        plot_bgcolor="rgb(230,230,230)",
+        paper_bgcolor="white",
+        margin=margins,
+        barmode="stack",
+        bargap=0.1,
+        legend=dict(
+            orientation="h",
+            x=0.5, xanchor="center",
+            y=legend_y, yanchor="bottom" if legend_y >= 1 else "top",
+            font=dict(size=16, color="black"),
+            traceorder="normal",
+        ),
+    )
+
+    # axes
+    fig.update_xaxes(
+        title=dict(text="fid", standoff=12),
+        tickmode="array",
+        tickvals=fids,
+        dtick=1,
+        range=[min(fids) - 0.5, max(fids) + 0.5],
+        showline=True, linecolor="black", linewidth=1,
+        showgrid=True, gridcolor="black", gridwidth=0.5,
+        zeroline=False, color="black",
+        tickfont=dict(size=16),
+    )
+
+    fig.update_yaxes(
+        title=dict(text="Proportion", standoff=16),
+        range=[0, 1],
+        showline=True, linecolor="black", linewidth=1,
+        showgrid=True, gridcolor="black", gridwidth=0.5,
+        zeroline=True, zerolinecolor="black", zerolinewidth=2,
+        color="black",
+        tickfont=dict(size=16),
+    )
+
+    if save_pdf:
+        outdir = os.path.dirname(save_pdf)
+        if outdir:
+            os.makedirs(outdir, exist_ok=True)
+        fig.write_image(save_pdf, format="pdf")
+
+    return fig, wide
+
+def plot_switch_budget_by_fid(
+    df: pd.DataFrame,
+    save_pdf: str | None = None,
+    width: int = 880,
+    height: int = 480,
+    font_family: str = "Latin Modern Roman",
+    max_budget_y: int = 550,
+    band_opacity: float = 0.4,
+    title: str = "Average Switching Budget by fid",
+):
+    """
+    Mean switching budget per fid with ±1σ RoyalBlue band.
+    Expects columns: fid, selector_switch_budget
+    """
+    pio.kaleido.scope.mathjax = None
+    df = df.copy()
+    df["fid"] = pd.to_numeric(df["fid"], errors="coerce").astype(int)
+
+    stats = (
+        df.groupby("fid", as_index=False)["selector_switch_budget"]
+          .agg(mean="mean", std="std", count="count")
+          .sort_values("fid")
+    )
+    stats["std"] = stats["std"].fillna(0.0)
+
+    y_min, y_max = 0, int(max_budget_y)
+    fids = stats["fid"].tolist()
+    mean_y = stats["mean"].clip(y_min, y_max).to_numpy()
+    std_y = stats["std"].to_numpy()
+    lower = np.clip(mean_y - std_y, y_min, y_max)
+    upper = np.clip(mean_y + std_y, y_min, y_max)
+
+    fig = go.Figure()
+
+    # RoyalBlue variance band
+    fig.add_trace(
+        go.Scatter(
+            x=fids + fids[::-1],
+            y=upper.tolist() + lower[::-1].tolist(),
+            fill="toself",
+            fillcolor=f"rgba(65,105,225,{band_opacity})",
+            line=dict(color="rgba(0,0,0,0)"),
+            hoverinfo="skip",
+            name="±1σ",
+            showlegend=True,
+        )
+    )
+
+    # RoyalBlue mean line
+    fig.add_trace(
+        go.Scatter(
+            x=fids,
+            y=mean_y,
+            mode="lines+markers",
+            name="Mean switch budget",
+            marker=dict(size=7, color="royalblue", line=dict(width=0.7, color="black")),
+            line=dict(width=2, color="royalblue"),
+            hovertemplate="fid=%{x}<br>mean=%{y:.2f}<extra>Mean switch budget</extra>",
+            showlegend=True,
+        )
+    )
+
+    # Layout with legend top-left inside
+    fig.update_layout(
+        title=dict(text=title, x=0.5, xanchor="center", y=0.95, yanchor="top"),
+        width=width, height=height,
+        font=dict(family=font_family, size=16, color="black"),
+        plot_bgcolor="rgb(230,230,230)",
+        paper_bgcolor="white",
+        margin=dict(l=60, r=40, t=60, b=50),
+        legend=dict(
+            orientation="v",
+            x=0.02, xanchor="left",
+            y=0.98, yanchor="top",
+            bgcolor="rgba(255,255,255,0.6)",  # opaque white background
+            bordercolor="black",
+            borderwidth=1,
+            font=dict(size=16, color="black"),
+        ),
+    )
+
+    fig.update_xaxes(
+        title=dict(text="fid", standoff=12),
+        tickmode="array",
+        tickvals=fids,
+        dtick=1,
+        range=[min(fids) - 0.5, max(fids) + 0.5],
+        showline=True, linecolor="black", linewidth=1,
+        showgrid=True, gridcolor="black", gridwidth=0.5,
+        zeroline=False, color="black",
+        tickfont=dict(size=16),
+    )
+
+    fig.update_yaxes(
+        title=dict(text="Switching budget", standoff=16),
+        range=[y_min, y_max],
+        showline=True, linecolor="black", linewidth=1,
+        showgrid=True, gridcolor="black", gridwidth=0.5,
+        zeroline=True, zerolinecolor="black", zerolinewidth=2,
+        color="black",
+        tickfont=dict(size=16),
+    )
+
+    if save_pdf:
+        outdir = os.path.dirname(save_pdf)
+        if outdir:
+            os.makedirs(outdir, exist_ok=True)
+        fig.write_image(save_pdf, format="pdf")
+
+    return fig, stats
+
+def plot_selector_dashboard(
+    df: pd.DataFrame,
+    df_algos: pd.DataFrame,
+    save_pdf: str | None = "selector_dashboard.pdf",
+    width: int = 980,
+    height: int = 980,
+    font_family: str = "Latin Modern Roman",
+    # relative heights for [top, middle, bottom]
+    row_heights: tuple[float, float, float] = (0.25, 0.33, 0.33),
+    vertical_spacing: float = 0.04,
+):
+    """
+    One figure with 3 vertically stacked subplots that share the x-axis (fid):
+      1) Fraction of the gap closed (lines+markers), y<0 compressed by 0.5
+      2) Algorithm distribution by fid (stacked bars)
+      3) Switching budget by fid (mean line + ±1σ band)
+
+    Args:
+      df:        dataframe with columns ['fid','vbs_precisions','sbs_precision','selector_precision','static_B80',...]
+      df_algos:  dataframe with columns ['fid','chosen_algorithm', ...]
+    """
+    pio.kaleido.scope.mathjax = None
+
+    # ---------- Top subplot: fraction of the gap closed ----------
+    methods = ["selector_precision", "static_B80"]
+
+    def _scale_y(val: float) -> float:
+        if pd.isna(val): return val
+        return val if val >= 0 else 0.5 * val
+
+    recs = []
+    for fid, sub in df.groupby("fid", dropna=False):
+        vbs_sum = sub["vbs_precisions"].sum()
+        sbs_sum = sub["sbs_precision"].sum()
+        den = sbs_sum - vbs_sum
+        for col in methods:
+            if col not in sub.columns: 
+                continue
+            msum  = sub[col].sum()
+            num   = sbs_sum - msum
+            score = 1.0 if num == den else (0.0 if den == 0 else num/den)
+            name  = "Dynamic selector" if col == "selector_precision" else ("B80" if col == "static_B80" else col)
+            recs.append({"fid": int(fid), "method": name, "fraction": float(score)})
+
+    top_df = pd.DataFrame(recs).sort_values(["method","fid"])
+    top_df["fraction_scaled"] = top_df["fraction"].map(_scale_y)
+
+    # preserve full fid range on x
+    fids = sorted(df["fid"].dropna().astype(int).unique().tolist())
+
+    # ---------- Middle subplot: algorithm distribution (stacked bars) ----------
+    algo_colors = {
+        "BFGS": "#1f77b4",
+        "Non-elitist": "#ff7f0e",  # CMA-ES non-elitist
+        "DE": "#2ca02c",
+        "PSO": "#d62728",
+        "MLSL": "#9467bd",
+        "Same": "#8c564b",        # CMA-ES elitist
+    }
+    display_name = {"Same": "CMA-ES, elitist", "Non-elitist": "CMA-ES, non-elitist"}
+
+    df_alg = df_algos.copy()
+    df_alg["fid"] = pd.to_numeric(df_alg["fid"], errors="coerce").astype(int)
+
+    counts = df_alg.groupby(["fid","chosen_algorithm"]).size().rename("n").reset_index()
+    totals = counts.groupby("fid")["n"].transform("sum")
+    counts["prop"] = counts["n"] / totals
+
+    algos_in_data = [a for a in algo_colors if a in set(counts["chosen_algorithm"].unique())]
+    mid_wide = (
+        counts.pivot(index="fid", columns="chosen_algorithm", values="prop")
+        .reindex(index=fids, columns=algos_in_data)
+        .fillna(0.0)
+    )
+
+    # ---------- Bottom subplot: switching budget (mean + ±1σ) ----------
+    stats = (
+        df.groupby("fid", as_index=False)["selector_switch_budget"]
+          .agg(mean="mean", std="std")
+          .sort_values("fid")
+    )
+    stats["fid"] = stats["fid"].astype(int)
+    stats = stats.set_index("fid").reindex(fids).reset_index()
+    stats["std"] = stats["std"].fillna(0.0)
+
+    mean_y = stats["mean"].to_numpy(dtype=float)
+    std_y  = stats["std"].to_numpy(dtype=float)
+    lower  = (mean_y - std_y).tolist()
+    upper  = (mean_y + std_y).tolist()
+
+    # ---------- Build combined figure ----------
+    fig = make_subplots(
+        rows=3, cols=1, shared_xaxes=True, vertical_spacing=vertical_spacing,
+        row_heights=list(row_heights),
+        specs=[[{"type":"xy"}],[{"type":"bar"}],[{"type":"xy"}]],
+    )
+
+    # Top: traces
+    for method, subm in top_df.groupby("method", sort=False):
+        # ensure x order
+        subm = subm.set_index("fid").reindex(fids).reset_index()
+        fig.add_trace(
+            go.Scatter(
+                x=subm["fid"],
+                y=subm["fraction_scaled"],
+                customdata=subm["fraction"],
+                mode="lines+markers",
+                name=method,
+                marker=dict(size=7, line=dict(width=0.5, color="black")),
+                line=dict(width=2),
+                hovertemplate="fid=%{x}<br>fraction=%{customdata:.4f}<extra>"+method+"</extra>",
+            ),
+            row=1, col=1
+        )
+
+    # Reference lines for top
+    fig.add_hline(y=0, line_dash="solid", line_width=1.2, line_color="black", row=1, col=1)
+    fig.add_hline(y=1, line_dash="dot",   line_width=1.0, line_color="black", row=1, col=1)
+
+    # Top axis styling (compress negatives)
+    top_tick_orig  = [-5,-4,-3,-2,-1,0,0.5,1.0]
+    top_tick_scaled= [_scale_y(v) for v in top_tick_orig]
+    top_tick_text  = [str(v).rstrip("0").rstrip(".") if isinstance(v,float) else str(v) for v in top_tick_orig]
+
+    fig.update_yaxes(
+        title_text="Fraction of the gap closed",
+        tickmode="array", tickvals=top_tick_scaled, ticktext=top_tick_text,
+        range=[_scale_y(-5), 1.1],
+        showline=True, linecolor="black", linewidth=1,
+        showgrid=True, gridcolor="black", gridwidth=0.5,
+        zeroline=True, zerolinecolor="black", zerolinewidth=2,
+        row=1, col=1
+    )
+
+    # Middle: stacked bars
+    for algo in algos_in_data:
+        fig.add_trace(
+            go.Bar(
+                x=fids, y=mid_wide[algo].tolist(),
+                name=display_name.get(algo, algo),
+                marker=dict(color=algo_colors[algo]),
+                width=0.86,
+                opacity=0.9,
+                hovertemplate=f"fid=%{{x}}<br>{display_name.get(algo, algo)} share=%{{y:.2f}}<extra></extra>",
+            ),
+            row=2, col=1
+        )
+    fig.update_yaxes(
+        title_text="Proportion",
+        range=[0,1],
+        showline=True, linecolor="black", linewidth=1,
+        showgrid=True, gridcolor="black", gridwidth=0.5,
+        zeroline=True, zerolinecolor="black", zerolinewidth=2,
+        row=2, col=1
+    )
+
+    # Bottom: ±1σ band + mean line
+    fig.add_trace(
+        go.Scatter(
+            x=fids + fids[::-1],
+            y=upper + lower[::-1],
+            fill="toself",
+            fillcolor="rgba(65,105,225,0.35)",
+            line=dict(color="rgba(0,0,0,0)"),
+            hoverinfo="skip",
+            name="±1σ",
+        ),
+        row=3, col=1
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=fids, y=mean_y,
+            mode="lines+markers",
+            name="Mean switch budget",
+            marker=dict(size=7, color="royalblue", line=dict(width=0.7, color="black")),
+            line=dict(width=2, color="royalblue"),
+            hovertemplate="fid=%{x}<br>mean=%{y:.2f}<extra>Mean switch budget</extra>",
+        ),
+        row=3, col=1
+    )
+    fig.update_yaxes(
+        title_text="Switching budget",
+        showline=True, linecolor="black", linewidth=1,
+        showgrid=True, gridcolor="black", gridwidth=0.5,
+        zeroline=True, zerolinecolor="black", zerolinewidth=2,
+        row=3, col=1
+    )
+
+    # Shared x-axis (only show labels at the bottom row)
+        # --- SHARED X (set full config for each row so vertical grid lines show everywhere)
+        # --- SHARED X (ticks 1..24 everywhere; axis title only at the bottom)
+    common_x = dict(
+        tickmode="array", tickvals=fids, dtick=1,
+        range=[min(fids)-0.5, max(fids)+0.5],
+        showline=True, linecolor="black", linewidth=1,
+        showgrid=True, gridcolor="black", gridwidth=0.5,
+        zeroline=False,
+    )
+
+    # Row 1: ticks visible, no axis title
+    fig.update_xaxes(row=1, col=1, **{**common_x, "showticklabels": True, "title_text": None})
+
+    # Row 2: ticks visible, no axis title
+    fig.update_xaxes(row=2, col=1, **{**common_x, "showticklabels": True, "title_text": None})
+
+    # Row 3: ticks visible, axis title shown
+    fig.update_xaxes(row=3, col=1, **common_x, title_text="fid", title_standoff=12, showticklabels=True)
 
 
+    # Hide x ticklabels on rows 1 and 2 to reduce clutter
+    fig.update_xaxes(showticklabels=False, row=1, col=1)
+    fig.update_xaxes(showticklabels=False, row=2, col=1)
+
+    # Global layout
+    fig.update_layout(
+        title=dict(text="Selector Summary (aligned subplots)", x=0.5, xanchor="center"),
+        width=width, height=height,
+        font=dict(family=font_family, size=16, color="black"),
+        paper_bgcolor="white",
+        plot_bgcolor="rgb(230,230,230)",
+        margin=dict(l=70, r=30, t=60, b=60),
+        barmode="stack",
+        legend=dict(orientation="h", x=0.5, xanchor="center", y=1.07, yanchor="bottom",
+                    font=dict(size=16)),
+    )
+
+    # Keep a consistent legend order
+    fig.update_traces(selector=dict(name="Dynamic selector"), legendrank=1)
+    fig.update_traces(selector=dict(name="B80"), legendrank=3)
+    # CMA-ES variants get meaningful names already via display_name
+
+    if save_pdf:
+        outdir = os.path.dirname(save_pdf)
+        if outdir:
+            os.makedirs(outdir, exist_ok=True)
+        fig.write_image(save_pdf, format="pdf")
+
+    return fig
 
 if __name__ == "__main__":
-    df = pd.read_csv("data/selector_old_tuning_200_200_with_algos.csv")
+    df = pd.read_csv("data/selector_old_tuning_200_200_all_information.csv")
+    df_algos = pd.read_csv("data/selector_old_tuning_200_200_with_algos.csv")
     # _,_ = plot_gap_closed_by_fid(df, 
     #                             fid_groups={"1": [1,2,3,4,5], "2": [6,7,8,9], "3": [10,11,12,13,14], "4": [15,16,17,18,19], "5": [20,21,22,23,24]}, 
     #                             save_pdf="gap_closed_by_fid_hlc.pdf")
@@ -910,4 +1382,13 @@ if __name__ == "__main__":
     # print(p_values)
     # _,_ = plot_gap_closed_bars(df, budgets = [80, 150, 8, 800], save_pdf="selector_bars.pdf",
     #                            standalone_sums={"Non-elitist, B0": nonelit_sum})
-    plot_switch_budget_with_algo_bg(df, save_pdf="switch_budget_by_fid.pdf")
+    # df = pd.read_csv("your_file.csv")
+
+    # fig1, props = plot_algo_distribution_by_fid(df, save_pdf="algo_distribution_by_fid.pdf")
+    # fig2, stats = plot_switch_budget_by_fid(df, save_pdf="switch_budget_by_fid.pdf")
+
+    # fig1.show(); fig2.show()
+    # plot_gap_closed_by_fid(df, save_pdf="gap_closed_by_fid.pdf")
+    # plot_algo_distribution_by_fid(df_algos, save_pdf="algo_distribution_by_fid.pdf")
+    # plot_switch_budget_by_fid(df, save_pdf="switch_budget_by_fid.pdf")
+    plot_selector_dashboard(df, df_algos, save_pdf="selector_dashboard.pdf")
