@@ -1,0 +1,471 @@
+Extracting A2 precisions from ../data/run_data_10D/A2_data_newInstances_10D_scratch with max_evals=2000...
+Processing data_f1_Sphere for fid=1, algo=BFGS, budget=20
+Processing data_f2_Ellipsoid for fid=2, algo=BFGS, budget=20
+Processing data_f3_Rastrigin for fid=3, algo=BFGS, budget=20
+⚠️ Changed: (fid=3, iid=6, rep=4) from 4.5667e+02 to 5.3655e+02 due to bounds
+⚠️ Changed: (fid=3, iid=7, rep=4) from 5.7702e+02 to 1.6512e+03 due to bounds
+⚠️ Changed: (fid=3, iid=6, rep=6) from 1.7909e+02 to 2.9115e+02 due to bounds
+⚠️ Changed: (fid=3, iid=7, rep=6) from 2.8953e+02 to 4.0600e+02 due to bounds
+⚠️ Changed: (fid=3, iid=6, rep=7) from 3.7707e+02 to 6.0793e+02 due to bounds
+⚠️ Changed: (fid=3, iid=7, rep=7) from 2.8256e+02 to 3.9899e+02 due to bounds
+⚠️ Changed: (fid=3, iid=6, rep=8) from 3.1440e+02 to 5.4001e+02 due to bounds
+⚠️ Changed: (fid=3, iid=7, rep=9) from 2.0993e+02 to 2.4426e+02 due to bounds
+⚠️ Changed: (fid=3, iid=6, rep=11) from 5.0242e+02 to 1.2701e+03 due to bounds
+⚠️ Changed: (fid=3, iid=7, rep=11) from 7.9192e+02 to 9.4578e+02 due to bounds
+⚠️ Changed: (fid=3, iid=7, rep=12) from 5.1735e+02 to 2.4093e+03 due to bounds
+⚠️ Changed: (fid=3, iid=6, rep=14) from 3.3032e+02 to 1.1986e+03 due to bounds
+⚠️ Changed: (fid=3, iid=7, rep=14) from 2.8256e+02 to 3.2969e+02 due to bounds
+⚠️ Changed: (fid=3, iid=6, rep=16) from 1.2811e+03 to 1.5323e+03 due to bounds
+⚠️ Changed: (fid=3, iid=7, rep=16) from 5.2033e+02 to 2.4775e+03 due to bounds
+Processing data_f4_BuecheRastrigin for fid=4, algo=BFGS, budget=20
+⚠️ Changed: (fid=4, iid=6, rep=1) from 4.9348e+02 to 5.5186e+02 due to bounds
+⚠️ Changed: (fid=4, iid=7, rep=3) from 6.0234e+02 to 7.3183e+02 due to bounds
+⚠️ Changed: (fid=4, iid=6, rep=7) from 1.2318e+03 to 1.5238e+03 due to bounds
+⚠️ Changed: (fid=4, iid=7, rep=7) from 6.1115e+02 to 2.8994e+03 due to bounds
+⚠️ Changed: (fid=4, iid=7, rep=8) from 2.9988e+02 to 3.8418e+02 due to bounds
+⚠️ Changed: (fid=4, iid=6, rep=11) from 7.5178e+02 to 9.9285e+02 due to bounds
+⚠️ Changed: (fid=4, iid=7, rep=11) from 8.3403e+02 to 2.7255e+03 due to bounds
+⚠️ Changed: (fid=4, iid=6, rep=12) from 1.3004e+03 to 3.5046e+03 due to bounds
+⚠️ Changed: (fid=4, iid=7, rep=12) from 4.2723e+02 to 7.2029e+02 due to bounds
+⚠️ Changed: (fid=4, iid=7, rep=13) from 1.0623e+03 to 1.2946e+03 due to bounds
+⚠️ Changed: (fid=4, iid=6, rep=14) from 2.6588e+02 to 3.1987e+02 due to bounds
+⚠️ Changed: (fid=4, iid=7, rep=14) from 2.6374e+02 to 2.5813e+03 due to bounds
+⚠️ Changed: (fid=4, iid=7, rep=16) from 4.7759e+02 to 5.0880e+02 due to bounds
+⚠️ Changed: (fid=4, iid=6, rep=17) from 5.5139e+02 to 9.6348e+02 due to bounds
+⚠️ Changed: (fid=4, iid=6, rep=19) from 5.3747e+02 to 5.8083e+02 due to bounds
+Processing data_f5_LinearSlope for fid=5, algo=BFGS, budget=20
+⚠️ Changed: (fid=5, iid=6, rep=0) from 0.0000e+00 to 1.9547e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=0) from 0.0000e+00 to 1.9000e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=1) from 0.0000e+00 to 1.2956e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=1) from 0.0000e+00 to 1.6915e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=2) from 0.0000e+00 to 1.2392e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=2) from 0.0000e+00 to 1.1424e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=3) from 0.0000e+00 to 1.4342e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=3) from 0.0000e+00 to 1.7959e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=4) from 0.0000e+00 to 1.8678e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=4) from 0.0000e+00 to 2.0256e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=5) from 0.0000e+00 to 1.5954e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=5) from 0.0000e+00 to 1.5429e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=6) from 0.0000e+00 to 1.4618e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=6) from 0.0000e+00 to 1.2932e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=7) from 0.0000e+00 to 1.6401e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=7) from 0.0000e+00 to 1.4283e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=8) from 0.0000e+00 to 1.7122e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=8) from 0.0000e+00 to 1.8453e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=9) from 0.0000e+00 to 1.2964e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=9) from 0.0000e+00 to 1.3511e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=10) from 0.0000e+00 to 2.0672e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=10) from 0.0000e+00 to 7.1020e+01 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=11) from 0.0000e+00 to 1.9100e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=11) from 0.0000e+00 to 2.3540e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=12) from 0.0000e+00 to 2.6531e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=12) from 0.0000e+00 to 2.5442e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=13) from 0.0000e+00 to 2.2631e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=13) from 0.0000e+00 to 2.0557e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=14) from 0.0000e+00 to 2.2804e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=14) from 0.0000e+00 to 1.9434e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=15) from 0.0000e+00 to 1.4773e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=15) from 0.0000e+00 to 1.4066e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=16) from 0.0000e+00 to 9.5276e+01 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=16) from 0.0000e+00 to 2.2084e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=17) from 0.0000e+00 to 1.9460e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=17) from 0.0000e+00 to 1.8269e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=18) from 0.0000e+00 to 2.0678e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=18) from 0.0000e+00 to 1.3773e+02 due to bounds
+⚠️ Changed: (fid=5, iid=6, rep=19) from 0.0000e+00 to 2.0757e+02 due to bounds
+⚠️ Changed: (fid=5, iid=7, rep=19) from 0.0000e+00 to 2.2067e+02 due to bounds
+Processing data_f6_AttractiveSector for fid=6, algo=BFGS, budget=20
+⚠️ Changed: (fid=6, iid=6, rep=0) from 2.1544e+02 to 1.2890e+05 due to bounds
+⚠️ Changed: (fid=6, iid=7, rep=7) from 1.9389e+02 to 1.0330e+05 due to bounds
+⚠️ Changed: (fid=6, iid=7, rep=13) from 1.1550e+02 to 5.7727e+05 due to bounds
+Processing data_f7_StepEllipsoid for fid=7, algo=BFGS, budget=20
+Processing data_f8_Rosenbrock for fid=8, algo=BFGS, budget=20
+Processing data_f9_RosenbrockRotated for fid=9, algo=BFGS, budget=20
+Processing data_f10_EllipsoidRotated for fid=10, algo=BFGS, budget=20
+Processing data_f11_Discus for fid=11, algo=BFGS, budget=20
+Processing data_f12_BentCigar for fid=12, algo=BFGS, budget=20
+⚠️ Changed: (fid=12, iid=6, rep=2) from 7.8224e+03 to 3.4608e+10 due to bounds
+⚠️ Changed: (fid=12, iid=7, rep=4) from 3.1355e+02 to 9.3474e+08 due to bounds
+⚠️ Changed: (fid=12, iid=6, rep=6) from 2.2083e+03 to 1.3067e+10 due to bounds
+⚠️ Changed: (fid=12, iid=6, rep=8) from 1.2584e+02 to 3.1988e+08 due to bounds
+⚠️ Changed: (fid=12, iid=6, rep=9) from 1.0548e+03 to 1.0544e+10 due to bounds
+⚠️ Changed: (fid=12, iid=6, rep=10) from 5.2160e+03 to 1.1733e+10 due to bounds
+⚠️ Changed: (fid=12, iid=6, rep=11) from 1.5890e+02 to 3.1071e+09 due to bounds
+⚠️ Changed: (fid=12, iid=6, rep=13) from 3.3896e+02 to 5.9925e+09 due to bounds
+⚠️ Changed: (fid=12, iid=6, rep=15) from 1.9112e+02 to 1.1282e+09 due to bounds
+⚠️ Changed: (fid=12, iid=6, rep=16) from 4.5510e+03 to 1.3252e+10 due to bounds
+⚠️ Changed: (fid=12, iid=6, rep=17) from 6.8301e+03 to 3.4825e+10 due to bounds
+⚠️ Changed: (fid=12, iid=6, rep=18) from 6.0054e+03 to 1.3895e+11 due to bounds
+⚠️ Changed: (fid=12, iid=6, rep=19) from 2.1102e+02 to 3.2173e+09 due to bounds
+Processing data_f13_SharpRidge for fid=13, algo=BFGS, budget=20
+Processing data_f14_DifferentPowers for fid=14, algo=BFGS, budget=20
+Processing data_f15_RastriginRotated for fid=15, algo=BFGS, budget=20
+⚠️ Changed: (fid=15, iid=6, rep=1) from 4.3875e+02 to 8.4555e+02 due to bounds
+⚠️ Changed: (fid=15, iid=6, rep=2) from 2.1690e+02 to 2.8691e+02 due to bounds
+⚠️ Changed: (fid=15, iid=6, rep=3) from 4.0095e+02 to 5.8750e+02 due to bounds
+⚠️ Changed: (fid=15, iid=7, rep=3) from 5.9395e+02 to 1.3794e+03 due to bounds
+⚠️ Changed: (fid=15, iid=7, rep=4) from 5.0244e+02 to 1.0404e+03 due to bounds
+⚠️ Changed: (fid=15, iid=6, rep=5) from 3.7308e+02 to 8.2459e+02 due to bounds
+⚠️ Changed: (fid=15, iid=7, rep=6) from 1.0348e+02 to 5.3795e+02 due to bounds
+⚠️ Changed: (fid=15, iid=6, rep=8) from 4.5070e+02 to 8.1493e+02 due to bounds
+⚠️ Changed: (fid=15, iid=7, rep=8) from 1.4924e+02 to 5.3896e+02 due to bounds
+⚠️ Changed: (fid=15, iid=6, rep=10) from 1.1641e+02 to 7.0598e+02 due to bounds
+⚠️ Changed: (fid=15, iid=6, rep=11) from 3.2235e+02 to 3.5789e+02 due to bounds
+⚠️ Changed: (fid=15, iid=7, rep=11) from 7.6110e+02 to 1.2569e+03 due to bounds
+⚠️ Changed: (fid=15, iid=7, rep=12) from 7.5810e+02 to 1.0571e+03 due to bounds
+⚠️ Changed: (fid=15, iid=7, rep=14) from 1.7511e+02 to 6.3174e+02 due to bounds
+⚠️ Changed: (fid=15, iid=6, rep=15) from 4.7357e+02 to 6.9606e+02 due to bounds
+⚠️ Changed: (fid=15, iid=6, rep=16) from 5.7306e+02 to 6.7485e+02 due to bounds
+⚠️ Changed: (fid=15, iid=6, rep=19) from 4.3180e+02 to 5.9152e+02 due to bounds
+⚠️ Changed: (fid=15, iid=7, rep=19) from 5.5216e+02 to 5.5223e+02 due to bounds
+Processing data_f16_Weierstrass for fid=16, algo=BFGS, budget=20
+⚠️ Changed: (fid=16, iid=6, rep=1) from 4.3642e+01 to 9.6820e+01 due to bounds
+⚠️ Changed: (fid=16, iid=7, rep=4) from 5.9979e+01 to 6.2990e+01 due to bounds
+⚠️ Changed: (fid=16, iid=6, rep=8) from 9.5628e+01 to 1.2661e+02 due to bounds
+⚠️ Changed: (fid=16, iid=7, rep=8) from 3.7458e+01 to 7.6681e+01 due to bounds
+⚠️ Changed: (fid=16, iid=6, rep=9) from 1.0335e+02 to 1.7100e+02 due to bounds
+⚠️ Changed: (fid=16, iid=7, rep=11) from 6.5768e+01 to 8.5030e+01 due to bounds
+⚠️ Changed: (fid=16, iid=6, rep=13) from 1.1363e+02 to 1.2169e+02 due to bounds
+⚠️ Changed: (fid=16, iid=6, rep=18) from 3.9591e+01 to 9.0254e+01 due to bounds
+⚠️ Changed: (fid=16, iid=7, rep=18) from 7.3434e+01 to 1.0865e+02 due to bounds
+⚠️ Changed: (fid=16, iid=6, rep=19) from 4.4842e+01 to 6.1956e+01 due to bounds
+Processing data_f17_Schaffers10 for fid=17, algo=BFGS, budget=20
+⚠️ Changed: (fid=17, iid=6, rep=1) from 9.8774e+01 to 1.0323e+02 due to bounds
+⚠️ Changed: (fid=17, iid=7, rep=1) from 1.0804e+01 to 1.0874e+01 due to bounds
+⚠️ Changed: (fid=17, iid=6, rep=2) from 1.1625e+01 to 1.1625e+01 due to bounds
+⚠️ Changed: (fid=17, iid=6, rep=3) from 1.7831e+01 to 1.7898e+01 due to bounds
+⚠️ Changed: (fid=17, iid=6, rep=4) from 1.3116e+01 to 2.0994e+01 due to bounds
+⚠️ Changed: (fid=17, iid=7, rep=4) from 9.8961e+00 to 1.0787e+01 due to bounds
+⚠️ Changed: (fid=17, iid=7, rep=5) from 2.1940e+01 to 2.2279e+01 due to bounds
+⚠️ Changed: (fid=17, iid=6, rep=6) from 3.7759e+01 to 4.0007e+01 due to bounds
+⚠️ Changed: (fid=17, iid=6, rep=7) from 1.6358e+01 to 3.5528e+01 due to bounds
+⚠️ Changed: (fid=17, iid=7, rep=7) from 1.1566e+01 to 1.1697e+01 due to bounds
+⚠️ Changed: (fid=17, iid=6, rep=8) from 2.1069e+01 to 2.1520e+01 due to bounds
+⚠️ Changed: (fid=17, iid=7, rep=9) from 1.7790e+01 to 2.6516e+01 due to bounds
+⚠️ Changed: (fid=17, iid=7, rep=10) from 1.2016e+01 to 1.7509e+01 due to bounds
+⚠️ Changed: (fid=17, iid=6, rep=12) from 8.0476e+00 to 8.5026e+00 due to bounds
+⚠️ Changed: (fid=17, iid=7, rep=12) from 1.2705e+01 to 1.2864e+01 due to bounds
+⚠️ Changed: (fid=17, iid=7, rep=13) from 2.6512e+01 to 2.7173e+01 due to bounds
+⚠️ Changed: (fid=17, iid=7, rep=14) from 1.7029e+01 to 2.5101e+01 due to bounds
+⚠️ Changed: (fid=17, iid=6, rep=16) from 2.8615e+01 to 2.9921e+01 due to bounds
+⚠️ Changed: (fid=17, iid=7, rep=18) from 8.6088e+00 to 8.6496e+00 due to bounds
+⚠️ Changed: (fid=17, iid=6, rep=19) from 7.9470e+01 to 1.1238e+02 due to bounds
+Processing data_f18_Schaffers1000 for fid=18, algo=BFGS, budget=20
+⚠️ Changed: (fid=18, iid=6, rep=1) from 3.7799e+02 to 3.7805e+02 due to bounds
+⚠️ Changed: (fid=18, iid=7, rep=1) from 4.8338e+01 to 4.8624e+01 due to bounds
+⚠️ Changed: (fid=18, iid=7, rep=4) from 4.9887e+01 to 1.3427e+02 due to bounds
+⚠️ Changed: (fid=18, iid=6, rep=6) from 1.2094e+02 to 1.2096e+02 due to bounds
+⚠️ Changed: (fid=18, iid=6, rep=7) from 5.1617e+01 to 5.1871e+01 due to bounds
+⚠️ Changed: (fid=18, iid=6, rep=8) from 6.5292e+01 to 6.7835e+01 due to bounds
+⚠️ Changed: (fid=18, iid=6, rep=9) from 2.4355e+02 to 2.4433e+02 due to bounds
+⚠️ Changed: (fid=18, iid=6, rep=10) from 5.3006e+01 to 6.1655e+01 due to bounds
+⚠️ Changed: (fid=18, iid=7, rep=10) from 4.8850e+01 to 7.0395e+01 due to bounds
+⚠️ Changed: (fid=18, iid=6, rep=12) from 7.1257e+01 to 1.2926e+02 due to bounds
+⚠️ Changed: (fid=18, iid=7, rep=13) from 9.6490e+01 to 9.6494e+01 due to bounds
+⚠️ Changed: (fid=18, iid=7, rep=14) from 2.6783e+01 to 2.6786e+01 due to bounds
+⚠️ Changed: (fid=18, iid=6, rep=16) from 1.3122e+02 to 1.4440e+02 due to bounds
+⚠️ Changed: (fid=18, iid=7, rep=18) from 4.1900e+01 to 4.1904e+01 due to bounds
+⚠️ Changed: (fid=18, iid=6, rep=19) from 3.2111e+02 to 4.0496e+02 due to bounds
+Processing data_f19_GriewankRosenbrock for fid=19, algo=BFGS, budget=20
+⚠️ Changed: (fid=19, iid=6, rep=1) from 3.2489e+01 to 3.3911e+01 due to bounds
+⚠️ Changed: (fid=19, iid=6, rep=4) from 6.7813e+01 to 1.0962e+02 due to bounds
+Processing data_f20_Schwefel for fid=20, algo=BFGS, budget=20
+Processing data_f21_Gallagher101 for fid=21, algo=BFGS, budget=20
+Processing data_f22_Gallagher21 for fid=22, algo=BFGS, budget=20
+Processing data_f23_Katsuura for fid=23, algo=BFGS, budget=20
+⚠️ Changed: (fid=23, iid=6, rep=1) from 1.0042e+01 to 2.1926e+01 due to bounds
+⚠️ Changed: (fid=23, iid=7, rep=2) from 1.3642e+01 to 1.7296e+01 due to bounds
+⚠️ Changed: (fid=23, iid=7, rep=6) from 2.2106e+00 to 2.3308e+01 due to bounds
+⚠️ Changed: (fid=23, iid=7, rep=7) from 5.6783e+00 to 1.4087e+01 due to bounds
+⚠️ Changed: (fid=23, iid=6, rep=10) from 5.3006e+00 to 8.2446e+00 due to bounds
+⚠️ Changed: (fid=23, iid=6, rep=11) from 5.5103e+00 to 1.7030e+01 due to bounds
+⚠️ Changed: (fid=23, iid=6, rep=13) from 5.2718e+00 to 1.4682e+01 due to bounds
+⚠️ Changed: (fid=23, iid=7, rep=14) from 3.5874e+00 to 2.5570e+01 due to bounds
+⚠️ Changed: (fid=23, iid=6, rep=18) from 9.4546e+00 to 2.1004e+01 due to bounds
+Processing data_f24_LunacekBiRastrigin for fid=24, algo=BFGS, budget=20
+⚠️ Changed: (fid=24, iid=7, rep=1) from 2.2938e+02 to 2.5168e+02 due to bounds
+⚠️ Changed: (fid=24, iid=7, rep=4) from 3.5222e+02 to 4.1344e+02 due to bounds
+Processing data_f1_Sphere for fid=1, algo=DE, budget=20
+Processing data_f2_Ellipsoid for fid=2, algo=DE, budget=20
+Processing data_f3_Rastrigin for fid=3, algo=DE, budget=20
+Processing data_f4_BuecheRastrigin for fid=4, algo=DE, budget=20
+Processing data_f5_LinearSlope for fid=5, algo=DE, budget=20
+Processing data_f6_AttractiveSector for fid=6, algo=DE, budget=20
+Processing data_f7_StepEllipsoid for fid=7, algo=DE, budget=20
+Processing data_f8_Rosenbrock for fid=8, algo=DE, budget=20
+Processing data_f9_RosenbrockRotated for fid=9, algo=DE, budget=20
+Processing data_f10_EllipsoidRotated for fid=10, algo=DE, budget=20
+Processing data_f11_Discus for fid=11, algo=DE, budget=20
+Processing data_f12_BentCigar for fid=12, algo=DE, budget=20
+Processing data_f13_SharpRidge for fid=13, algo=DE, budget=20
+Processing data_f14_DifferentPowers for fid=14, algo=DE, budget=20
+Processing data_f15_RastriginRotated for fid=15, algo=DE, budget=20
+Processing data_f16_Weierstrass for fid=16, algo=DE, budget=20
+Processing data_f17_Schaffers10 for fid=17, algo=DE, budget=20
+Processing data_f18_Schaffers1000 for fid=18, algo=DE, budget=20
+Processing data_f19_GriewankRosenbrock for fid=19, algo=DE, budget=20
+Processing data_f20_Schwefel for fid=20, algo=DE, budget=20
+Processing data_f21_Gallagher101 for fid=21, algo=DE, budget=20
+Processing data_f22_Gallagher21 for fid=22, algo=DE, budget=20
+Processing data_f23_Katsuura for fid=23, algo=DE, budget=20
+Processing data_f24_LunacekBiRastrigin for fid=24, algo=DE, budget=20
+Processing data_f1_Sphere for fid=1, algo=MLSL, budget=20
+Processing data_f2_Ellipsoid for fid=2, algo=MLSL, budget=20
+Processing data_f3_Rastrigin for fid=3, algo=MLSL, budget=20
+Processing data_f4_BuecheRastrigin for fid=4, algo=MLSL, budget=20
+Processing data_f5_LinearSlope for fid=5, algo=MLSL, budget=20
+Processing data_f6_AttractiveSector for fid=6, algo=MLSL, budget=20
+Processing data_f7_StepEllipsoid for fid=7, algo=MLSL, budget=20
+Processing data_f8_Rosenbrock for fid=8, algo=MLSL, budget=20
+Processing data_f9_RosenbrockRotated for fid=9, algo=MLSL, budget=20
+Processing data_f10_EllipsoidRotated for fid=10, algo=MLSL, budget=20
+Processing data_f11_Discus for fid=11, algo=MLSL, budget=20
+Processing data_f12_BentCigar for fid=12, algo=MLSL, budget=20
+Processing data_f13_SharpRidge for fid=13, algo=MLSL, budget=20
+Processing data_f14_DifferentPowers for fid=14, algo=MLSL, budget=20
+Processing data_f15_RastriginRotated for fid=15, algo=MLSL, budget=20
+Processing data_f16_Weierstrass for fid=16, algo=MLSL, budget=20
+Processing data_f17_Schaffers10 for fid=17, algo=MLSL, budget=20
+Processing data_f18_Schaffers1000 for fid=18, algo=MLSL, budget=20
+Processing data_f19_GriewankRosenbrock for fid=19, algo=MLSL, budget=20
+Processing data_f20_Schwefel for fid=20, algo=MLSL, budget=20
+Processing data_f21_Gallagher101 for fid=21, algo=MLSL, budget=20
+Processing data_f22_Gallagher21 for fid=22, algo=MLSL, budget=20
+Processing data_f23_Katsuura for fid=23, algo=MLSL, budget=20
+Processing data_f24_LunacekBiRastrigin for fid=24, algo=MLSL, budget=20
+Processing data_f1_Sphere for fid=1, algo=Non-elitist, budget=20
+Processing data_f2_Ellipsoid for fid=2, algo=Non-elitist, budget=20
+Processing data_f3_Rastrigin for fid=3, algo=Non-elitist, budget=20
+Processing data_f4_BuecheRastrigin for fid=4, algo=Non-elitist, budget=20
+Processing data_f5_LinearSlope for fid=5, algo=Non-elitist, budget=20
+Processing data_f6_AttractiveSector for fid=6, algo=Non-elitist, budget=20
+Processing data_f7_StepEllipsoid for fid=7, algo=Non-elitist, budget=20
+Processing data_f8_Rosenbrock for fid=8, algo=Non-elitist, budget=20
+Processing data_f9_RosenbrockRotated for fid=9, algo=Non-elitist, budget=20
+Processing data_f10_EllipsoidRotated for fid=10, algo=Non-elitist, budget=20
+Processing data_f11_Discus for fid=11, algo=Non-elitist, budget=20
+Processing data_f12_BentCigar for fid=12, algo=Non-elitist, budget=20
+Processing data_f13_SharpRidge for fid=13, algo=Non-elitist, budget=20
+Processing data_f14_DifferentPowers for fid=14, algo=Non-elitist, budget=20
+Processing data_f15_RastriginRotated for fid=15, algo=Non-elitist, budget=20
+Processing data_f16_Weierstrass for fid=16, algo=Non-elitist, budget=20
+Processing data_f17_Schaffers10 for fid=17, algo=Non-elitist, budget=20
+Processing data_f18_Schaffers1000 for fid=18, algo=Non-elitist, budget=20
+Processing data_f19_GriewankRosenbrock for fid=19, algo=Non-elitist, budget=20
+Processing data_f20_Schwefel for fid=20, algo=Non-elitist, budget=20
+Processing data_f21_Gallagher101 for fid=21, algo=Non-elitist, budget=20
+Processing data_f22_Gallagher21 for fid=22, algo=Non-elitist, budget=20
+Processing data_f23_Katsuura for fid=23, algo=Non-elitist, budget=20
+Processing data_f24_LunacekBiRastrigin for fid=24, algo=Non-elitist, budget=20
+Processing data_f1_Sphere for fid=1, algo=PSO, budget=20
+Processing data_f2_Ellipsoid for fid=2, algo=PSO, budget=20
+Processing data_f3_Rastrigin for fid=3, algo=PSO, budget=20
+Processing data_f4_BuecheRastrigin for fid=4, algo=PSO, budget=20
+Processing data_f5_LinearSlope for fid=5, algo=PSO, budget=20
+Processing data_f6_AttractiveSector for fid=6, algo=PSO, budget=20
+Processing data_f7_StepEllipsoid for fid=7, algo=PSO, budget=20
+Processing data_f8_Rosenbrock for fid=8, algo=PSO, budget=20
+Processing data_f9_RosenbrockRotated for fid=9, algo=PSO, budget=20
+Processing data_f10_EllipsoidRotated for fid=10, algo=PSO, budget=20
+Processing data_f11_Discus for fid=11, algo=PSO, budget=20
+Processing data_f12_BentCigar for fid=12, algo=PSO, budget=20
+Processing data_f13_SharpRidge for fid=13, algo=PSO, budget=20
+Processing data_f14_DifferentPowers for fid=14, algo=PSO, budget=20
+Processing data_f15_RastriginRotated for fid=15, algo=PSO, budget=20
+Processing data_f16_Weierstrass for fid=16, algo=PSO, budget=20
+Processing data_f17_Schaffers10 for fid=17, algo=PSO, budget=20
+Processing data_f18_Schaffers1000 for fid=18, algo=PSO, budget=20
+Processing data_f19_GriewankRosenbrock for fid=19, algo=PSO, budget=20
+Processing data_f20_Schwefel for fid=20, algo=PSO, budget=20
+Processing data_f21_Gallagher101 for fid=21, algo=PSO, budget=20
+Processing data_f22_Gallagher21 for fid=22, algo=PSO, budget=20
+Processing data_f23_Katsuura for fid=23, algo=PSO, budget=20
+Processing data_f24_LunacekBiRastrigin for fid=24, algo=PSO, budget=20
+Processing data_f1_Sphere for fid=1, algo=Same, budget=20
+Processing data_f2_Ellipsoid for fid=2, algo=Same, budget=20
+Processing data_f3_Rastrigin for fid=3, algo=Same, budget=20
+Processing data_f4_BuecheRastrigin for fid=4, algo=Same, budget=20
+Processing data_f5_LinearSlope for fid=5, algo=Same, budget=20
+Processing data_f6_AttractiveSector for fid=6, algo=Same, budget=20
+Processing data_f7_StepEllipsoid for fid=7, algo=Same, budget=20
+Processing data_f8_Rosenbrock for fid=8, algo=Same, budget=20
+Processing data_f9_RosenbrockRotated for fid=9, algo=Same, budget=20
+Processing data_f10_EllipsoidRotated for fid=10, algo=Same, budget=20
+Processing data_f11_Discus for fid=11, algo=Same, budget=20
+Processing data_f12_BentCigar for fid=12, algo=Same, budget=20
+Processing data_f13_SharpRidge for fid=13, algo=Same, budget=20
+Processing data_f14_DifferentPowers for fid=14, algo=Same, budget=20
+Processing data_f15_RastriginRotated for fid=15, algo=Same, budget=20
+Processing data_f16_Weierstrass for fid=16, algo=Same, budget=20
+Processing data_f17_Schaffers10 for fid=17, algo=Same, budget=20
+Processing data_f18_Schaffers1000 for fid=18, algo=Same, budget=20
+Processing data_f19_GriewankRosenbrock for fid=19, algo=Same, budget=20
+Processing data_f20_Schwefel for fid=20, algo=Same, budget=20
+Processing data_f21_Gallagher101 for fid=21, algo=Same, budget=20
+Processing data_f22_Gallagher21 for fid=22, algo=Same, budget=20
+Processing data_f23_Katsuura for fid=23, algo=Same, budget=20
+Processing data_f24_LunacekBiRastrigin for fid=24, algo=Same, budget=20
+
+Out-of-bounds minima detected:
+{'fid': 3, 'iid': 6, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 456.6677706747, 'filtered_precision': 536.5457695003}
+{'fid': 3, 'iid': 7, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 577.0224663194, 'filtered_precision': 1651.2496051913}
+{'fid': 3, 'iid': 6, 'rep': 6, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 179.0895002057, 'filtered_precision': 291.1525931857}
+{'fid': 3, 'iid': 7, 'rep': 6, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 289.5256221214, 'filtered_precision': 406.0034960935}
+{'fid': 3, 'iid': 6, 'rep': 7, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 377.0683137467, 'filtered_precision': 607.9317151603}
+{'fid': 3, 'iid': 7, 'rep': 7, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 282.5613121635, 'filtered_precision': 398.98698576}
+{'fid': 3, 'iid': 6, 'rep': 8, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 314.3972436815, 'filtered_precision': 540.0095796461}
+{'fid': 3, 'iid': 7, 'rep': 9, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 209.9334318325, 'filtered_precision': 244.2584081613}
+{'fid': 3, 'iid': 6, 'rep': 11, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 502.4204032232, 'filtered_precision': 1270.0616916185}
+{'fid': 3, 'iid': 7, 'rep': 11, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 791.9239447926, 'filtered_precision': 945.7787538424}
+{'fid': 3, 'iid': 7, 'rep': 12, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 517.3528205865, 'filtered_precision': 2409.264504653}
+{'fid': 3, 'iid': 6, 'rep': 14, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 330.3171560892, 'filtered_precision': 1198.6390761604}
+{'fid': 3, 'iid': 7, 'rep': 14, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 282.5633151328, 'filtered_precision': 329.6905967093}
+{'fid': 3, 'iid': 6, 'rep': 16, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 1281.0555653125, 'filtered_precision': 1532.2691558387}
+{'fid': 3, 'iid': 7, 'rep': 16, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 520.3339279929, 'filtered_precision': 2477.4807347004}
+{'fid': 4, 'iid': 6, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 493.4833580491, 'filtered_precision': 551.8603774995}
+{'fid': 4, 'iid': 7, 'rep': 3, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 602.3383446768, 'filtered_precision': 731.8323849494}
+{'fid': 4, 'iid': 6, 'rep': 7, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 1231.801500486, 'filtered_precision': 1523.8321235759}
+{'fid': 4, 'iid': 7, 'rep': 7, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 611.1497864908, 'filtered_precision': 2899.3701766108}
+{'fid': 4, 'iid': 7, 'rep': 8, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 299.8781117907, 'filtered_precision': 384.1819416817}
+{'fid': 4, 'iid': 6, 'rep': 11, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 751.7806666642, 'filtered_precision': 992.8517739602}
+{'fid': 4, 'iid': 7, 'rep': 11, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 834.0274837813, 'filtered_precision': 2725.4832895526}
+{'fid': 4, 'iid': 6, 'rep': 12, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 1300.3983310183, 'filtered_precision': 3504.5577678442}
+{'fid': 4, 'iid': 7, 'rep': 12, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 427.2257287049, 'filtered_precision': 720.2944368355}
+{'fid': 4, 'iid': 7, 'rep': 13, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 1062.279387823, 'filtered_precision': 1294.6056465523}
+{'fid': 4, 'iid': 6, 'rep': 14, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 265.8754518934, 'filtered_precision': 319.8697042992}
+{'fid': 4, 'iid': 7, 'rep': 14, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 263.73543175, 'filtered_precision': 2581.3146334214}
+{'fid': 4, 'iid': 7, 'rep': 16, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 477.5908877662, 'filtered_precision': 508.7962337647}
+{'fid': 4, 'iid': 6, 'rep': 17, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 551.3902743923, 'filtered_precision': 963.4806797577}
+{'fid': 4, 'iid': 6, 'rep': 19, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 537.4705571649, 'filtered_precision': 580.8298216352}
+{'fid': 5, 'iid': 6, 'rep': 0, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 195.4684643194}
+{'fid': 5, 'iid': 7, 'rep': 0, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 190.002127555}
+{'fid': 5, 'iid': 6, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 129.5592861452}
+{'fid': 5, 'iid': 7, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 169.1541684249}
+{'fid': 5, 'iid': 6, 'rep': 2, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 123.9221293301}
+{'fid': 5, 'iid': 7, 'rep': 2, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 114.2367400245}
+{'fid': 5, 'iid': 6, 'rep': 3, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 143.4230139919}
+{'fid': 5, 'iid': 7, 'rep': 3, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 179.5875535716}
+{'fid': 5, 'iid': 6, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 186.7800838105}
+{'fid': 5, 'iid': 7, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 202.5633304379}
+{'fid': 5, 'iid': 6, 'rep': 5, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 159.5442015333}
+{'fid': 5, 'iid': 7, 'rep': 5, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 154.288710761}
+{'fid': 5, 'iid': 6, 'rep': 6, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 146.1820876672}
+{'fid': 5, 'iid': 7, 'rep': 6, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 129.3233929725}
+{'fid': 5, 'iid': 6, 'rep': 7, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 164.0087441602}
+{'fid': 5, 'iid': 7, 'rep': 7, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 142.8324474071}
+{'fid': 5, 'iid': 6, 'rep': 8, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 171.2239974659}
+{'fid': 5, 'iid': 7, 'rep': 8, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 184.534976146}
+{'fid': 5, 'iid': 6, 'rep': 9, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 129.6379434093}
+{'fid': 5, 'iid': 7, 'rep': 9, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 135.1142723213}
+{'fid': 5, 'iid': 6, 'rep': 10, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 206.7209051556}
+{'fid': 5, 'iid': 7, 'rep': 10, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 71.0196078319}
+{'fid': 5, 'iid': 6, 'rep': 11, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 190.9957591561}
+{'fid': 5, 'iid': 7, 'rep': 11, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 235.3968382684}
+{'fid': 5, 'iid': 6, 'rep': 12, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 265.3140186598}
+{'fid': 5, 'iid': 7, 'rep': 12, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 254.4236636915}
+{'fid': 5, 'iid': 6, 'rep': 13, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 226.3115645267}
+{'fid': 5, 'iid': 7, 'rep': 13, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 205.5678180312}
+{'fid': 5, 'iid': 6, 'rep': 14, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 228.0365244088}
+{'fid': 5, 'iid': 7, 'rep': 14, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 194.3377231004}
+{'fid': 5, 'iid': 6, 'rep': 15, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 147.7259154587}
+{'fid': 5, 'iid': 7, 'rep': 15, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 140.6640102037}
+{'fid': 5, 'iid': 6, 'rep': 16, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 95.2761876925}
+{'fid': 5, 'iid': 7, 'rep': 16, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 220.8366639213}
+{'fid': 5, 'iid': 6, 'rep': 17, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 194.6001497871}
+{'fid': 5, 'iid': 7, 'rep': 17, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 182.6918042371}
+{'fid': 5, 'iid': 6, 'rep': 18, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 206.7790232791}
+{'fid': 5, 'iid': 7, 'rep': 18, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 137.726156611}
+{'fid': 5, 'iid': 6, 'rep': 19, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 207.5661167107}
+{'fid': 5, 'iid': 7, 'rep': 19, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 0.0, 'filtered_precision': 220.6727357698}
+{'fid': 6, 'iid': 6, 'rep': 0, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 215.4402640323, 'filtered_precision': 128899.6614925388}
+{'fid': 6, 'iid': 7, 'rep': 7, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 193.8893910567, 'filtered_precision': 103295.4130620592}
+{'fid': 6, 'iid': 7, 'rep': 13, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 115.5009553872, 'filtered_precision': 577273.9208204009}
+{'fid': 12, 'iid': 6, 'rep': 2, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 7822.3961381949, 'filtered_precision': 34607714435.11951}
+{'fid': 12, 'iid': 7, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 313.5530271377, 'filtered_precision': 934741837.5928308}
+{'fid': 12, 'iid': 6, 'rep': 6, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 2208.2967684557, 'filtered_precision': 13066785366.349825}
+{'fid': 12, 'iid': 6, 'rep': 8, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 125.841473077, 'filtered_precision': 319879734.7761062}
+{'fid': 12, 'iid': 6, 'rep': 9, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 1054.7753296849, 'filtered_precision': 10544410671.649464}
+{'fid': 12, 'iid': 6, 'rep': 10, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 5215.9534236362, 'filtered_precision': 11733391252.463955}
+{'fid': 12, 'iid': 6, 'rep': 11, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 158.8953009098, 'filtered_precision': 3107067311.8474207}
+{'fid': 12, 'iid': 6, 'rep': 13, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 338.9625110101, 'filtered_precision': 5992459098.767998}
+{'fid': 12, 'iid': 6, 'rep': 15, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 191.116792304, 'filtered_precision': 1128150800.7617269}
+{'fid': 12, 'iid': 6, 'rep': 16, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 4550.9941438817, 'filtered_precision': 13252121019.846857}
+{'fid': 12, 'iid': 6, 'rep': 17, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 6830.107960794, 'filtered_precision': 34824849371.665764}
+{'fid': 12, 'iid': 6, 'rep': 18, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 6005.416715264, 'filtered_precision': 138950410261.28104}
+{'fid': 12, 'iid': 6, 'rep': 19, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 211.0204721945, 'filtered_precision': 3217298033.738185}
+{'fid': 15, 'iid': 6, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 438.752392064, 'filtered_precision': 845.5457665799}
+{'fid': 15, 'iid': 6, 'rep': 2, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 216.8964296797, 'filtered_precision': 286.906975222}
+{'fid': 15, 'iid': 6, 'rep': 3, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 400.9537256337, 'filtered_precision': 587.4978886297}
+{'fid': 15, 'iid': 7, 'rep': 3, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 593.9521495309, 'filtered_precision': 1379.3868445341}
+{'fid': 15, 'iid': 7, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 502.4372066259, 'filtered_precision': 1040.4432106079}
+{'fid': 15, 'iid': 6, 'rep': 5, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 373.0787608812, 'filtered_precision': 824.5884304541}
+{'fid': 15, 'iid': 7, 'rep': 6, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 103.4751094237, 'filtered_precision': 537.9528440786}
+{'fid': 15, 'iid': 6, 'rep': 8, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 450.6994646942, 'filtered_precision': 814.9277224889}
+{'fid': 15, 'iid': 7, 'rep': 8, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 149.241903229, 'filtered_precision': 538.9618485536}
+{'fid': 15, 'iid': 6, 'rep': 10, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 116.4090321406, 'filtered_precision': 705.9799650749}
+{'fid': 15, 'iid': 6, 'rep': 11, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 322.3545550736, 'filtered_precision': 357.890756209}
+{'fid': 15, 'iid': 7, 'rep': 11, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 761.1012796337, 'filtered_precision': 1256.9325655681}
+{'fid': 15, 'iid': 7, 'rep': 12, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 758.0995332469, 'filtered_precision': 1057.1434329938}
+{'fid': 15, 'iid': 7, 'rep': 14, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 175.1103163129, 'filtered_precision': 631.7441561541}
+{'fid': 15, 'iid': 6, 'rep': 15, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 473.5698224464, 'filtered_precision': 696.0576336686}
+{'fid': 15, 'iid': 6, 'rep': 16, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 573.0612468057, 'filtered_precision': 674.8519011432}
+{'fid': 15, 'iid': 6, 'rep': 19, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 431.79744636, 'filtered_precision': 591.5213923549}
+{'fid': 15, 'iid': 7, 'rep': 19, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 552.1634518399, 'filtered_precision': 552.2269441152}
+{'fid': 16, 'iid': 6, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 43.6415588492, 'filtered_precision': 96.8195454062}
+{'fid': 16, 'iid': 7, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 59.9792566236, 'filtered_precision': 62.9899042474}
+{'fid': 16, 'iid': 6, 'rep': 8, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 95.6275304091, 'filtered_precision': 126.6072623225}
+{'fid': 16, 'iid': 7, 'rep': 8, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 37.4582107428, 'filtered_precision': 76.6806818526}
+{'fid': 16, 'iid': 6, 'rep': 9, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 103.3487401767, 'filtered_precision': 171.0043698473}
+{'fid': 16, 'iid': 7, 'rep': 11, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 65.7678075691, 'filtered_precision': 85.0298365157}
+{'fid': 16, 'iid': 6, 'rep': 13, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 113.6255417875, 'filtered_precision': 121.6872845745}
+{'fid': 16, 'iid': 6, 'rep': 18, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 39.5910312296, 'filtered_precision': 90.2539745532}
+{'fid': 16, 'iid': 7, 'rep': 18, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 73.434335393, 'filtered_precision': 108.649914219}
+{'fid': 16, 'iid': 6, 'rep': 19, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 44.8417802013, 'filtered_precision': 61.9562984286}
+{'fid': 17, 'iid': 6, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 98.7743753064, 'filtered_precision': 103.2315305331}
+{'fid': 17, 'iid': 7, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 10.8038930552, 'filtered_precision': 10.8744722171}
+{'fid': 17, 'iid': 6, 'rep': 2, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 11.6252749847, 'filtered_precision': 11.6253374416}
+{'fid': 17, 'iid': 6, 'rep': 3, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 17.8311517092, 'filtered_precision': 17.8978893717}
+{'fid': 17, 'iid': 6, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 13.1156767485, 'filtered_precision': 20.9938767286}
+{'fid': 17, 'iid': 7, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 9.8961091543, 'filtered_precision': 10.7865366046}
+{'fid': 17, 'iid': 7, 'rep': 5, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 21.9400655103, 'filtered_precision': 22.2794555383}
+{'fid': 17, 'iid': 6, 'rep': 6, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 37.7593475387, 'filtered_precision': 40.0073214713}
+{'fid': 17, 'iid': 6, 'rep': 7, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 16.3581035161, 'filtered_precision': 35.5284413352}
+{'fid': 17, 'iid': 7, 'rep': 7, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 11.5660064055, 'filtered_precision': 11.6968175503}
+{'fid': 17, 'iid': 6, 'rep': 8, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 21.0692260368, 'filtered_precision': 21.5196682906}
+{'fid': 17, 'iid': 7, 'rep': 9, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 17.7900747999, 'filtered_precision': 26.5162653502}
+{'fid': 17, 'iid': 7, 'rep': 10, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 12.0161072933, 'filtered_precision': 17.5092015042}
+{'fid': 17, 'iid': 6, 'rep': 12, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 8.0475592263, 'filtered_precision': 8.5026480738}
+{'fid': 17, 'iid': 7, 'rep': 12, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 12.7050133872, 'filtered_precision': 12.863791459}
+{'fid': 17, 'iid': 7, 'rep': 13, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 26.5122535939, 'filtered_precision': 27.1734563034}
+{'fid': 17, 'iid': 7, 'rep': 14, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 17.02910868, 'filtered_precision': 25.1009078379}
+{'fid': 17, 'iid': 6, 'rep': 16, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 28.6149818314, 'filtered_precision': 29.9210613875}
+{'fid': 17, 'iid': 7, 'rep': 18, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 8.6088323586, 'filtered_precision': 8.6495620369}
+{'fid': 17, 'iid': 6, 'rep': 19, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 79.4700066557, 'filtered_precision': 112.3800184342}
+{'fid': 18, 'iid': 6, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 377.9922136902, 'filtered_precision': 378.0509917317}
+{'fid': 18, 'iid': 7, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 48.3383609768, 'filtered_precision': 48.623621131}
+{'fid': 18, 'iid': 7, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 49.8866342328, 'filtered_precision': 134.2689427377}
+{'fid': 18, 'iid': 6, 'rep': 6, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 120.9391987375, 'filtered_precision': 120.957921059}
+{'fid': 18, 'iid': 6, 'rep': 7, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 51.6168170566, 'filtered_precision': 51.8708414745}
+{'fid': 18, 'iid': 6, 'rep': 8, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 65.2917610636, 'filtered_precision': 67.8349327238}
+{'fid': 18, 'iid': 6, 'rep': 9, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 243.5482682265, 'filtered_precision': 244.3338521233}
+{'fid': 18, 'iid': 6, 'rep': 10, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 53.0058634396, 'filtered_precision': 61.6548153455}
+{'fid': 18, 'iid': 7, 'rep': 10, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 48.8502190612, 'filtered_precision': 70.394663931}
+{'fid': 18, 'iid': 6, 'rep': 12, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 71.2573915096, 'filtered_precision': 129.2583720895}
+{'fid': 18, 'iid': 7, 'rep': 13, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 96.4903024573, 'filtered_precision': 96.4938677531}
+{'fid': 18, 'iid': 7, 'rep': 14, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 26.7828413543, 'filtered_precision': 26.785893225}
+{'fid': 18, 'iid': 6, 'rep': 16, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 131.222459681, 'filtered_precision': 144.3958849552}
+{'fid': 18, 'iid': 7, 'rep': 18, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 41.9001202028, 'filtered_precision': 41.9035560511}
+{'fid': 18, 'iid': 6, 'rep': 19, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 321.1122029554, 'filtered_precision': 404.9624020117}
+{'fid': 19, 'iid': 6, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 32.4888522512, 'filtered_precision': 33.910807198}
+{'fid': 19, 'iid': 6, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 67.813167021, 'filtered_precision': 109.6188309505}
+{'fid': 23, 'iid': 6, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 10.0424903959, 'filtered_precision': 21.9261249916}
+{'fid': 23, 'iid': 7, 'rep': 2, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 13.6424130978, 'filtered_precision': 17.296400745}
+{'fid': 23, 'iid': 7, 'rep': 6, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 2.2105703683, 'filtered_precision': 23.3082434047}
+{'fid': 23, 'iid': 7, 'rep': 7, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 5.6782882547, 'filtered_precision': 14.0867093968}
+{'fid': 23, 'iid': 6, 'rep': 10, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 5.3006168843, 'filtered_precision': 8.2446161698}
+{'fid': 23, 'iid': 6, 'rep': 11, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 5.5103077716, 'filtered_precision': 17.0297403379}
+{'fid': 23, 'iid': 6, 'rep': 13, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 5.2717972605, 'filtered_precision': 14.6820818532}
+{'fid': 23, 'iid': 7, 'rep': 14, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 3.5874233088, 'filtered_precision': 25.570059584}
+{'fid': 23, 'iid': 6, 'rep': 18, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 9.454584541, 'filtered_precision': 21.0042976606}
+{'fid': 24, 'iid': 7, 'rep': 1, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 229.3752972723, 'filtered_precision': 251.6811473262}
+{'fid': 24, 'iid': 7, 'rep': 4, 'budget': 20, 'algorithm': 'BFGS', 'unfiltered_precision': 352.2219644756, 'filtered_precision': 413.4359508396}
