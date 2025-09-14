@@ -1,0 +1,22 @@
+[INFO][abstract_initial_design.py:139] Using 50 initial design configurations and 0 additional configurations.
+[INFO][abstract_intensifier.py:307] Using only one seed for deterministic scenario.
+[INFO][abstract_intensifier.py:517] Added config 6a05d8 as new incumbent because there are no incumbents yet.
+[INFO][abstract_intensifier.py:596] Added config 328f33 and rejected config 6a05d8 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config b23296 and rejected config 328f33 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 1d98ab and rejected config b23296 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 407c66 and rejected config 1d98ab as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 50 trials.
+[INFO][abstract_intensifier.py:596] Added config 884854 and rejected config 407c66 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 8dd1c8 and rejected config 884854 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 68f5ba and rejected config 8dd1c8 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 4118c7 and rejected config 68f5ba as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config d86e96 and rejected config 4118c7 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][abstract_intensifier.py:596] Added config 8b72c5 and rejected config d86e96 as incumbent because it is not better than the incumbents on 1 instances: 
+[INFO][smbo.py:327] Finished 100 trials.
+[INFO][smbo.py:327] Finished 150 trials.
+[INFO][smbo.py:327] Finished 200 trials.
+[INFO][smbo.py:335] Configuration budget is exhausted:
+[INFO][smbo.py:336] --- Remaining wallclock time: inf
+[INFO][smbo.py:337] --- Remaining cpu time: inf
+[INFO][smbo.py:338] --- Remaining trials: 0
+Best model for budget 650 saved.
